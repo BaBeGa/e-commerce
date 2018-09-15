@@ -84,12 +84,13 @@ public class ProductEntity {
                 Objects.equals(nameProduct, that.nameProduct) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(condition, that.condition) &&
-                Objects.equals(createdAt, that.createdAt);
+                Objects.equals(createdAt, that.createdAt) &&
+                Objects.equals(productPicEntityList, that.productPicEntityList);
     }
 
 
     @Override
     public int hashCode() {
-        return Objects.hash(idProduct, nameProduct, description, condition, createdAt);
+        return Objects.hash(idProduct, nameProduct, description, condition, createdAt, productPicEntityList);
     }
 }

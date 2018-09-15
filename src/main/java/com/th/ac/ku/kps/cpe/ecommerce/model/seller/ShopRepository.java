@@ -4,6 +4,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepository extends CrudRepository<ProductEntity , Integer> {
-
+public interface ShopRepository extends CrudRepository<ShopEntity , Integer> {
+    ShopEntity save(ShopEntity shopEntity);
 }
