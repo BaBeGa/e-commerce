@@ -3,6 +3,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.controller;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.BuyerRestRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.BuyerRestResponse;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
