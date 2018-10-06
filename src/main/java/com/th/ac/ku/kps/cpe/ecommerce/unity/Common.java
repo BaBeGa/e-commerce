@@ -32,4 +32,15 @@ public class Common {
         }
         LOGGER.info(str);
     }
+
+    public static void LoggerInfo(String string , Object object) {
+        ObjectMapper obj = new ObjectMapper();
+        String str = string;
+        try {
+            str += obj.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        LOGGER.info(str);
+    }
 }

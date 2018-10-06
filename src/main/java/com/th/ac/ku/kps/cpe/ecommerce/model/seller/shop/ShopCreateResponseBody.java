@@ -1,4 +1,4 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;

@@ -1,10 +1,9 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "product_pic", schema = "mydb")

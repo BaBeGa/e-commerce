@@ -1,10 +1,5 @@
 package com.th.ac.ku.kps.cpe.ecommerce;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.BuyerRestRequest;
-import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequest;
-import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequestBody;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,30 +14,30 @@ public class ProjectApplicationTests {
     private static final Logger LOGGER = Logger.getLogger(ProjectApplicationTests.class.getName());
     @Test
     public void TrackingTest() {
-        TrackingRestRequest tracking = new TrackingRestRequest();
-        TrackingRestRequestBody body = new TrackingRestRequestBody();
-        body.setSlug("thailand-post");
-        body.setTracking_number("EV123456789TH");
-        tracking.setTracking(body);
-        ObjectMapper obj = new ObjectMapper();
-        try {
-            String jsonString = obj.writeValueAsString(tracking);
-            LOGGER.info("REQUEST : " + jsonString);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+//        TrackingRestRequest tracking = new TrackingRestRequest();
+//        TrackingRestRequestBody body = new TrackingRestRequestBody();
+//        body.setSlug("thailand-post");
+//        body.setTracking_number("EV123456789TH");
+//        tracking.setTracking(body);
+//        ObjectMapper obj = new ObjectMapper();
+//        try {
+//            String jsonString = obj.writeValueAsString(tracking);
+//            LOGGER.info("REQUEST : " + jsonString);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
     }
-    @Test
-    public void BuyerTest() {
-        BuyerRestRequest buyerRestRequest = new BuyerRestRequest();
-        buyerRestRequest.setId("1");
-        buyerRestRequest.setName("Piyachok");
-        ObjectMapper obj = new ObjectMapper();
-        try {
-            String jsonString = obj.writeValueAsString(buyerRestRequest);
-            LOGGER.info("REQUEST : " + jsonString);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    public void BuyerTest() {
+//        BuyerRestRequest buyerRestRequest = new BuyerRestRequest();
+//        buyerRestRequest.setId("1");
+//        buyerRestRequest.setName("Piyachok");
+//        ObjectMapper obj = new ObjectMapper();
+//        try {
+//            String jsonString = obj.writeValueAsString(buyerRestRequest);
+//            LOGGER.info("REQUEST : " + jsonString);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

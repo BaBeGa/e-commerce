@@ -25,6 +25,7 @@ public class UserEntity {
     private UserPermission permission;
     private UserStatus status;
     private Timestamp createdAt;
+    private String token;
 
     @Id
     @Column(name = "id_user")
@@ -98,6 +99,7 @@ public class UserEntity {
 
     @Basic
     @Column(name = "sex")
+    @Enumerated(EnumType.STRING)
     public Sex getSex() {
         return sex;
     }
@@ -128,6 +130,7 @@ public class UserEntity {
 
     @Basic
     @Column(name = "permission")
+    @Enumerated(EnumType.STRING)
     public UserPermission getPermission() {
         return permission;
     }
@@ -138,6 +141,7 @@ public class UserEntity {
 
     @Basic
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     public UserStatus getStatus() {
         return status;
     }
@@ -154,6 +158,16 @@ public class UserEntity {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Basic
+    @Column(name = "token")
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override
@@ -173,11 +187,12 @@ public class UserEntity {
                 Objects.equals(picProfile, that.picProfile) &&
                 Objects.equals(permission, that.permission) &&
                 Objects.equals(status, that.status) &&
-                Objects.equals(createdAt, that.createdAt);
+                Objects.equals(createdAt, that.createdAt) &&
+                Objects.equals(token, that.token);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idUser, username, password, name, sername, phone, email, sex, dob, picProfile, permission, status, createdAt);
+        return Objects.hash(idUser, username, password, name, sername, phone, email, sex, dob, picProfile, permission, status, createdAt, token);
     }
 }

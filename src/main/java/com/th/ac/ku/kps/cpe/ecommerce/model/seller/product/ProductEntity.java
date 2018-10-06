@@ -1,6 +1,8 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -11,11 +13,14 @@ import java.util.Set;
 @Table(name = "product", schema = "mydb")
 public class ProductEntity {
     private int idProduct;
+    private CatagoryEntity catagory;
     private String nameProduct;
     private String description;
     private String condition;
     private Timestamp createdAt;
-    private Set<ProductPicEntity> productPicEntityList;
+    private Set<ProductPicEntity> productPicEntitySet;
+    private Set<ProductVariationEntity> productVariationEntitySet;
+
 
     @Id
     @Column(name = "id_product")
@@ -26,6 +31,18 @@ public class ProductEntity {
     public void setIdProduct(int idProduct) {
         this.idProduct = idProduct;
     }
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "catagory")
+    public CatagoryEntity getCatagory() {
+        return catagory;
+    }
+
+    public void setCatagory(CatagoryEntity catagory) {
+        this.catagory = catagory;
+    }
+
 
     @Basic
     @Column(name = "name_product")
@@ -68,13 +85,25 @@ public class ProductEntity {
     }
 
     @OneToMany(mappedBy = "productEntitySet", fetch = FetchType.LAZY)
-    public Set<ProductPicEntity> getProductPicEntityList() {
-        return productPicEntityList;
+    public Set<ProductPicEntity> getProductPicEntitySet() {
+        return productPicEntitySet;
     }
 
-    public void setProductPicEntityList(Set<ProductPicEntity> productPicEntityList) {
-        this.productPicEntityList = productPicEntityList;
+    public void setProductPicEntitySet(Set<ProductPicEntity> productPicEntitySet) {
+        this.productPicEntitySet = productPicEntitySet;
     }
+
+    @OneToMany(mappedBy = "productEntityOfVariationSet", fetch = FetchType.LAZY)
+    public Set<ProductVariationEntity> getProductVariationEntitySet() {
+        return productVariationEntitySet;
+    }
+
+    public void setProductVariationEntitySet(Set<ProductVariationEntity> productVariationEntitySet) {
+        this.productVariationEntitySet = productVariationEntitySet;
+    }
+
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -85,12 +114,12 @@ public class ProductEntity {
                 Objects.equals(description, that.description) &&
                 Objects.equals(condition, that.condition) &&
                 Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(productPicEntityList, that.productPicEntityList);
+                Objects.equals(productPicEntitySet, that.productPicEntitySet) &&
+                Objects.equals(productVariationEntitySet, that.productVariationEntitySet);
     }
-
 
     @Override
     public int hashCode() {
-        return Objects.hash(idProduct, nameProduct, description, condition, createdAt, productPicEntityList);
+        return Objects.hash(idProduct, nameProduct, description, condition, createdAt, productPicEntitySet);
     }
 }
