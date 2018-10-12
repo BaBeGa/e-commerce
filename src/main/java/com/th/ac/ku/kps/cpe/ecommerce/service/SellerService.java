@@ -2,7 +2,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.ProductReadAllResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.ProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopUpdateRequest;
@@ -15,5 +15,6 @@ public interface SellerService {
     ShopUpdateResponse shopUpdateResponse(ShopUpdateRequest restRequest);
     ProductCreateResponse productCreateResponse(ProductCreateRequest restRequest);
     // Start Implement
-    ProductReadAllResponse productReadAllResponse(String token);
+    ProductReadResponse productReadAllResponse(String token);
+    ProductReadResponse productReadResponse(String token,int id);
 }

@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "product_variation", schema = "mydb")
+@Table(name = "product_variation", schema = "e-commerce_01")
 public class ProductVariationEntity {
     private ProductEntity productEntityOfVariationSet;
     private int idVariation;

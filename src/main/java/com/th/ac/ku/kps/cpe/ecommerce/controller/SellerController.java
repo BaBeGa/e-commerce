@@ -1,7 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.ProductReadAllResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.ProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
@@ -56,8 +56,15 @@ public class SellerController {
     // ================================ Start Implement ========================================
 
     @GetMapping("/product")
-    public ProductReadAllResponse readAllProduct(@RequestHeader("token") String token) {
+    public ProductReadResponse readAllProduct(@RequestHeader("token") String token) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository);
         return sellerService.productReadAllResponse(token);
+    }
+
+
+    @GetMapping("/product/{id}")
+    public ProductReadResponse readProduct(@RequestHeader("token") String token, @PathVariable("id") int id) {
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository);
+        return sellerService.productReadResponse(token, id);
     }
 }

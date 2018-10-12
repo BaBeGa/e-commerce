@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user", schema = "mydb")
+@Table(name = "user", schema = "e-commerce_01")
 public class UserEntity {
     private int idUser;
     private String username;

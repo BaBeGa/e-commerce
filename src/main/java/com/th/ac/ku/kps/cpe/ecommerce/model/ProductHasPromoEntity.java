@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "product_has_promo", schema = "mydb")
+@Table(name = "product_has_promo", schema = "e-commerce_01")
 public class ProductHasPromoEntity {
     private ProductEntity productPromoSet;
     private int idProductHasPromo;

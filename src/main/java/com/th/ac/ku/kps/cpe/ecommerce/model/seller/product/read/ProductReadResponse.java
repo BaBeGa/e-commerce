@@ -3,17 +3,17 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ProductReadAllResponse {
-    private ProductReadAllBodyResponse body;
+public class ProductReadResponse {
+    private ProductReadBodyResponse body;
     private int status;
     private String msg;
 
     @JsonGetter
-    public ProductReadAllBodyResponse getBody() {
+    public ProductReadBodyResponse getBody() {
         return body;
     }
     @JsonSetter
-    public void setBody(ProductReadAllBodyResponse body) {
+    public void setBody(ProductReadBodyResponse body) {
         this.body = body;
     }
     @JsonGetter

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
 
-    <persistence-unit name="Shop">
+    <persistence-unit name="e-commerce_01">
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.core.UserEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity</class>
-        <class>com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity</class>
         <properties>
-            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/mydb"/>
+            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/e-commerce_01"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
         </properties>
     </persistence-unit>

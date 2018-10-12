@@ -5,15 +5,15 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.List;
 
-public class ProductReadAllBodyResponse {
-    private List<ProductReadAllProductBodyResponse> product;
+public class ProductReadBodyResponse {
+    private List<ProductReadProductBodyResponse> product;
 
     @JsonGetter
-    public List<ProductReadAllProductBodyResponse> getProduct() {
+    public List<ProductReadProductBodyResponse> getProduct() {
         return product;
     }
     @JsonSetter
-    public void setProduct(List<ProductReadAllProductBodyResponse> product) {
+    public void setProduct(List<ProductReadProductBodyResponse> product) {
         this.product = product;
     }
 }

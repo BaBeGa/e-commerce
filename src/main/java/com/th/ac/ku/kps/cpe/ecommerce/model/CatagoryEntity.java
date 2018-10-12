@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "catagory", schema = "mydb")
+@Table(name = "catagory", schema = "e-commerce_01")
 public class CatagoryEntity {
     private int idCatagory;
     private String nameCatagory;

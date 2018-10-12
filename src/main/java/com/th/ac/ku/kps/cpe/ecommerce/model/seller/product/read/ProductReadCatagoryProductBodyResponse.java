@@ -3,7 +3,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ProductReadAllCatagoryProductBodyResponse {
+public class ProductReadCatagoryProductBodyResponse {
     private int id_category;
     private String name_category;
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.sql.Timestamp;
 
-public class ProductReadAllPromotionVariationProductBodyResponse {
+public class ProductReadPromotionVariationProductBodyResponse {
     private int id_promo_type;
     private double new_price;
     private Timestamp time_start;

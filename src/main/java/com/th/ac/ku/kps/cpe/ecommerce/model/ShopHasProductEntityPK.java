@@ -1,17 +1,16 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Objects;
 
-@Entity
-@Table(name = "shop_has_product", schema = "e-commerce_01")
-@IdClass(ShopHasProductEntityPK.class)
-public class ShopHasProductEntity {
+public class ShopHasProductEntityPK implements Serializable {
     private int idShop;
     private int idProduct;
 
-    @Id
     @Column(name = "id_shop")
+    @Id
     public int getIdShop() {
         return idShop;
     }
@@ -20,8 +19,8 @@ public class ShopHasProductEntity {
         this.idShop = idShop;
     }
 
-    @Id
     @Column(name = "id_product")
+    @Id
     public int getIdProduct() {
         return idProduct;
     }
@@ -34,7 +33,7 @@ public class ShopHasProductEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ShopHasProductEntity that = (ShopHasProductEntity) o;
+        ShopHasProductEntityPK that = (ShopHasProductEntityPK) o;
         return idShop == that.idShop &&
                 idProduct == that.idProduct;
     }

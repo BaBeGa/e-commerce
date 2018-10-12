@@ -6,15 +6,15 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.sql.Timestamp;
 import java.util.List;
 
-public class ProductReadAllProductBodyResponse {
+public class ProductReadProductBodyResponse {
     private int id_product;
     private String name_product;
     private String description;
-    private ProductReadAllCatagoryProductBodyResponse catagory;
+    private ProductReadCatagoryProductBodyResponse catagory;
     private String condition;
     private Timestamp created_at;
-    private List<ProductReadAllProductpicProductBodyResponse> product_pic;
-    private List<ProductReadAllVariationProductBodyResponse> product_variation;
+    private List<ProductReadProductpicProductBodyResponse> product_pic;
+    private List<ProductReadVariationProductBodyResponse> product_variation;
     @JsonGetter
     public int getId_product() {
         return id_product;
@@ -40,11 +40,11 @@ public class ProductReadAllProductBodyResponse {
         this.description = description;
     }
     @JsonGetter
-    public ProductReadAllCatagoryProductBodyResponse getCatagory() {
+    public ProductReadCatagoryProductBodyResponse getCatagory() {
         return catagory;
     }
     @JsonSetter
-    public void setCatagory(ProductReadAllCatagoryProductBodyResponse catagory) {
+    public void setCatagory(ProductReadCatagoryProductBodyResponse catagory) {
         this.catagory = catagory;
     }
     @JsonGetter
@@ -64,19 +64,19 @@ public class ProductReadAllProductBodyResponse {
         this.created_at = created_at;
     }
     @JsonGetter
-    public List<ProductReadAllProductpicProductBodyResponse> getProduct_pic() {
+    public List<ProductReadProductpicProductBodyResponse> getProduct_pic() {
         return product_pic;
     }
     @JsonSetter
-    public void setProduct_pic(List<ProductReadAllProductpicProductBodyResponse> product_pic) {
+    public void setProduct_pic(List<ProductReadProductpicProductBodyResponse> product_pic) {
         this.product_pic = product_pic;
     }
     @JsonGetter
-    public List<ProductReadAllVariationProductBodyResponse> getProduct_variation() {
+    public List<ProductReadVariationProductBodyResponse> getProduct_variation() {
         return product_variation;
     }
     @JsonSetter
-    public void setProduct_variation(List<ProductReadAllVariationProductBodyResponse> product_variation) {
+    public void setProduct_variation(List<ProductReadVariationProductBodyResponse> product_variation) {
         this.product_variation = product_variation;
     }
 }

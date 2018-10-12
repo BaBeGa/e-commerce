@@ -1,7 +1,6 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity;
-import com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.core.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
@@ -101,22 +100,23 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public ProductReadAllResponse productReadAllResponse(String token) {
+    public ProductReadResponse productReadAllResponse(String token) {
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
         List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
         List<ShopHasProductEntity> shopHasProduct = (List<ShopHasProductEntity>) shopHasProductRepository.findAllByIdShop(Collections.singleton(shop.get(0).getIdShop()));
-
-        ProductReadAllResponse response = new ProductReadAllResponse();
-        ProductReadAllBodyResponse bodyResponse = new ProductReadAllBodyResponse();
-        List<ProductReadAllProductBodyResponse> productBodyResponseList = new ArrayList<>();
+        Common.LoggerInfo(shopHasProduct);
+        ProductReadResponse response = new ProductReadResponse();
+        ProductReadBodyResponse bodyResponse = new ProductReadBodyResponse();
+        List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
         for (int i = 0; i < shopHasProduct.size(); i++) {
             List<ProductEntity> product = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(shopHasProduct.get(i).getIdProduct()));
             List<CatagoryEntity> catagory = (List<CatagoryEntity>) catagoryRepository.findAllByIdCatagory(Collections.singleton(product.get(0).getCatagory().getIdCatagory()));
-            ProductReadAllProductBodyResponse productBodyResponse = new ProductReadAllProductBodyResponse();
+
+            ProductReadProductBodyResponse productBodyResponse = new ProductReadProductBodyResponse();
             productBodyResponse.setId_product(product.get(0).getIdProduct());
             productBodyResponse.setName_product(product.get(0).getNameProduct());
             productBodyResponse.setDescription(product.get(0).getDescription());
-            ProductReadAllCatagoryProductBodyResponse catagoryProductBodyResponse = new ProductReadAllCatagoryProductBodyResponse();
+            ProductReadCatagoryProductBodyResponse catagoryProductBodyResponse = new ProductReadCatagoryProductBodyResponse();
             catagoryProductBodyResponse.setId_category(catagory.get(0).getIdCatagory());
             catagoryProductBodyResponse.setName_category(catagory.get(0).getNameCatagory());
             productBodyResponse.setCatagory(catagoryProductBodyResponse);
@@ -124,25 +124,25 @@ public class SellerServiceImpl implements SellerService{
             productBodyResponse.setCreated_at(product.get(0).getCreatedAt());
 
             List<ProductPicEntity> productPicEntityList = new ArrayList<>(product.get(0).getProductPicEntitySet());
-            List<ProductReadAllProductpicProductBodyResponse> productpicProductBodyResponseList = new ArrayList<>();
+            List<ProductReadProductpicProductBodyResponse> productpicProductBodyResponseList = new ArrayList<>();
             for (int j = 0; j < product.get(0).getProductPicEntitySet().size(); j++) {
-                ProductReadAllProductpicProductBodyResponse productpicProductBodyResponse = new ProductReadAllProductpicProductBodyResponse();
+                ProductReadProductpicProductBodyResponse productpicProductBodyResponse = new ProductReadProductpicProductBodyResponse();
                 productpicProductBodyResponse.setPic_product(productPicEntityList.get(j).getPicProduct());
                 productpicProductBodyResponseList.add(productpicProductBodyResponse);
             }
             productBodyResponse.setProduct_pic(productpicProductBodyResponseList);
 
             List<ProductVariationEntity> productVariationEntityList = new ArrayList<>(product.get(0).getProductVariationEntitySet());
-            List<ProductReadAllVariationProductBodyResponse> variationProductBodyResponseList = new ArrayList<>();
+            List<ProductReadVariationProductBodyResponse> variationProductBodyResponseList = new ArrayList<>();
             for (int j = 0; j < product.get(0).getProductVariationEntitySet().size(); j++) {
-                ProductReadAllVariationProductBodyResponse variationProductBodyResponse = new ProductReadAllVariationProductBodyResponse();
+                ProductReadVariationProductBodyResponse variationProductBodyResponse = new ProductReadVariationProductBodyResponse();
                 variationProductBodyResponse.setId_variation(productVariationEntityList.get(j).getIdVariation());
                 variationProductBodyResponse.setName(productVariationEntityList.get(j).getName());
                 variationProductBodyResponse.setPrice(productVariationEntityList.get(j).getPrice());
                 variationProductBodyResponse.setStock(productVariationEntityList.get(j).getStock());
 
                 if (productVariationEntityList.get(j).getProductHasPromoEntitySet() != null) {
-                    ProductReadAllPromotionVariationProductBodyResponse promotionVariationProductBodyResponse = new ProductReadAllPromotionVariationProductBodyResponse();
+                    ProductReadPromotionVariationProductBodyResponse promotionVariationProductBodyResponse = new ProductReadPromotionVariationProductBodyResponse();
                     promotionVariationProductBodyResponse.setId_promo_type(productVariationEntityList.get(j).getProductHasPromoEntitySet().getIdPromoType());
                     promotionVariationProductBodyResponse.setNew_price(productVariationEntityList.get(j).getProductHasPromoEntitySet().getNewPrice());
                     promotionVariationProductBodyResponse.setTime_start(productVariationEntityList.get(j).getProductHasPromoEntitySet().getTimeStart());
@@ -159,5 +159,71 @@ public class SellerServiceImpl implements SellerService{
         response.setStatus(200);
         response.setMsg("successful");
         return response;
+    }
+
+    @Override
+    public ProductReadResponse productReadResponse(String token, int id_product) {
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        List<ShopHasProductEntity> shopHasProduct = (List<ShopHasProductEntity>) shopHasProductRepository.findAllByIdShop(Collections.singleton(shop.get(0).getIdShop()));
+        Common.LoggerInfo(shopHasProduct);
+        for(int i = 0; i < shopHasProduct.size(); i++) {
+            if (shopHasProduct.get(i).getIdProduct() == id_product) {
+                List<ProductEntity> product = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(shopHasProduct.get(i).getIdProduct()));
+                Common.LoggerInfo(product);
+                ProductReadResponse response = new ProductReadResponse();
+                ProductReadBodyResponse bodyResponse = new ProductReadBodyResponse();
+
+                List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
+                List<CatagoryEntity> catagory = (List<CatagoryEntity>) catagoryRepository.findAllByIdCatagory(Collections.singleton(product.get(0).getCatagory().getIdCatagory()));
+                ProductReadProductBodyResponse productBodyResponse = new ProductReadProductBodyResponse();
+                productBodyResponse.setId_product(product.get(0).getIdProduct());
+                productBodyResponse.setName_product(product.get(0).getNameProduct());
+                productBodyResponse.setDescription(product.get(0).getDescription());
+                ProductReadCatagoryProductBodyResponse catagoryProductBodyResponse = new ProductReadCatagoryProductBodyResponse();
+                catagoryProductBodyResponse.setId_category(catagory.get(0).getIdCatagory());
+                catagoryProductBodyResponse.setName_category(catagory.get(0).getNameCatagory());
+                productBodyResponse.setCatagory(catagoryProductBodyResponse);
+                productBodyResponse.setCondition(product.get(0).getCondition());
+                productBodyResponse.setCreated_at(product.get(0).getCreatedAt());
+
+                List<ProductPicEntity> productPicEntityList = new ArrayList<>(product.get(0).getProductPicEntitySet());
+                List<ProductReadProductpicProductBodyResponse> productpicProductBodyResponseList = new ArrayList<>();
+                for (int j = 0; j < product.get(0).getProductPicEntitySet().size(); j++) {
+                    ProductReadProductpicProductBodyResponse productpicProductBodyResponse = new ProductReadProductpicProductBodyResponse();
+                    productpicProductBodyResponse.setPic_product(productPicEntityList.get(j).getPicProduct());
+                    productpicProductBodyResponseList.add(productpicProductBodyResponse);
+                }
+                productBodyResponse.setProduct_pic(productpicProductBodyResponseList);
+
+                List<ProductVariationEntity> productVariationEntityList = new ArrayList<>(product.get(0).getProductVariationEntitySet());
+                List<ProductReadVariationProductBodyResponse> variationProductBodyResponseList = new ArrayList<>();
+                for (int j = 0; j < product.get(0).getProductVariationEntitySet().size(); j++) {
+                    ProductReadVariationProductBodyResponse variationProductBodyResponse = new ProductReadVariationProductBodyResponse();
+                    variationProductBodyResponse.setId_variation(productVariationEntityList.get(j).getIdVariation());
+                    variationProductBodyResponse.setName(productVariationEntityList.get(j).getName());
+                    variationProductBodyResponse.setPrice(productVariationEntityList.get(j).getPrice());
+                    variationProductBodyResponse.setStock(productVariationEntityList.get(j).getStock());
+
+                    if (productVariationEntityList.get(j).getProductHasPromoEntitySet() != null) {
+                        ProductReadPromotionVariationProductBodyResponse promotionVariationProductBodyResponse = new ProductReadPromotionVariationProductBodyResponse();
+                        promotionVariationProductBodyResponse.setId_promo_type(productVariationEntityList.get(j).getProductHasPromoEntitySet().getIdPromoType());
+                        promotionVariationProductBodyResponse.setNew_price(productVariationEntityList.get(j).getProductHasPromoEntitySet().getNewPrice());
+                        promotionVariationProductBodyResponse.setTime_start(productVariationEntityList.get(j).getProductHasPromoEntitySet().getTimeStart());
+                        promotionVariationProductBodyResponse.setTime_end(productVariationEntityList.get(j).getProductHasPromoEntitySet().getTimeEnd());
+                        variationProductBodyResponse.setPromotion(promotionVariationProductBodyResponse);
+                    }
+                    variationProductBodyResponseList.add(variationProductBodyResponse);
+                }
+                productBodyResponse.setProduct_variation(variationProductBodyResponseList);
+                productBodyResponseList.add(productBodyResponse);
+                bodyResponse.setProduct(productBodyResponseList);
+                response.setBody(bodyResponse);
+                response.setStatus(200);
+                response.setMsg("successful");
+                return response;
+            }
+        }
+        return null;
     }
 }

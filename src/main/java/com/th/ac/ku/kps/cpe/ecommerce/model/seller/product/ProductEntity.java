@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "product", schema = "mydb")
+@Table(name = "product", schema = "e-commerce_01")
 public class ProductEntity {
     private int idProduct;
     private CatagoryEntity catagory;

@@ -3,14 +3,12 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import java.util.List;
-
-public class ProductReadAllVariationProductBodyResponse {
+public class ProductReadVariationProductBodyResponse {
     private int id_variation;
     private String name;
     private double price;
     private int stock;
-    private ProductReadAllPromotionVariationProductBodyResponse promotion;
+    private ProductReadPromotionVariationProductBodyResponse promotion;
 
     @JsonGetter
     public int getId_variation() {
@@ -45,11 +43,11 @@ public class ProductReadAllVariationProductBodyResponse {
         this.stock = stock;
     }
     @JsonGetter
-    public ProductReadAllPromotionVariationProductBodyResponse getPromotion() {
+    public ProductReadPromotionVariationProductBodyResponse getPromotion() {
         return promotion;
     }
     @JsonSetter
-    public void setPromotion(ProductReadAllPromotionVariationProductBodyResponse promotion) {
+    public void setPromotion(ProductReadPromotionVariationProductBodyResponse promotion) {
         this.promotion = promotion;
     }
 }

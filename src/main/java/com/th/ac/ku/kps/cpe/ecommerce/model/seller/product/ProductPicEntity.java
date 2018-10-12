@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "product_pic", schema = "mydb")
+@Table(name = "product_pic", schema = "e-commerce_01")
 public class ProductPicEntity {
     private ProductEntity productEntitySet;
     private int idProductPic;
