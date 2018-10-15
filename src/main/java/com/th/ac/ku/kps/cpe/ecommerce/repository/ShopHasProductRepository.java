@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ShopHasProductRepository extends CrudRepository<ShopHasProductEntity,Integer> {
     Iterable<ShopHasProductEntity> findAllByIdShop(Iterable<Integer> iterable);
+    void deleteByIdProduct(int id);
 }

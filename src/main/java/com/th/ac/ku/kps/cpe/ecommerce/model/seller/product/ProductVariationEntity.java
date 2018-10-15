@@ -7,6 +7,9 @@ import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
 
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.CascadeType.PERSIST;
+
 @Entity
 @Table(name = "product_variation", schema = "e-commerce_01")
 public class ProductVariationEntity {
@@ -18,7 +21,7 @@ public class ProductVariationEntity {
     private ProductHasPromoEntity productHasPromoEntitySet;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {PERSIST, MERGE} )
     @JoinColumn(name = "id_product")
     public ProductEntity getProductEntityOfVariationSet() {
         return productEntityOfVariationSet;
@@ -28,6 +31,7 @@ public class ProductVariationEntity {
         this.productEntityOfVariationSet = productEntitySet;
     }
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_variation")
     public int getIdVariation() {
         return idVariation;
@@ -36,6 +40,7 @@ public class ProductVariationEntity {
     public void setIdVariation(int idVariation) {
         this.idVariation = idVariation;
     }
+
 
     @Basic
     @Column(name = "name")

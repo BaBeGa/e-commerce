@@ -2,7 +2,6 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity;
-import com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -13,7 +12,8 @@ import java.util.Set;
 @Table(name = "product", schema = "e-commerce_01")
 public class ProductEntity {
     private int idProduct;
-    private CatagoryEntity catagory;
+    private CatagoryEntity catagorySet;
+    private int catagory;
     private String nameProduct;
     private String description;
     private String condition;
@@ -34,15 +34,24 @@ public class ProductEntity {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "catagory")
-    public CatagoryEntity getCatagory() {
+    @JoinColumn(name = "catagory" , insertable = false,updatable = false)
+    public CatagoryEntity getCatagorySet() {
+        return catagorySet;
+    }
+
+    public void setCatagorySet(CatagoryEntity catagory) {
+        this.catagorySet = catagory;
+    }
+
+    @Basic
+    @Column(name = "catagory")
+    public int getCatagory() {
         return catagory;
     }
 
-    public void setCatagory(CatagoryEntity catagory) {
+    public void setCatagory(int catagory) {
         this.catagory = catagory;
     }
-
 
     @Basic
     @Column(name = "name_product")

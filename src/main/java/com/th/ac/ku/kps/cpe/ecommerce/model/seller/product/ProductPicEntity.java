@@ -10,11 +10,12 @@ import java.util.Objects;
 public class ProductPicEntity {
     private ProductEntity productEntitySet;
     private int idProductPic;
+    private Integer idProduct;
     private String picProduct;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_product")
+    @JoinColumn(name = "id_product", insertable = false, updatable = false)
     public ProductEntity getProductEntitySet() {
         return productEntitySet;
     }
@@ -22,7 +23,6 @@ public class ProductPicEntity {
     public void setProductEntitySet(ProductEntity productEntitySet) {
         this.productEntitySet = productEntitySet;
     }
-
     @Id
     @Column(name = "id_product_pic")
     public int getIdProductPic() {
@@ -31,6 +31,16 @@ public class ProductPicEntity {
 
     public void setIdProductPic(int idProductPic) {
         this.idProductPic = idProductPic;
+    }
+
+    @Basic
+    @Column(name = "id_product")
+    public Integer getIdProduct() {
+        return idProduct;
+    }
+
+    public void setIdProduct(Integer idProduct) {
+        this.idProduct = idProduct;
     }
 
     @Basic

@@ -1,11 +1,16 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.core.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.*;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -27,18 +33,24 @@ public class SellerServiceImpl implements SellerService{
     private final UserRepository userRepository;
     private final ShopHasProductRepository shopHasProductRepository;
     private final CatagoryRepository catagoryRepository;
+    private final ProductVariationRepository productVariationRepository;
+    private final ProductPicRepository productPicRepository;
+    private final ProductHasPromoRepository productHasPromoRepository;
 
     @Autowired
     public SellerServiceImpl(ShopRepository shopRepository,
                              ProductRepository productRepository,
                              UserRepository userRepository,
                              ShopHasProductRepository shopHasProductRepository,
-                             CatagoryRepository catagoryRepository) {
+                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository) {
         this.shopRepository = shopRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.shopHasProductRepository = shopHasProductRepository;
         this.catagoryRepository = catagoryRepository;
+        this.productVariationRepository = productVariationRepository;
+        this.productPicRepository = productPicRepository;
+        this.productHasPromoRepository = productHasPromoRepository;
     }
 
     @Override
@@ -76,27 +88,60 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public ProductCreateResponse productCreateResponse(ProductCreateRequest restRequest) {
-        ProductEntity productEntity = new ProductEntity();
-//        productEntity.setCatagory(restRequest.getBody().getCatagory());
-        productEntity.setNameProduct(restRequest.getBody().getName_product());
-        productEntity.setDescription(restRequest.getBody().getDescription());
-        productEntity.setCondition(restRequest.getBody().getCondition());
+    public ProductCreateResponse productCreateResponse(String token,ProductCreateRequest restRequest) {
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        Common.LoggerInfo(shop);
+        ShopHasProductEntity shopHasProductEntity = new ShopHasProductEntity();
+
+        ProductCreateResponse response = new ProductCreateResponse();
+        ProductEntity productEntity;
         Date date = new Date();
         Timestamp timeNow = new Timestamp(date.getTime());
-        productEntity.setCreatedAt(timeNow);
+        if(restRequest.getBody().getProduct_variation() != null) {
+            try {
 
-        ProductPicEntity productPicEntity = new ProductPicEntity();
-        productPicEntity.setPicProduct(restRequest.getBody().getProduct_pic().getPic_product());
+                productRepository.save(restRequest.getBody().getCatagory(),
+                        restRequest.getBody().getName_product(),
+                        restRequest.getBody().getDescription(),
+                        restRequest.getBody().getCondition(),
+                        timeNow);
+                productEntity = productRepository.getLastId();
+                shopHasProductEntity.setIdProduct(productEntity.getIdProduct());
+                shopHasProductEntity.setIdShop(shop.get(0).getIdShop());
+                shopHasProductRepository.save(shopHasProductEntity);
 
-        ProductVariationEntity productVariationEntity = new ProductVariationEntity();
-        productVariationEntity.setName(restRequest.getBody().getProduct_variation().getName());
-        productVariationEntity.setPrice(restRequest.getBody().getProduct_variation().getPrice());
-//        try {
-//            productRepository.save(productEntity);
-//        }
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.setStatus(406);
+                response.setMsg("Can't save product");
+                return response;
+            }
 
-        return null;
+            for (int i = 0; i < restRequest.getBody().getProduct_variation().size(); i++) {
+                ProductVariationEntity productVariationEntity = new ProductVariationEntity();
+                productVariationEntity.setProductEntityOfVariationSet(productEntity);
+                productVariationEntity.setName(restRequest.getBody().getProduct_variation().get(i).getName());
+                productVariationEntity.setPrice(restRequest.getBody().getProduct_variation().get(i).getPrice());
+                productVariationEntity.setStock(restRequest.getBody().getProduct_variation().get(i).getStock());
+                try {
+                    productVariationRepository.save(productVariationEntity);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    response.setStatus(406);
+                    response.setMsg("Can't save variation");
+                    return response;
+                }
+            }
+            response.setStatus(201);
+            response.setMsg("Created Product And Product variation");
+        }
+        else  {
+            response.setStatus(400);
+            response.setMsg("Product variation has required");
+        }
+        return response;
     }
 
     @Override
@@ -110,7 +155,7 @@ public class SellerServiceImpl implements SellerService{
         List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
         for (int i = 0; i < shopHasProduct.size(); i++) {
             List<ProductEntity> product = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(shopHasProduct.get(i).getIdProduct()));
-            List<CatagoryEntity> catagory = (List<CatagoryEntity>) catagoryRepository.findAllByIdCatagory(Collections.singleton(product.get(0).getCatagory().getIdCatagory()));
+            List<CatagoryEntity> catagory = (List<CatagoryEntity>) catagoryRepository.findAllByIdCatagory(Collections.singleton(product.get(0).getCatagorySet().getIdCatagory()));
 
             ProductReadProductBodyResponse productBodyResponse = new ProductReadProductBodyResponse();
             productBodyResponse.setId_product(product.get(0).getIdProduct());
@@ -175,7 +220,7 @@ public class SellerServiceImpl implements SellerService{
                 ProductReadBodyResponse bodyResponse = new ProductReadBodyResponse();
 
                 List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
-                List<CatagoryEntity> catagory = (List<CatagoryEntity>) catagoryRepository.findAllByIdCatagory(Collections.singleton(product.get(0).getCatagory().getIdCatagory()));
+                List<CatagoryEntity> catagory = (List<CatagoryEntity>) catagoryRepository.findAllByIdCatagory(Collections.singleton(product.get(0).getCatagorySet().getIdCatagory()));
                 ProductReadProductBodyResponse productBodyResponse = new ProductReadProductBodyResponse();
                 productBodyResponse.setId_product(product.get(0).getIdProduct());
                 productBodyResponse.setName_product(product.get(0).getNameProduct());
@@ -226,4 +271,94 @@ public class SellerServiceImpl implements SellerService{
         }
         return null;
     }
+
+    @Override
+    public ProductUpdateResponse productUpdateResponse(String token, ProductUpdateRequest restRequest) {
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        ProductEntity productEntity;
+
+        ProductUpdateResponse response = new ProductUpdateResponse();
+        try {
+            productRepository.update(restRequest.getBody().getId_product(),
+                    restRequest.getBody().getCatagory(),
+                    restRequest.getBody().getName_product(),
+                    restRequest.getBody().getDescription(),
+                    restRequest.getBody().getCondition());
+            List<ProductEntity> product = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(restRequest.getBody().getId_product()));
+            productEntity = product.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(406);
+            response.setMsg("Can't save product");
+            return response;
+        }
+
+        for (int i = 0; i < restRequest.getBody().getProduct_variation().size(); i++) {
+            ProductVariationEntity productVariationEntity = new ProductVariationEntity();
+            productVariationEntity.setIdVariation(restRequest.getBody().getProduct_variation().get(i).getId_variation());
+            productVariationEntity.setProductEntityOfVariationSet(productEntity);
+            productVariationEntity.setName(restRequest.getBody().getProduct_variation().get(i).getName());
+            productVariationEntity.setPrice(restRequest.getBody().getProduct_variation().get(i).getPrice());
+            productVariationEntity.setStock(restRequest.getBody().getProduct_variation().get(i).getStock());
+            try {
+                productVariationRepository.save(productVariationEntity);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                response.setStatus(406);
+                response.setMsg("Can't save variation");
+                return response;
+            }
+        }
+        response.setStatus(201);
+        response.setMsg("Created Product And Product variation");
+
+        return response;
+    }
+
+    @Override
+    public ProductDeleteResponse productDeleteResponse(String token, ProductDeleteRequest restRequest) {
+        ProductDeleteResponse response = new ProductDeleteResponse();
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        List<ProductEntity> product = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(restRequest.getBody().getId_product()));
+        if (product.size() == 0) {
+            response.setStatus(404);
+            response.setMsg("Product not found");
+            return response;
+        }
+        List<ProductVariationEntity> productVariationEntity =  new ArrayList<>(product.get(0).getProductVariationEntitySet());
+        List<ProductPicEntity> productPic = new ArrayList<>(product.get(0).getProductPicEntitySet());
+
+        for (int i = 0; i < productPic.size(); i++) { // Delete File in Drive
+            File file = new File(productPic.get(i).getPicProduct());
+            if(file.exists()){
+                if(file.delete()){
+                    Common.LoggerInfo("File deleted successfully");
+                }else{
+                    Common.LoggerInfo("Fail to delete file");
+                }
+            }
+            productPicRepository.delete(productPic.get(i));
+        }
+        for (int i = 0; i < productVariationEntity.size(); i++) {
+            if (productVariationEntity.get(i).getProductHasPromoEntitySet() != null) {
+                ProductHasPromoEntity productHasPromo = productVariationEntity.get(i).getProductHasPromoEntitySet();
+                productHasPromoRepository.delete(productHasPromo);
+            }
+            productVariationRepository.delete(productVariationEntity.get(i));
+        }
+        ShopHasProductEntity shopHasProduct = new ShopHasProductEntity();
+        shopHasProduct.setIdShop(shop.get(0).getIdShop());
+        shopHasProduct.setIdProduct(restRequest.getBody().getId_product());
+        shopHasProductRepository.delete(shopHasProduct);
+
+        productRepository.delete(product.get(0));
+
+        response.setStatus(200);
+        response.setMsg("Delete Successfully");
+        return response;
+    }
+
 }

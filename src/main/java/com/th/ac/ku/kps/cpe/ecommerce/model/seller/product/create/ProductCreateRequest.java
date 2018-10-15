@@ -5,17 +5,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.common.Header;
 
 public class ProductCreateRequest {
-    private Header header;
     private ProductCreateBodyRequest body;
 
-    @JsonGetter
-    public Header getHeader() {
-        return header;
-    }
-    @JsonSetter
-    public void setHeader(Header header) {
-        this.header = header;
-    }
     @JsonGetter
     public ProductCreateBodyRequest getBody() {
         return body;

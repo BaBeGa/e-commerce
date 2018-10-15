@@ -1,18 +1,26 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.springframework.lang.NonNull;
 
 import java.util.List;
 
-public class ProductCreateBodyRequest {
+public class ProductUpdateBodyRequest {
+    private int id_product;
     private String name_product;
     private String description;
     private int catagory;
     private String condition;
-    private List<ProductCreateBodyVariationRequest> product_variation;
+    private List<ProductUpdateBodyVariationRequest> product_variation;
 
+    @JsonGetter
+    public int getId_product() {
+        return id_product;
+    }
+    @JsonSetter
+    public void setId_product(int id_product) {
+        this.id_product = id_product;
+    }
     @JsonGetter
     public String getName_product() {
         return name_product;
@@ -46,11 +54,11 @@ public class ProductCreateBodyRequest {
         this.condition = condition;
     }
     @JsonGetter
-    public List<ProductCreateBodyVariationRequest> getProduct_variation() {
+    public List<ProductUpdateBodyVariationRequest> getProduct_variation() {
         return product_variation;
     }
     @JsonSetter
-    public void setProduct_variation(List<ProductCreateBodyVariationRequest> product_variation) {
+    public void setProduct_variation(List<ProductUpdateBodyVariationRequest> product_variation) {
         this.product_variation = product_variation;
     }
 }
