@@ -35,7 +35,7 @@ public class CatagoryEntity {
     }
 
     @JsonIgnore
-    @OneToMany(mappedBy = "catagory", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "catagorySet", fetch = FetchType.LAZY)
     public Set<ProductEntity> getProductEntitySet() {
         return productEntitySet;
     }

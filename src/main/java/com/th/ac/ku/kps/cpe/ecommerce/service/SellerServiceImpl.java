@@ -2,6 +2,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.ShipOfShopEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.core.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
@@ -11,6 +12,15 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteR
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadDataBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create.ShipOfShopCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create.ShipOfShopCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
@@ -36,13 +46,14 @@ public class SellerServiceImpl implements SellerService{
     private final ProductVariationRepository productVariationRepository;
     private final ProductPicRepository productPicRepository;
     private final ProductHasPromoRepository productHasPromoRepository;
+    private final ShipOfShopRepository shipofshopRepository;
 
     @Autowired
     public SellerServiceImpl(ShopRepository shopRepository,
                              ProductRepository productRepository,
                              UserRepository userRepository,
                              ShopHasProductRepository shopHasProductRepository,
-                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository) {
+                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ShipOfShopRepository shipofshopRepository) {
         this.shopRepository = shopRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
@@ -51,6 +62,7 @@ public class SellerServiceImpl implements SellerService{
         this.productVariationRepository = productVariationRepository;
         this.productPicRepository = productPicRepository;
         this.productHasPromoRepository = productHasPromoRepository;
+        this.shipofshopRepository = shipofshopRepository;
     }
 
     @Override
@@ -361,4 +373,98 @@ public class SellerServiceImpl implements SellerService{
         return response;
     }
 
+    @Override
+    public ShipOfShopReadResponse shipofshopReadResponse(String token) {
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        List<ShipOfShopEntity> shipofshop = shipofshopRepository.findByIdShop(shop.get(0).getIdShop());
+        Common.LoggerInfo(shipofshop);
+        ShipOfShopReadResponse response = new ShipOfShopReadResponse();
+        ShipOfShopReadBodyResponse bodyResponse = new ShipOfShopReadBodyResponse();
+        List<ShipOfShopReadDataBodyResponse> dataList = new ArrayList<>();
+        for (int i = 0; i < shipofshop.size(); i++) {
+            ShipOfShopReadDataBodyResponse data = new ShipOfShopReadDataBodyResponse();
+            data.setId_ship(shipofshop.get(i).getIdShip());
+            data.setId_shop(shipofshop.get(i).getIdShop());
+            data.setId_product(shipofshop.get(i).getIdProduct());
+            data.setId_type(shipofshop.get(i).getIdType());
+            data.setPrice(shipofshop.get(i).getPrice());
+            dataList.add(data);
+        }
+        bodyResponse.setShip_of_shop(dataList);
+        response.setBody(bodyResponse);
+
+        response.setStatus(200);
+        response.setMsg("successful");
+        return response;
+    }
+
+    @Override
+    public ShipOfShopCreateResponse shipofshopCreateResponse(String token, ShipOfShopCreateRequest restRequest){
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        List<ShipOfShopEntity> shipofshop = shipofshopRepository.findByIdShop(shop.get(0).getIdShop());
+        ShipOfShopCreateResponse response = new ShipOfShopCreateResponse();
+        ShipOfShopEntity shipOfShopEntity = new ShipOfShopEntity();
+        shipOfShopEntity.setIdShop(restRequest.getBody().getId_shop());
+        shipOfShopEntity.setIdProduct(restRequest.getBody().getId_product());
+        shipOfShopEntity.setIdType(restRequest.getBody().getId_type());
+        shipOfShopEntity.setPrice(restRequest.getBody().getPrice());
+        try {
+            shipofshopRepository.save(shipOfShopEntity);
+            response.setStatus(201);
+            response.setMsg("Created");
+        }catch (Exception e) {
+            response.setStatus(406);
+            response.setMsg("Have some error");
+        }
+        return response;
+    }
+
+    @Override
+    public ShipOfShopUpdateResponse shipofshopUpdateResponse(String token, ShipOfShopUpdateRequest restRequest) {
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        List<ShipOfShopEntity> shipofshop = shipofshopRepository.findByIdShop(shop.get(0).getIdShop());
+        ShipOfShopUpdateResponse response = new ShipOfShopUpdateResponse();
+        ShipOfShopEntity shipOfShopEntity = new ShipOfShopEntity();
+        shipOfShopEntity.setIdShip(restRequest.getBody().getId_ship());
+        shipOfShopEntity.setIdShop(restRequest.getBody().getId_shop());
+        shipOfShopEntity.setIdProduct(restRequest.getBody().getId_product());
+        shipOfShopEntity.setIdType(restRequest.getBody().getId_type());
+        shipOfShopEntity.setPrice(restRequest.getBody().getPrice());
+        shipofshopRepository.save(shipOfShopEntity);
+
+        try {
+            shipofshopRepository.save(shipOfShopEntity);
+            response.setStatus(200);
+            response.setMsg("Update Success");
+        }catch (Exception e) {
+            response.setStatus(406);
+            response.setMsg("Have some error");
+        }
+
+        return response;
+    }
+
+    @Override
+    public ShipOfShopDeleteResponse shipofshopDeleteResponse(String token, ShipOfShopDeleteRequest restRequest) {
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
+        ShipOfShopDeleteResponse response = new ShipOfShopDeleteResponse();
+        ShipOfShopEntity shipOfShopEntity = new ShipOfShopEntity();
+        shipOfShopEntity.setIdShip(restRequest.getBody().getId_ship());
+
+        try {
+            shipofshopRepository.delete(shipOfShopEntity);
+            response.setStatus(200);
+            response.setMsg("Delete Success");
+        }catch (Exception e) {
+            response.setStatus(204);
+            response.setMsg("No Content");
+        }
+
+
+        return response;
+    }
 }
