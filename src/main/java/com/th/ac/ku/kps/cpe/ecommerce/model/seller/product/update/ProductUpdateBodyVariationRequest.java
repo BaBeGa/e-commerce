@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class ProductUpdateBodyVariationRequest {
-    private int id_variation;
+    private Integer id_variation;
     private String name;
-    private float price;
-    private int stock;
+    private Double price;
+    private Integer stock;
 
     @JsonGetter
-    public int getId_variation() {
+    public Integer getId_variation() {
         return id_variation;
     }
     @JsonSetter
-    public void setId_variation(int id_variation) {
+    public void setId_variation(Integer id_variation) {
         this.id_variation = id_variation;
     }
     @JsonGetter
@@ -26,19 +26,19 @@ public class ProductUpdateBodyVariationRequest {
         this.name = name;
     }
     @JsonGetter
-    public float getPrice() {
+    public Double getPrice() {
         return price;
     }
     @JsonSetter
-    public void setPrice(float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
     @JsonGetter
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
     @JsonSetter
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 }

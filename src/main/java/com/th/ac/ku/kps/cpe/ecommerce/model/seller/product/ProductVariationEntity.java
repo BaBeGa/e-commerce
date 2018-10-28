@@ -14,10 +14,10 @@ import static javax.persistence.CascadeType.PERSIST;
 @Table(name = "product_variation", schema = "e-commerce_01")
 public class ProductVariationEntity {
     private ProductEntity productEntityOfVariationSet;
-    private int idVariation;
+    private Integer idVariation;
     private String name;
-    private double price;
-    private int stock;
+    private Double price;
+    private Integer stock;
     private ProductHasPromoEntity productHasPromoEntitySet;
 
     @JsonIgnore
@@ -33,11 +33,11 @@ public class ProductVariationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_variation")
-    public int getIdVariation() {
+    public Integer getIdVariation() {
         return idVariation;
     }
 
-    public void setIdVariation(int idVariation) {
+    public void setIdVariation(Integer idVariation) {
         this.idVariation = idVariation;
     }
 
@@ -54,21 +54,21 @@ public class ProductVariationEntity {
 
     @Basic
     @Column(name = "price")
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
     @Basic
     @Column(name = "stock")
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 

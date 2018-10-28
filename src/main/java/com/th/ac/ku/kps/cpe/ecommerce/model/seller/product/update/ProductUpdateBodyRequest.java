@@ -6,19 +6,19 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.List;
 
 public class ProductUpdateBodyRequest {
-    private int id_product;
+    private Integer id_product;
     private String name_product;
     private String description;
-    private int catagory;
+    private Integer catagory;
     private String condition;
     private List<ProductUpdateBodyVariationRequest> product_variation;
 
     @JsonGetter
-    public int getId_product() {
+    public Integer getId_product() {
         return id_product;
     }
     @JsonSetter
-    public void setId_product(int id_product) {
+    public void setId_product(Integer id_product) {
         this.id_product = id_product;
     }
     @JsonGetter
@@ -38,11 +38,11 @@ public class ProductUpdateBodyRequest {
         this.description = description;
     }
     @JsonGetter
-    public int getCatagory() {
+    public Integer getCatagory() {
         return catagory;
     }
     @JsonSetter
-    public void setCatagory(int catagory) {
+    public void setCatagory(Integer catagory) {
         this.catagory = catagory;
     }
     @JsonGetter

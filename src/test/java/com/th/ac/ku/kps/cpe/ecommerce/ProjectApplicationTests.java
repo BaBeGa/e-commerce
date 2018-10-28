@@ -27,17 +27,4 @@ public class ProjectApplicationTests {
 //            e.printStackTrace();
 //        }
     }
-//    @Test
-//    public void BuyerTest() {
-//        BuyerRestRequest buyerRestRequest = new BuyerRestRequest();
-//        buyerRestRequest.setId("1");
-//        buyerRestRequest.setName("Piyachok");
-//        ObjectMapper obj = new ObjectMapper();
-//        try {
-//            String jsonString = obj.writeValueAsString(buyerRestRequest);
-//            LOGGER.info("REQUEST : " + jsonString);
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }

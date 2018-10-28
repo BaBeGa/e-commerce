@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class ProductCreateBodyVariationRequest {
     private String name;
-    private float price;
-    private int stock;
+    private Double price;
+    private Integer stock;
 
     @JsonGetter
     public String getName() {
@@ -17,19 +17,19 @@ public class ProductCreateBodyVariationRequest {
         this.name = name;
     }
     @JsonGetter
-    public float getPrice() {
+    public Double getPrice() {
         return price;
     }
     @JsonSetter
-    public void setPrice(float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
     @JsonGetter
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
     @JsonSetter
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 }

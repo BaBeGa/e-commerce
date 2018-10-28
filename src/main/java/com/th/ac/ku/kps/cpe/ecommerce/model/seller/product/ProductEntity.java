@@ -9,11 +9,11 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "product", schema = "e-commerce_01")
+@Table(name = "`product`", schema = "e-commerce_01")
 public class ProductEntity {
-    private int idProduct;
+    private Integer idProduct;
     private CatagoryEntity catagorySet;
-    private int catagory;
+    private Integer catagory;
     private String nameProduct;
     private String description;
     private String condition;
@@ -23,18 +23,18 @@ public class ProductEntity {
 
 
     @Id
-    @Column(name = "id_product")
-    public int getIdProduct() {
+    @Column(name = "`id_product`")
+    public Integer getIdProduct() {
         return idProduct;
     }
 
-    public void setIdProduct(int idProduct) {
+    public void setIdProduct(Integer idProduct) {
         this.idProduct = idProduct;
     }
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "catagory" , insertable = false,updatable = false)
+    @JoinColumn(name = "`catagory`" , insertable = false,updatable = false)
     public CatagoryEntity getCatagorySet() {
         return catagorySet;
     }
@@ -44,17 +44,17 @@ public class ProductEntity {
     }
 
     @Basic
-    @Column(name = "catagory")
-    public int getCatagory() {
+    @Column(name = "`catagory`")
+    public Integer getCatagory() {
         return catagory;
     }
 
-    public void setCatagory(int catagory) {
+    public void setCatagory(Integer catagory) {
         this.catagory = catagory;
     }
 
     @Basic
-    @Column(name = "name_product")
+    @Column(name = "`name_product`")
     public String getNameProduct() {
         return nameProduct;
     }
@@ -64,7 +64,7 @@ public class ProductEntity {
     }
 
     @Basic
-    @Column(name = "description")
+    @Column(name = "`description`")
     public String getDescription() {
         return description;
     }
@@ -74,7 +74,7 @@ public class ProductEntity {
     }
 
     @Basic
-    @Column(name = "condition")
+    @Column(name = "`condition`")
     public String getCondition() {
         return condition;
     }
@@ -84,7 +84,7 @@ public class ProductEntity {
     }
 
     @Basic
-    @Column(name = "created_at")
+    @Column(name = "`created_at`")
     public Timestamp getCreatedAt() {
         return createdAt;
     }

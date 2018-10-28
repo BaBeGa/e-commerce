@@ -9,23 +9,21 @@ import com.th.ac.ku.kps.cpe.ecommerce.service.UploadFileServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
 
 @RestController
-@RequestMapping(path = "/api/ecom")
+@RequestMapping(path = "/ecom/api/eshop")
 public class UploadAndDownloadController {
-    private static final String UPLOAD_FOLDER = "D://upload//";
+    private static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//pic//";
     @Autowired
     private ProductPicRepository productPicRepository;
 
@@ -46,8 +44,6 @@ public class UploadAndDownloadController {
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String filename) throws IOException {
         MediaType mediaType = MediaType.IMAGE_PNG;
-        System.out.println("fileName: " + filename);
-        System.out.println("mediaType: " + mediaType);
 
         File file = new File(UPLOAD_FOLDER + filename);
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));

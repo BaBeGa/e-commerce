@@ -54,6 +54,7 @@ public class ShipOfShopEntity {
 
     @Basic
     @Column(name = "price")
+
     public double getPrice() {
         return price;
     }

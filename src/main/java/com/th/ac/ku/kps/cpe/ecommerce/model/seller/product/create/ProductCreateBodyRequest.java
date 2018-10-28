@@ -9,7 +9,7 @@ import java.util.List;
 public class ProductCreateBodyRequest {
     private String name_product;
     private String description;
-    private int catagory;
+    private Integer catagory;
     private String condition;
     private List<ProductCreateBodyVariationRequest> product_variation;
 
@@ -30,11 +30,11 @@ public class ProductCreateBodyRequest {
         this.description = description;
     }
     @JsonGetter
-    public int getCatagory() {
+    public Integer getCatagory() {
         return catagory;
     }
     @JsonSetter
-    public void setCatagory(int catagory) {
+    public void setCatagory(Integer catagory) {
         this.catagory = catagory;
     }
     @JsonGetter

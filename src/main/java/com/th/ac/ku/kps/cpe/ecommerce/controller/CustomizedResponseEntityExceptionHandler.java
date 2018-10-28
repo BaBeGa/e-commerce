@@ -16,7 +16,7 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 
     @ExceptionHandler(TokenNotFoundException.class)
     public final ResponseEntity<ErrorDetails> handleUserNotFoundException(TokenNotFoundException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(406,ex.getMessage());
+        ErrorDetails errorDetails = new ErrorDetails(401,ex.getMessage());
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_ACCEPTABLE);
     }
 }
