@@ -77,6 +77,10 @@ public class BuyerController implements Serializable {
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/order")
     public OrderDeleteResponse orderDeleteResponse(@RequestHeader (required = false) String token, @RequestBody OrderDeleteRequest restRequest) {
-        return null;
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository);
+        return buyerService.orderDeleteResponse(token, restRequest);
     }
 }

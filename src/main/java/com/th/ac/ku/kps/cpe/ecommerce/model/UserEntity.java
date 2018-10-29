@@ -1,4 +1,4 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.core;
+package com.th.ac.ku.kps.cpe.ecommerce.model;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.Sex;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.UserPermission;

@@ -1,6 +1,5 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;

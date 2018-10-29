@@ -1,8 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.*;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.core.UserEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;
@@ -30,8 +29,6 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.sql.SQLDataException;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
