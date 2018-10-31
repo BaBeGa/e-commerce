@@ -12,7 +12,6 @@ public class OrderUpdateBodyRequest {
     private Integer id_buyer;
     private Timestamp order_created_at;
     private OrderStatus order_status;
-    private Integer id_type_payment;
     private List<OrderUpdateOrderItemBodyRequest> order_item;
 
     @JsonGetter
@@ -53,16 +52,6 @@ public class OrderUpdateBodyRequest {
     @JsonSetter
     public void setOrder_status(OrderStatus order_status) {
         this.order_status = order_status;
-    }
-
-    @JsonGetter
-    public Integer getId_type_payment() {
-        return id_type_payment;
-    }
-
-    @JsonSetter
-    public void setId_type_payment(Integer id_type_payment) {
-        this.id_type_payment = id_type_payment;
     }
 
     @JsonGetter

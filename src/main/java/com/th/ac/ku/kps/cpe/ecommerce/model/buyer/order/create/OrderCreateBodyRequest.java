@@ -8,7 +8,6 @@ import java.util.List;
 
 public class OrderCreateBodyRequest {
     private OrderStatus order_status;
-    private Integer id_type_payment;
     private List<OrderCreateOrderItemBodyRequest> order_item;
 
     @JsonGetter
@@ -21,15 +20,6 @@ public class OrderCreateBodyRequest {
         this.order_status = order_status;
     }
 
-    @JsonGetter
-    public Integer getId_type_payment() {
-        return id_type_payment;
-    }
-
-    @JsonSetter
-    public void setId_type_payment(Integer id_type_payment) {
-        this.id_type_payment = id_type_payment;
-    }
 
     @JsonGetter
     public List<OrderCreateOrderItemBodyRequest> getOrder_item() {

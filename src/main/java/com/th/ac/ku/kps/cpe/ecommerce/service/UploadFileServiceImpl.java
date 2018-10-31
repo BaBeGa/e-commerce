@@ -7,15 +7,17 @@ import com.th.ac.ku.kps.cpe.ecommerce.repository.ProductPicRepository;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
 public class UploadFileServiceImpl implements UploadFileService {
     private final ProductPicRepository productPicRepository;
-
-    public UploadFileServiceImpl(ProductPicRepository productPicRepository) {
+    private final HttpServletRequest request;
+    public UploadFileServiceImpl(ProductPicRepository productPicRepository, HttpServletRequest request) {
         this.productPicRepository = productPicRepository;
+        this.request = request;
     }
 
     @Override
@@ -26,8 +28,15 @@ public class UploadFileServiceImpl implements UploadFileService {
 
         String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
         String filename = new Random().nextInt(999999) + "_" + System.currentTimeMillis();
-        File targetFile = new File(UPLOAD_FOLDER + filename + fileExtension);
+        File targetFile = new File(UPLOAD_FOLDER + "//" + Integer.toString(id_product) + "//" + filename + fileExtension);
         try {
+            File tmpDir = new File(UPLOAD_FOLDER + "//" + Integer.toString(id_product));
+            boolean exists = tmpDir.exists();
+            Common.LoggerInfo(exists);
+            if(!exists)
+            {
+                new File(UPLOAD_FOLDER + "//" + Integer.toString(id_product)).mkdir();
+            }
             file.transferTo(targetFile);
             Common.LoggerInfo(UPLOAD_FOLDER + filename + fileExtension);
             productPicEntity.setIdProduct(id_product);

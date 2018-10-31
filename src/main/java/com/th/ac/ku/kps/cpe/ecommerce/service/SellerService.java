@@ -1,5 +1,9 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;
@@ -35,4 +39,8 @@ public interface SellerService {
     ShipOfShopCreateResponse shipofshopCreateResponse(String token, ShipOfShopCreateRequest restRequest);
     ShipOfShopUpdateResponse shipofshopUpdateResponse(String token, ShipOfShopUpdateRequest restRequest);
     ShipOfShopDeleteResponse shipofshopDeleteResponse(String token, ShipOfShopDeleteRequest restRequest);
+
+    OrderReadResponse readAllOrderForSellerResponse(String token);
+    OrderReadResponse readOrderForSellerResponse(String token, Integer id);
+    OrderUpdateResponse updateOrderForSellerResponse(String token, OrderUpdateRequest restRequest);
 }

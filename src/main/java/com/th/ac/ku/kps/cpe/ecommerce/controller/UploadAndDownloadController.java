@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,9 +24,11 @@ import java.io.IOException;
 @RestController
 @RequestMapping(path = "/ecom/api/eshop")
 public class UploadAndDownloadController {
-    private static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//pic//";
+    private static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//eshop//pic_product//"; // //var//www//html//e-commerce_01//eshop//pic_product//
     @Autowired
     private ProductPicRepository productPicRepository;
+    @Autowired
+    private HttpServletRequest request;
 
     @PostMapping("/upload")
     public UploadFileResponse upload(@RequestHeader (required = false) String token,
@@ -37,15 +40,15 @@ public class UploadAndDownloadController {
         if (id_product == null) {
             throw new TokenNotFoundException("id_product is required");
         }
-        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository);
+        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, request);
         return uploadFileService.uploadResponse(token, id_product, file, UPLOAD_FOLDER);
     }
 
     @GetMapping("/download")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String filename) throws IOException {
+    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String id_product, @RequestParam String filename) throws IOException {
         MediaType mediaType = MediaType.IMAGE_PNG;
 
-        File file = new File(UPLOAD_FOLDER + filename);
+        File file = new File(UPLOAD_FOLDER + "//" + id_product + "//" + filename);
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
         return ResponseEntity.ok()

@@ -2,6 +2,9 @@ package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;
@@ -505,6 +508,21 @@ public class SellerServiceImpl implements SellerService{
 
 
         return response;
+    }
+
+    @Override
+    public OrderReadResponse readAllOrderForSellerResponse(String token) {
+        return null;
+    }
+
+    @Override
+    public OrderReadResponse readOrderForSellerResponse(String token, Integer id) {
+        return null;
+    }
+
+    @Override
+    public OrderUpdateResponse updateOrderForSellerResponse(String token, OrderUpdateRequest restRequest) {
+        return null;
     }
 
 

@@ -65,7 +65,6 @@ public class BuyerServiceImpl implements BuyerService {
             OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
             orderBody.setId_order(anOrder.getIdOrder());
             orderBody.setOrder_item(orderItemBodyList);
-            orderBody.setId_type_payment(anOrder.getIdTypePayment());
             orderBody.setOrder_status(anOrder.getOrderStatus());
             orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
             orderBodyList.add(orderBody);
@@ -111,7 +110,6 @@ public class BuyerServiceImpl implements BuyerService {
             OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
             orderBody.setId_order(anOrder.getIdOrder());
             orderBody.setOrder_item(orderItemBodyList);
-            orderBody.setId_type_payment(anOrder.getIdTypePayment());
             orderBody.setOrder_status(anOrder.getOrderStatus());
             orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
             orderBodyList.add(orderBody);
@@ -135,7 +133,6 @@ public class BuyerServiceImpl implements BuyerService {
         if (orderRepository.findAllByIdBuyerAndOrderStatus(user.get(0).getIdUser(), OrderStatus.ORDERING).isEmpty()) {
             OrderEntity order = new OrderEntity();
             order.setIdBuyer(user.get(0).getIdUser());
-            order.setIdTypePayment(restRequest.getBody().getId_type_payment());
             order.setOrderStatus(restRequest.getBody().getOrder_status());
             Date date = new Date();
             Timestamp timeNow = new Timestamp(date.getTime());
@@ -157,6 +154,7 @@ public class BuyerServiceImpl implements BuyerService {
             } catch (Exception e) {
                 response.setStatus(400);
                 response.setMsg("Unknown error. Can't create order.");
+                return response;
             }
         }
         else {
@@ -194,8 +192,6 @@ public class BuyerServiceImpl implements BuyerService {
             orderEntity.get(0).setIdBuyer(restRequest.getBody().getId_buyer());
         if (restRequest.getBody().getOrder_status() != null)
             orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        if (restRequest.getBody().getId_type_payment() != null)
-            orderEntity.get(0).setIdTypePayment(restRequest.getBody().getId_type_payment());
         try {
             orderRepository.save(orderEntity.get(0));
             if (restRequest.getBody().getOrder_item() != null) {
