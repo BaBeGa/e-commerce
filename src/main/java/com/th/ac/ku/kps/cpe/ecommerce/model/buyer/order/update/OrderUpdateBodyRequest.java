@@ -10,9 +10,9 @@ import java.util.List;
 public class OrderUpdateBodyRequest {
     private Integer id_order;
     private Integer id_buyer;
-    private Timestamp order_created_at;
     private OrderStatus order_status;
     private List<OrderUpdateOrderItemBodyRequest> order_item;
+    private Integer id_address;
 
     @JsonGetter
     public Integer getId_order() {
@@ -35,16 +35,6 @@ public class OrderUpdateBodyRequest {
     }
 
     @JsonGetter
-    public Timestamp getOrder_created_at() {
-        return order_created_at;
-    }
-
-    @JsonSetter
-    public void setOrder_created_at(Timestamp order_created_at) {
-        this.order_created_at = order_created_at;
-    }
-
-    @JsonGetter
     public OrderStatus getOrder_status() {
         return order_status;
     }
@@ -62,5 +52,15 @@ public class OrderUpdateBodyRequest {
     @JsonSetter
     public void setOrder_item(List<OrderUpdateOrderItemBodyRequest> order_item) {
         this.order_item = order_item;
+    }
+
+    @JsonGetter
+    public Integer getId_address() {
+        return id_address;
+    }
+
+    @JsonSetter
+    public void setId_address(Integer id_address) {
+        this.id_address = id_address;
     }
 }

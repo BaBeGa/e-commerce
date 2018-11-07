@@ -13,6 +13,7 @@ public class OrderEntity {
     private int idBuyer;
     private Timestamp orderCreatedAt;
     private OrderStatus orderStatus;
+    private Integer idAddress;
 
     @Id
     @Column(name = "id_order")
@@ -55,6 +56,16 @@ public class OrderEntity {
         this.orderStatus = orderStatus;
     }
 
+    @Basic
+    @Column(name = "id_address")
+    public Integer getIdAddress() {
+        return idAddress;
+    }
+
+    public void setIdAddress(Integer idAddress) {
+        this.idAddress = idAddress;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -63,11 +74,12 @@ public class OrderEntity {
         return idOrder == that.idOrder &&
                 idBuyer == that.idBuyer &&
                 Objects.equals(orderCreatedAt, that.orderCreatedAt) &&
-                Objects.equals(orderStatus, that.orderStatus);
+                orderStatus == that.orderStatus &&
+                Objects.equals(idAddress, that.idAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOrder, idBuyer, orderCreatedAt, orderStatus);
+        return Objects.hash(idOrder, idBuyer, orderCreatedAt, orderStatus, idAddress);
     }
 }

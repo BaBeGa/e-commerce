@@ -5,9 +5,10 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class OrderUpdateOrderItemBodyRequest {
     private Integer id_item;
-    private Integer id_order;
     private Integer id_variation;
     private Integer quantity;
+    private Integer id_ship_of_shop;
+    private String tracking_number;
 
     @JsonGetter
     public Integer getId_item() {
@@ -17,16 +18,6 @@ public class OrderUpdateOrderItemBodyRequest {
     @JsonSetter
     public void setId_item(Integer id_item) {
         this.id_item = id_item;
-    }
-
-    @JsonGetter
-    public Integer getId_order() {
-        return id_order;
-    }
-
-    @JsonSetter
-    public void setId_order(Integer id_order) {
-        this.id_order = id_order;
     }
 
     @JsonGetter
@@ -47,5 +38,25 @@ public class OrderUpdateOrderItemBodyRequest {
     @JsonSetter
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @JsonGetter
+    public Integer getId_ship_of_shop() {
+        return id_ship_of_shop;
+    }
+
+    @JsonSetter
+    public void setId_ship_of_shop(Integer id_ship_of_shop) {
+        this.id_ship_of_shop = id_ship_of_shop;
+    }
+
+    @JsonGetter
+    public String getTracking_number() {
+        return tracking_number;
+    }
+
+    @JsonSetter
+    public void setTracking_number(String tracking_number) {
+        this.tracking_number = tracking_number;
     }
 }

@@ -2,10 +2,12 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.allenum;
 
 public enum OrderStatus {
     ORDERING,
-    PENDING_PAY,
-    VERIFYING,
-    WAITING_DELIVERY,
-    DELIVERING,
+    CHOOSING_ADD,
+    CHOOSING_SHIP,
+    ORDERED,
+    PAY_VERIFY,
+    PAID,
+    SHIPPED,
     COMPLETE,
     CANCEL
 }

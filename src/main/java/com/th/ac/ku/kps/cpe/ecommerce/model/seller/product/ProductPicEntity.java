@@ -8,21 +8,20 @@ import java.util.Objects;
 @Entity
 @Table(name = "product_pic", schema = "e-commerce_01")
 public class ProductPicEntity {
-    private ProductEntity productEntitySet;
     private int idProductPic;
     private Integer idProduct;
     private String picProduct;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_product", insertable = false, updatable = false)
-    public ProductEntity getProductEntitySet() {
-        return productEntitySet;
-    }
-
-    public void setProductEntitySet(ProductEntity productEntitySet) {
-        this.productEntitySet = productEntitySet;
-    }
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "id_product", insertable = false, updatable = false)
+//    public ProductEntity getProductEntitySet() {
+//        return productEntitySet;
+//    }
+//
+//    public void setProductEntitySet(ProductEntity productEntitySet) {
+//        this.productEntitySet = productEntitySet;
+//    }
     @Id
     @Column(name = "id_product_pic")
     public int getIdProductPic() {

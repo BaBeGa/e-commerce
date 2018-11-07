@@ -14,10 +14,8 @@ import java.util.Random;
 
 public class UploadFileServiceImpl implements UploadFileService {
     private final ProductPicRepository productPicRepository;
-    private final HttpServletRequest request;
-    public UploadFileServiceImpl(ProductPicRepository productPicRepository, HttpServletRequest request) {
+    public UploadFileServiceImpl(ProductPicRepository productPicRepository) {
         this.productPicRepository = productPicRepository;
-        this.request = request;
     }
 
     @Override
@@ -40,7 +38,7 @@ public class UploadFileServiceImpl implements UploadFileService {
             file.transferTo(targetFile);
             Common.LoggerInfo(UPLOAD_FOLDER + filename + fileExtension);
             productPicEntity.setIdProduct(id_product);
-            productPicEntity.setPicProduct(UPLOAD_FOLDER + filename + fileExtension);
+            productPicEntity.setPicProduct(filename + fileExtension);
             productPicRepository.save(productPicEntity);
 
             response.setStatus(200);

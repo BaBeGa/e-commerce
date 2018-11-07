@@ -7,26 +7,26 @@ import java.util.Objects;
 @Table(name = "shop_has_product", schema = "e-commerce_01")
 @IdClass(ShopHasProductEntityPK.class)
 public class ShopHasProductEntity {
-    private int idShop;
-    private int idProduct;
+    private Integer idShop;
+    private Integer idProduct;
 
     @Id
     @Column(name = "id_shop")
-    public int getIdShop() {
+    public Integer getIdShop() {
         return idShop;
     }
 
-    public void setIdShop(int idShop) {
+    public void setIdShop(Integer idShop) {
         this.idShop = idShop;
     }
 
     @Id
     @Column(name = "id_product")
-    public int getIdProduct() {
+    public Integer getIdProduct() {
         return idProduct;
     }
 
-    public void setIdProduct(int idProduct) {
+    public void setIdProduct(Integer idProduct) {
         this.idProduct = idProduct;
     }
 
@@ -43,4 +43,7 @@ public class ShopHasProductEntity {
     public int hashCode() {
         return Objects.hash(idShop, idProduct);
     }
+
+
+
 }

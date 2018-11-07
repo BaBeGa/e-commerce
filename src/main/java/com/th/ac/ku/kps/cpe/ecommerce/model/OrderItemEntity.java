@@ -10,6 +10,8 @@ public class OrderItemEntity {
     private Integer idOrder;
     private Integer idVariation;
     private Integer quantity;
+    private Integer idShipOfShop;
+    private String trackingNumber;
 
     @Id
     @Column(name = "id_item")
@@ -52,19 +54,41 @@ public class OrderItemEntity {
         this.quantity = quantity;
     }
 
+    @Basic
+    @Column(name = "id_ship_of_shop")
+    public Integer getIdShipOfShop() {
+        return idShipOfShop;
+    }
+
+    public void setIdShipOfShop(Integer idShipOfShop) {
+        this.idShipOfShop = idShipOfShop;
+    }
+
+    @Basic
+    @Column(name = "tracking_number")
+    public String getTrackingNumber() {
+        return trackingNumber;
+    }
+
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderItemEntity that = (OrderItemEntity) o;
-        return idItem == that.idItem &&
-                idOrder == that.idOrder &&
-                idVariation == that.idVariation &&
-                quantity == that.quantity;
+        return Objects.equals(idItem, that.idItem) &&
+                Objects.equals(idOrder, that.idOrder) &&
+                Objects.equals(idVariation, that.idVariation) &&
+                Objects.equals(quantity, that.quantity) &&
+                Objects.equals(idShipOfShop, that.idShipOfShop) &&
+                Objects.equals(trackingNumber, that.trackingNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idItem, idOrder, idVariation, quantity);
+        return Objects.hash(idItem, idOrder, idVariation, quantity, idShipOfShop, trackingNumber);
     }
 }

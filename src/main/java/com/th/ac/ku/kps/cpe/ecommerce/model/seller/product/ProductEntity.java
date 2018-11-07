@@ -12,14 +12,16 @@ import java.util.Set;
 @Table(name = "`product`", schema = "e-commerce_01")
 public class ProductEntity {
     private Integer idProduct;
-    private CatagoryEntity catagorySet;
+//    private CatagoryEntity catagorySet;
     private Integer catagory;
     private String nameProduct;
     private String description;
     private String condition;
     private Timestamp createdAt;
-    private Set<ProductPicEntity> productPicEntitySet;
-    private Set<ProductVariationEntity> productVariationEntitySet;
+    private Integer count;
+    private Double mean;
+//    private Set<ProductPicEntity> productPicEntitySet;
+//    private Set<ProductVariationEntity> productVariationEntitySet;
 
 
     @Id
@@ -32,16 +34,16 @@ public class ProductEntity {
         this.idProduct = idProduct;
     }
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "`catagory`" , insertable = false,updatable = false)
-    public CatagoryEntity getCatagorySet() {
-        return catagorySet;
-    }
-
-    public void setCatagorySet(CatagoryEntity catagory) {
-        this.catagorySet = catagory;
-    }
+//    @JsonIgnore
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "`catagory`" , insertable = false,updatable = false)
+//    public CatagoryEntity getCatagorySet() {
+//        return catagorySet;
+//    }
+//
+//    public void setCatagorySet(CatagoryEntity catagory) {
+//        this.catagorySet = catagory;
+//    }
 
     @Basic
     @Column(name = "`catagory`")
@@ -93,24 +95,43 @@ public class ProductEntity {
         this.createdAt = createdAt;
     }
 
-    @OneToMany(mappedBy = "productEntitySet", fetch = FetchType.LAZY)
-    public Set<ProductPicEntity> getProductPicEntitySet() {
-        return productPicEntitySet;
+    @Basic
+    @Column(name = "`count`")
+    public Integer getCount() {
+        return count;
     }
 
-    public void setProductPicEntitySet(Set<ProductPicEntity> productPicEntitySet) {
-        this.productPicEntitySet = productPicEntitySet;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 
-    @OneToMany(mappedBy = "productEntityOfVariationSet", fetch = FetchType.LAZY)
-    public Set<ProductVariationEntity> getProductVariationEntitySet() {
-        return productVariationEntitySet;
+    @Basic
+    @Column(name = "`mean`")
+    public Double getMean() {
+        return mean;
     }
 
-    public void setProductVariationEntitySet(Set<ProductVariationEntity> productVariationEntitySet) {
-        this.productVariationEntitySet = productVariationEntitySet;
+    public void setMean(Double mean) {
+        this.mean = mean;
     }
 
+//    @OneToMany(mappedBy = "productEntitySet", fetch = FetchType.LAZY)
+//    public Set<ProductPicEntity> getProductPicEntitySet() {
+//        return productPicEntitySet;
+//    }
+//
+//    public void setProductPicEntitySet(Set<ProductPicEntity> productPicEntitySet) {
+//        this.productPicEntitySet = productPicEntitySet;
+//    }
+//
+//    @OneToMany(mappedBy = "productEntityOfVariationSet", fetch = FetchType.LAZY)
+//    public Set<ProductVariationEntity> getProductVariationEntitySet() {
+//        return productVariationEntitySet;
+//    }
+//
+//    public void setProductVariationEntitySet(Set<ProductVariationEntity> productVariationEntitySet) {
+//        this.productVariationEntitySet = productVariationEntitySet;
+//    }
 
 
     @Override
@@ -118,17 +139,18 @@ public class ProductEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProductEntity that = (ProductEntity) o;
-        return idProduct == that.idProduct &&
+        return Objects.equals(idProduct, that.idProduct) &&
+                Objects.equals(catagory, that.catagory) &&
                 Objects.equals(nameProduct, that.nameProduct) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(condition, that.condition) &&
                 Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(productPicEntitySet, that.productPicEntitySet) &&
-                Objects.equals(productVariationEntitySet, that.productVariationEntitySet);
+                Objects.equals(count, that.count) &&
+                Objects.equals(mean, that.mean);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idProduct, nameProduct, description, condition, createdAt, productPicEntitySet);
+        return Objects.hash(idProduct, catagory, nameProduct, description, condition, createdAt, count, mean);
     }
 }

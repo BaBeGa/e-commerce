@@ -6,26 +6,26 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class ShopHasProductEntityPK implements Serializable {
-    private int idShop;
-    private int idProduct;
+    private Integer idShop;
+    private Integer idProduct;
 
     @Column(name = "id_shop")
     @Id
-    public int getIdShop() {
+    public Integer getIdShop() {
         return idShop;
     }
 
-    public void setIdShop(int idShop) {
+    public void setIdShop(Integer idShop) {
         this.idShop = idShop;
     }
 
     @Column(name = "id_product")
     @Id
-    public int getIdProduct() {
+    public Integer getIdProduct() {
         return idProduct;
     }
 
-    public void setIdProduct(int idProduct) {
+    public void setIdProduct(Integer idProduct) {
         this.idProduct = idProduct;
     }
 

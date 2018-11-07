@@ -12,7 +12,7 @@ import java.util.Set;
 public class CatagoryEntity {
     private int idCatagory;
     private String nameCatagory;
-    private Set<ProductEntity> productEntitySet;
+//    private Set<ProductEntity> productEntitySet;
 
     @Id
     @Column(name = "id_catagory")
@@ -34,15 +34,15 @@ public class CatagoryEntity {
         this.nameCatagory = nameCatagory;
     }
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "catagorySet", fetch = FetchType.LAZY)
-    public Set<ProductEntity> getProductEntitySet() {
-        return productEntitySet;
-    }
-
-    public void setProductEntitySet(Set<ProductEntity> productEntitySet) {
-        this.productEntitySet = productEntitySet;
-    }
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "catagorySet", fetch = FetchType.LAZY)
+//    public Set<ProductEntity> getProductEntitySet() {
+//        return productEntitySet;
+//    }
+//
+//    public void setProductEntitySet(Set<ProductEntity> productEntitySet) {
+//        this.productEntitySet = productEntitySet;
+//    }
 
     @Override
     public boolean equals(Object o) {

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Repository
 public interface ProductRepository extends CrudRepository<ProductEntity, Integer> {
@@ -33,5 +34,5 @@ public interface ProductRepository extends CrudRepository<ProductEntity, Integer
                @Param("description") String description,
                @Param("condition") String condition);
 
-    void deleteByIdProduct(int id_product);
+    ProductEntity findByIdProduct(Integer id_product);
 }

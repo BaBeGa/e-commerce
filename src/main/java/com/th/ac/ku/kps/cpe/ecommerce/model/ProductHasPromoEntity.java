@@ -10,51 +10,50 @@ import java.util.Objects;
 @Entity
 @Table(name = "product_has_promo", schema = "e-commerce_01")
 public class ProductHasPromoEntity {
-    private ProductEntity productPromoSet;
-    private int idProductHasPromo;
-    private int idPromoType;
-    private double newPrice;
+    private Integer idProductHasPromo;
+    private Integer idPromoType;
+    private Integer idProductVariation;
+    private Double newPrice;
     private Timestamp timeStart;
     private Timestamp timeEnd;
 
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_product_variation")
-    public ProductEntity getProductPromoSet() {
-        return productPromoSet;
-    }
-
-    public void setProductPromoSet(ProductEntity productPromoSet) {
-        this.productPromoSet = productPromoSet;
-    }
-
     @Id
     @Column(name = "id_product_has_promo")
-    public int getIdProductHasPromo() {
+    public Integer getIdProductHasPromo() {
         return idProductHasPromo;
     }
 
-    public void setIdProductHasPromo(int idProductHasPromo) {
+    public void setIdProductHasPromo(Integer idProductHasPromo) {
         this.idProductHasPromo = idProductHasPromo;
     }
 
     @Basic
     @Column(name = "id_promo_type")
-    public int getIdPromoType() {
+    public Integer getIdPromoType() {
         return idPromoType;
     }
 
-    public void setIdPromoType(int idPromoType) {
+    public void setIdPromoType(Integer idPromoType) {
         this.idPromoType = idPromoType;
     }
 
     @Basic
+    @Column(name = "id_product_variation")
+    public Integer getIdProductVariation() {
+        return idProductVariation;
+    }
+
+    public void setIdProductVariation(Integer idProductVariation) {
+        this.idProductVariation = idProductVariation;
+    }
+
+    @Basic
     @Column(name = "new_price")
-    public double getNewPrice() {
+    public Double getNewPrice() {
         return newPrice;
     }
 
-    public void setNewPrice(double newPrice) {
+    public void setNewPrice(Double newPrice) {
         this.newPrice = newPrice;
     }
 

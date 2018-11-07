@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,11 +23,9 @@ import java.io.IOException;
 @RestController
 @RequestMapping(path = "/ecom/api/eshop")
 public class UploadAndDownloadController {
-    private static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//eshop//pic_product//"; // //var//www//html//e-commerce_01//eshop//pic_product//
+    public static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//eshop//pic_product//"; // //var//www//html//e-commerce_01//eshop//pic_product//
     @Autowired
     private ProductPicRepository productPicRepository;
-    @Autowired
-    private HttpServletRequest request;
 
     @PostMapping("/upload")
     public UploadFileResponse upload(@RequestHeader (required = false) String token,
@@ -40,7 +37,7 @@ public class UploadAndDownloadController {
         if (id_product == null) {
             throw new TokenNotFoundException("id_product is required");
         }
-        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, request);
+        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository);
         return uploadFileService.uploadResponse(token, id_product, file, UPLOAD_FOLDER);
     }
 

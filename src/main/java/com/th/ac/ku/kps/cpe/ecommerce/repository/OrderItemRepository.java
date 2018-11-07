@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface OrderItemRepository extends CrudRepository<OrderItemEntity, Integer> {
     List<OrderItemEntity> findAllByIdOrder(Integer id_order);
+
 }
