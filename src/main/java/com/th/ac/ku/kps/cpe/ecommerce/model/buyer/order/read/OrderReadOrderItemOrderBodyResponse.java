@@ -7,6 +7,7 @@ public class OrderReadOrderItemOrderBodyResponse {
     private int id_item;
     private int id_variation;
     private int quantity;
+    private Integer id_ship_of_shop;
 
     @JsonGetter
     public int getId_item() {
@@ -36,5 +37,15 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    @JsonGetter
+    public Integer getId_ship_of_shop() {
+        return id_ship_of_shop;
+    }
+
+    @JsonSetter
+    public void setId_ship_of_shop(Integer id_ship_of_shop) {
+        this.id_ship_of_shop = id_ship_of_shop;
     }
 }

@@ -13,6 +13,8 @@ public class OrderReadOrderBodyResponse {
     private Timestamp order_created_at;
     private OrderStatus order_status;
     private List<OrderReadOrderItemOrderBodyResponse> order_item;
+    private OrderReadDeliveryAddressOrderResponse delivery_address;
+    private OrderReadOrderPaymentOrderResponse order_payment;
 
     @JsonGetter
     public Integer getId_order() {
@@ -53,5 +55,25 @@ public class OrderReadOrderBodyResponse {
     @JsonSetter
     public void setOrder_item(List<OrderReadOrderItemOrderBodyResponse> order_item) {
         this.order_item = order_item;
+    }
+
+    @JsonGetter
+    public OrderReadDeliveryAddressOrderResponse getDelivery_address() {
+        return delivery_address;
+    }
+
+    @JsonSetter
+    public void setDelivery_address(OrderReadDeliveryAddressOrderResponse delivery_address) {
+        this.delivery_address = delivery_address;
+    }
+
+    @JsonGetter
+    public OrderReadOrderPaymentOrderResponse getOrder_payment() {
+        return order_payment;
+    }
+
+    @JsonSetter
+    public void setOrder_payment(OrderReadOrderPaymentOrderResponse order_payment) {
+        this.order_payment = order_payment;
     }
 }

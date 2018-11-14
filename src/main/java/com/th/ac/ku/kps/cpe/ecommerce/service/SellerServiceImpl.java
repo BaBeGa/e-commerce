@@ -467,7 +467,7 @@ public class SellerServiceImpl implements SellerService{
             response.setMsg("Created");
         }catch (Exception e) {
             response.setStatus(406);
-            response.setMsg("Have some error");
+            response.setMsg("Have some error. Exception" + e.toString());
         }
         return response;
     }
@@ -526,10 +526,11 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public OrderReadResponse readAllOrderForSellerResponse(String token) {
+
+
         List<OrderItemEntity> orderItem = (List<OrderItemEntity>) orderItemRepository.findAll();
         List<ProductVariationEntity> productVariation = new ArrayList<>();
         for (int i = 0; i < orderItem.size(); i++) {
-
             productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
         }
         List<ProductEntity> product = new ArrayList<>();

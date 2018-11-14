@@ -13,6 +13,7 @@ public class OrderUpdateBodyRequest {
     private OrderStatus order_status;
     private List<OrderUpdateOrderItemBodyRequest> order_item;
     private Integer id_address;
+    private Integer id_type_payment;
 
     @JsonGetter
     public Integer getId_order() {
@@ -62,5 +63,15 @@ public class OrderUpdateBodyRequest {
     @JsonSetter
     public void setId_address(Integer id_address) {
         this.id_address = id_address;
+    }
+
+    @JsonGetter
+    public Integer getId_type_payment() {
+        return id_type_payment;
+    }
+
+    @JsonSetter
+    public void setId_type_payment(Integer id_type_payment) {
+        this.id_type_payment = id_type_payment;
     }
 }

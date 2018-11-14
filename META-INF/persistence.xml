@@ -13,6 +13,8 @@
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.ShipOfShopEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderItemEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderPaymentEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.DeliveryAddressEntity</class>
         <properties>
             <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/e-commerce_01"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
