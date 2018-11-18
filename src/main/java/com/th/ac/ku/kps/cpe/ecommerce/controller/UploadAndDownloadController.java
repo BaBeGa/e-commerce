@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/ecom/api/eshop")
 public class UploadAndDownloadController {
@@ -27,7 +27,7 @@ public class UploadAndDownloadController {
     @Autowired
     private ProductPicRepository productPicRepository;
 
-    @RequestMapping(method = RequestMethod.POST, name = "/upload")
+    @RequestMapping(method = RequestMethod.POST, value = "/upload")
     public UploadFileResponse upload(@RequestHeader (required = false) String token,
                                      @RequestParam("file") MultipartFile file,
                                      @RequestParam(value = "id_product", required = false) Integer id_product) {
@@ -41,7 +41,7 @@ public class UploadAndDownloadController {
         return uploadFileService.uploadResponse(token, id_product, file, UPLOAD_FOLDER);
     }
 
-    @RequestMapping(method = RequestMethod.GET, name = "/download")
+    @RequestMapping(method = RequestMethod.GET, value = "/download")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String id_product, @RequestParam String filename) throws IOException {
         MediaType mediaType = MediaType.IMAGE_PNG;
 

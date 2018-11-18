@@ -1,9 +1,9 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.tracking;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class TrackingRestResponse {
+public class OrderSellerUpdateResponse {
     private Integer status;
     private String msg;
 

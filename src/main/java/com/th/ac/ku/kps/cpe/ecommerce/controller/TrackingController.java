@@ -5,18 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.service.TrackingServiceImpl;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
+@CrossOrigin
 @RestController
 public class TrackingController {
 
     private static final Logger LOGGER = Logger.getLogger(TrackingController.class.getName());
 
-    @PostMapping("/sample")
+    @RequestMapping(method = RequestMethod.POST, value = "/tracking")
     public TrackingRestResponse trackingRestRequest(@RequestBody TrackingRestRequest restRequest) {
         ObjectMapper obj = new ObjectMapper();
         try {

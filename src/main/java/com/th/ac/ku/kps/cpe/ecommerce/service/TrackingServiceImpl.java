@@ -39,8 +39,17 @@ public class TrackingServiceImpl implements TrackingService {
     }
 
     public TrackingRestResponse trackingResponse(TrackingRestRequest restRequest) {
-        HttpPost(restRequest);
-        return null;
+        TrackingRestResponse response = new TrackingRestResponse();
+        try {
+            HttpPost(restRequest);
+            response.setStatus(201);
+            response.setMsg("Created");
+        } catch (Exception e) {
+            response.setStatus(400);
+            response.setMsg("Error add tracking. Exception : " + e.toString());
+            e.printStackTrace();
+        }
+        return response;
     }
 
 }

@@ -1,6 +1,9 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteResponse;
@@ -122,10 +125,10 @@ public class SellerController {
         return sellerService.shipofshopDeleteResponse(token, restRequest);
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/orderforseller")
-    public OrderReadResponse readAllOrderForSellerResponse(@RequestHeader("token") String token){
+    @RequestMapping(method = RequestMethod.PUT, value = "/orderforseller")
+    public OrderSellerUpdateResponse updateOrderForSellerResponse(@RequestHeader("token") String token, @RequestBody OrderSellerUpdateRequest restRequest) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository);
 
-        return sellerService.readAllOrderForSellerResponse(token);
+        return sellerService.updateOrderForSellerResponse(token, restRequest);
     }
 }

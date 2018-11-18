@@ -8,6 +8,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadOrderItemO
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteRequest;
@@ -24,6 +26,9 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopD
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequestBody;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
@@ -525,77 +530,34 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public OrderReadResponse readAllOrderForSellerResponse(String token) {
+    public OrderSellerUpdateResponse updateOrderForSellerResponse(String token, OrderSellerUpdateRequest restRequest) {
+        OrderSellerUpdateResponse response = new OrderSellerUpdateResponse();
+        OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getBody().getId_item());
+        orderItem.setTrackingNumber(restRequest.getBody().getTracking_number());
 
+        TrackingRestRequest trackingRequest = new TrackingRestRequest();
+        TrackingRestRequestBody trackingBody = new TrackingRestRequestBody();
 
-        List<OrderItemEntity> orderItem = (List<OrderItemEntity>) orderItemRepository.findAll();
-        List<ProductVariationEntity> productVariation = new ArrayList<>();
-        for (int i = 0; i < orderItem.size(); i++) {
-            productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
-        }
-        List<ProductEntity> product = new ArrayList<>();
-        for (int i = 0; i < productVariation.size(); i++) {
+        trackingBody.setTracking_number(restRequest.getBody().getTracking_number());
+        trackingRequest.setTracking(trackingBody);
 
-            product.add(productRepository.findByIdProduct(productVariation.get(i).getIdProduct()));
-        }
-        List<ShopHasProductEntity> shopHasProduct = new ArrayList<>();
-        for (int i = 0; i < product.size(); i++) {
+        TrackingServiceImpl tracking = new TrackingServiceImpl();
 
-            shopHasProduct.add(shopHasProductRepository.findByIdProduct(product.get(i).getIdProduct()));
-        }
-        Common.LoggerInfo(shopHasProduct);
-        List<ShopEntity> shop = new ArrayList<>();
-        for (int i = 0; i < shopHasProduct.size(); i++) {
-
-            shop.add(shopRepository.findByIdShop(shopHasProduct.get(i).getIdShop()));
-        }
-        List<UserEntity> user = new ArrayList<>();
-        for (int i = 0; i < shop.size(); i++) {
-            if (userRepository.findByIdUser(shop.get(i).getIdUser()).getToken().equals(token)) {
-                user.add(userRepository.findByIdUser(shop.get(i).getIdUser()));
+        try {
+            TrackingRestResponse trackingResponse = tracking.trackingResponse(trackingRequest);
+            if (trackingResponse.getStatus() == 201) {
+                orderItemRepository.save(orderItem);
+                response.setStatus(200);
+                response.setMsg("Updated! Tracking number");
             }
+            else {
+                response.setStatus(400);
+                response.setMsg("Bad Request to tracking AfterShip API");
+            }
+        } catch (Exception e) {
+            response.setStatus(204);
+            response.setMsg("Error, Exception : " + e.toString());
         }
-
-        Common.LoggerInfo(user);
-
-
-        OrderReadResponse response = new OrderReadResponse();
-        OrderReadBodyResponse body = new OrderReadBodyResponse();
-        List<OrderReadOrderBodyResponse> orderBodyList = new ArrayList<>();
-
-        if (user.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
-        }
-
-        List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
-
-        Common.LoggerInfo(order);
-        for (OrderEntity anOrder : order) {
-            OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
-            orderBody.setId_order(anOrder.getIdOrder());
-            orderBody.setOrder_status(anOrder.getOrderStatus());
-            orderBodyList.add(orderBody);
-        }
-        body.setOrder(orderBodyList);
-        response.setBody(body);
-        response.setStatus(200);
-        response.setMsg("Successful");
         return response;
-
-        //return null;
     }
-
-    @Override
-    public OrderReadResponse readOrderForSellerResponse(String token, Integer id) {
-        return null;
-    }
-
-    @Override
-    public OrderUpdateResponse updateOrderForSellerResponse(String token, OrderUpdateRequest restRequest) {
-        return null;
-    }
-
-
 }
