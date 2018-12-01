@@ -11,4 +11,5 @@ public interface ShopRepository extends CrudRepository<ShopEntity, Integer> {
     Iterable<ShopEntity> findAllByIdUser(Iterable<Integer> iterable);
 
     ShopEntity findByIdShop(Integer id_shop);
+    ShopEntity findByIdUser(Integer id_user);
 }

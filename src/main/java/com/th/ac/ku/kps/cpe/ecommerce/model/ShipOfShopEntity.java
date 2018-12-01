@@ -1,6 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
 import javax.persistence.*;
+import java.sql.Time;
 import java.util.Objects;
 
 @Entity
@@ -11,6 +12,7 @@ public class ShipOfShopEntity {
     private int idProduct;
     private int idType;
     private double price;
+    private int timeShip;
 
     @Id
     @Column(name = "id_ship")
@@ -54,13 +56,22 @@ public class ShipOfShopEntity {
 
     @Basic
     @Column(name = "price")
-
     public double getPrice() {
         return price;
     }
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    @Basic
+    @Column(name = "time_ship")
+    public int getTimeShip() {
+        return timeShip;
+    }
+
+    public void setTimeShip(int timeShip) {
+        this.timeShip = timeShip;
     }
 
     @Override
@@ -72,11 +83,12 @@ public class ShipOfShopEntity {
                 idShop == that.idShop &&
                 idProduct == that.idProduct &&
                 idType == that.idType &&
-                Double.compare(that.price, price) == 0;
+                Double.compare(that.price, price) == 0 &&
+                Objects.equals(timeShip, that.timeShip);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShip, idShop, idProduct, idType, price);
+        return Objects.hash(idShip, idShop, idProduct, idType, price, timeShip);
     }
 }

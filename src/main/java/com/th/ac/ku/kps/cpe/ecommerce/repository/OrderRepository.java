@@ -16,6 +16,6 @@ public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
     List<OrderEntity> findAllByIdBuyer(Integer id);
     List<OrderEntity> findAllByIdBuyerAndIdOrder(Integer id_buyer, Integer id_order);
 
-
-
+    List<OrderEntity> findAllByOrderStatus(OrderStatus order_status);
+    OrderEntity findByIdOrder(Integer id_order);
 }

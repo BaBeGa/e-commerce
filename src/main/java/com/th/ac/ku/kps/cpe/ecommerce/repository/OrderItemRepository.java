@@ -9,4 +9,6 @@ public interface OrderItemRepository extends CrudRepository<OrderItemEntity, Int
     List<OrderItemEntity> findAllByIdOrder(Integer id_order);
     OrderItemEntity findByIdItem(Integer id_item);
 
+    OrderItemEntity findByIdOrder(Integer id_order);
+
 }

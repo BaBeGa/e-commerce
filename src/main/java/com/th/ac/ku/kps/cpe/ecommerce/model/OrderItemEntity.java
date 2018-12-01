@@ -1,6 +1,9 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
+
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
@@ -12,6 +15,10 @@ public class OrderItemEntity {
     private Integer quantity;
     private Integer idShipOfShop;
     private String trackingNumber;
+    private OrderItemStatus orderItemStatus;
+    private Timestamp expiredShip;
+    private Timestamp expiredBuyerConfirm;
+    private Timestamp successfulDate;
 
     @Id
     @Column(name = "id_item")
@@ -74,6 +81,47 @@ public class OrderItemEntity {
         this.trackingNumber = trackingNumber;
     }
 
+    @Basic
+    @Column(name = "order_item_status")
+    @Enumerated(EnumType.STRING)
+    public OrderItemStatus getOrderItemStatus() {
+        return orderItemStatus;
+    }
+
+    public void setOrderItemStatus(OrderItemStatus orderItemStatus) {
+        this.orderItemStatus = orderItemStatus;
+    }
+
+    @Basic
+    @Column(name = "expired_ship")
+    public Timestamp getExpiredShip() {
+        return expiredShip;
+    }
+
+    public void setExpiredShip(Timestamp expiredShip) {
+        this.expiredShip = expiredShip;
+    }
+
+    @Basic
+    @Column(name = "expired_buyer_confirm")
+    public Timestamp getExpiredBuyerConfirm() {
+        return expiredBuyerConfirm;
+    }
+
+    public void setExpiredBuyerConfirm(Timestamp expiredBuyerConfirm) {
+        this.expiredBuyerConfirm = expiredBuyerConfirm;
+    }
+
+    @Basic
+    @Column(name = "successful_date")
+    public Timestamp getSuccessfulDate() {
+        return successfulDate;
+    }
+
+    public void setSuccessfulDate(Timestamp successfulDate) {
+        this.successfulDate = successfulDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -84,11 +132,15 @@ public class OrderItemEntity {
                 Objects.equals(idVariation, that.idVariation) &&
                 Objects.equals(quantity, that.quantity) &&
                 Objects.equals(idShipOfShop, that.idShipOfShop) &&
-                Objects.equals(trackingNumber, that.trackingNumber);
+                Objects.equals(trackingNumber, that.trackingNumber) &&
+                orderItemStatus == that.orderItemStatus &&
+                Objects.equals(expiredShip, that.expiredShip) &&
+                Objects.equals(expiredBuyerConfirm, that.expiredBuyerConfirm) &&
+                Objects.equals(successfulDate, that.successfulDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idItem, idOrder, idVariation, quantity, idShipOfShop, trackingNumber);
+        return Objects.hash(idItem, idOrder, idVariation, quantity, idShipOfShop, trackingNumber, orderItemStatus, expiredShip, expiredBuyerConfirm, successfulDate);
     }
 }

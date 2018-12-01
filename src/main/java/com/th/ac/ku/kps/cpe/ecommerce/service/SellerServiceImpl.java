@@ -2,12 +2,8 @@ package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadBodyResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadOrderBodyResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadOrderItemOrderBodyResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
-import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
@@ -26,9 +22,9 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopD
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequest;
-import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestRequestBody;
-import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.TrackingRestResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create.TrackingRestRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create.TrackingRestRequestBody;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create.TrackingCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
@@ -59,13 +55,15 @@ public class SellerServiceImpl implements SellerService{
     private final ShipOfShopRepository shipofshopRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final TypeShippingRepository typeShippingRepository;
+    private final DeliveryAddressRepository deliveryAddressRepository;
 
     @Autowired
     public SellerServiceImpl(ShopRepository shopRepository,
                              ProductRepository productRepository,
                              UserRepository userRepository,
                              ShopHasProductRepository shopHasProductRepository,
-                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ShipOfShopRepository shipofshopRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
+                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ShipOfShopRepository shipofshopRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository, TypeShippingRepository typeShippingRepository, DeliveryAddressRepository deliveryAddressRepository) {
         this.shopRepository = shopRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
@@ -77,6 +75,8 @@ public class SellerServiceImpl implements SellerService{
         this.shipofshopRepository = shipofshopRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.typeShippingRepository = typeShippingRepository;
+        this.deliveryAddressRepository = deliveryAddressRepository;
     }
 
     @Override
@@ -170,12 +170,18 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public ProductReadResponse productReadAllResponse(String token) {
+        ProductReadResponse response = new ProductReadResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        if (user.size() == 0) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
         List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
-        List<ShopHasProductEntity> shopHasProduct = (List<ShopHasProductEntity>) shopHasProductRepository.findAllByIdShop(Collections.singleton(shop.get(0).getIdShop()));
+        List<ShopHasProductEntity> shopHasProduct = shopHasProductRepository.findAllByIdShop(shop.get(0).getIdShop());
         Common.LoggerInfo(shopHasProduct);
 
-        ProductReadResponse response = new ProductReadResponse();
+
         ProductReadBodyResponse bodyResponse = new ProductReadBodyResponse();
 
         List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
@@ -235,12 +241,18 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public ProductReadResponse productReadResponse(String token, int id_product) {
+        ProductReadResponse response = new ProductReadResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        if (user.size() == 0) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
         List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
-        List<ShopHasProductEntity> shopHasProduct = (List<ShopHasProductEntity>) shopHasProductRepository.findAllByIdShop(Collections.singleton(shop.get(0).getIdShop()));
+        List<ShopHasProductEntity> shopHasProduct = shopHasProductRepository.findAllByIdShop(shop.get(0).getIdShop());
         Common.LoggerInfo(shopHasProduct);
 
-        ProductReadResponse response = new ProductReadResponse();
+
         ProductReadBodyResponse bodyResponse = new ProductReadBodyResponse();
 
         List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
@@ -304,11 +316,17 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public ProductUpdateResponse productUpdateResponse(String token, ProductUpdateRequest restRequest) {
+        ProductUpdateResponse response = new ProductUpdateResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        if (user.size() == 0) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
         List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
         List<ProductEntity> productEntity = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(restRequest.getBody().getId_product()));
         Common.LoggerInfo(productEntity);
-        ProductUpdateResponse response = new ProductUpdateResponse();
+
         if (productEntity.size() != 0) {
             if (restRequest.getBody().getCatagory() != null)
                 productEntity.get(0).setCatagory(restRequest.getBody().getCatagory());
@@ -363,8 +381,13 @@ public class SellerServiceImpl implements SellerService{
     public ProductDeleteResponse productDeleteResponse(String token, ProductDeleteRequest restRequest) {
         ProductDeleteResponse response = new ProductDeleteResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        if (user.size() == 0) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
         List<ShopEntity> shop = (List<ShopEntity>) shopRepository.findAllByIdUser(Collections.singleton(user.get(0).getIdUser()));
-        List<ShopHasProductEntity> shopHasProductList = (List<ShopHasProductEntity>) shopHasProductRepository.findAllByIdShop(Collections.singleton(shop.get(0).getIdShop()));
+        List<ShopHasProductEntity> shopHasProductList = shopHasProductRepository.findAllByIdShop(shop.get(0).getIdShop());
 
         boolean foundProduct = false;
         if (restRequest.getBody().getId_product() != null) {
@@ -402,7 +425,6 @@ public class SellerServiceImpl implements SellerService{
                             productRepository.delete(product.get(0));
                         }
                     }
-
                 }
             }
             if (!foundProduct) {
@@ -412,7 +434,7 @@ public class SellerServiceImpl implements SellerService{
             }
 
         }
-        if (restRequest.getBody().getId_variation() != null) {
+        else if (restRequest.getBody().getId_variation() != null) {
             for (int i = 0; i < restRequest.getBody().getId_variation().length; i++) {
                 try {
                     productVariationRepository.deleteById(restRequest.getBody().getId_variation()[i]);
@@ -530,6 +552,118 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
+    public OrderForSellerReadResponse readAllOrderForSellerResponse(String token) {
+
+        List<OrderEntity> order = orderRepository.findAllByOrderStatus(OrderStatus.PAID);
+
+        List<OrderItemEntity> orderItem = new ArrayList<>();
+        for (int i = 0; i < order.size(); i++) {
+            orderItem.add(orderItemRepository.findByIdOrder(order.get(i).getIdOrder()));
+        }
+
+        List<ProductVariationEntity> productVariation = new ArrayList<>();
+        for (int i = 0; i < orderItem.size(); i++) {
+            productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
+        }
+        Common.LoggerInfo(productVariation);
+
+        List<ProductEntity> product = new ArrayList<>();
+        for (int i = 0; i < productVariation.size(); i++) {
+
+            product.add(productRepository.findByIdProduct(productVariation.get(i).getIdProduct()));
+        }
+        Common.LoggerInfo(product);
+        List<ShopHasProductEntity> shopHasProduct = new ArrayList<>();
+        for (int i = 0; i < product.size(); i++) {
+            shopHasProduct.add(shopHasProductRepository.findByIdProduct(product.get(i).getIdProduct()));
+        }
+        Common.LoggerInfo(shopHasProduct);
+        List<ShopEntity> shop = new ArrayList<>();
+        for (int i = 0; i < shopHasProduct.size(); i++) {
+            shop.add(shopRepository.findByIdShop(shopHasProduct.get(i).getIdShop()));
+        }
+        Common.LoggerInfo(shop);
+        List<UserEntity> user = new ArrayList<>();
+        for (int i = 0; i < shop.size(); i++) {
+            if (userRepository.findByIdUser(shop.get(i).getIdUser()).getToken().equals(token)) {
+                user.add(userRepository.findByIdUser(shop.get(i).getIdUser()));
+            }
+        }
+        Common.LoggerInfo(user);
+
+        ShopEntity shopFound = shopRepository.findByIdUser(user.get(0).getIdUser());
+
+        List<ShopHasProductEntity> shopHasProductFound = shopHasProductRepository.findAllByIdShop(shopFound.getIdShop());
+        Common.LoggerInfo(shopHasProductFound);
+
+        OrderForSellerReadResponse response = new OrderForSellerReadResponse();
+        OrderForSellerReadBodyResponse body = new OrderForSellerReadBodyResponse();
+        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
+
+        for (int j = 0; j < shopHasProductFound.size(); j++) { // [{"idShop":1,"idProduct":1},{"idShop":1,"idProduct":2}]
+            List<ProductVariationEntity> productVariationFound = productVariationRepository.findAllByIdProduct(shopHasProductFound.get(j).getIdProduct()); // see in id 1, 2
+
+            for (int k = 0; k < productVariationFound.size(); k++) { // search same idVariation 1
+                for (int l = 0; l < orderItem.size(); l++) {// search same idVariation 2
+                    if (productVariationFound.get(k).getIdVariation() == orderItem.get(l).getIdVariation()) {
+
+                        OrderForSellerReadOrderItemBodyResponse orderItemResponse = new OrderForSellerReadOrderItemBodyResponse();
+                        orderItemResponse.setId_item(orderItem.get(l).getIdItem());
+                        OrderForSellerReadVariationBodyResponse productVariationResponse = new OrderForSellerReadVariationBodyResponse();
+
+                        productVariationResponse.setId_product(productVariationFound.get(k).getIdProduct());
+                        productVariationResponse.setId_variation(productVariationFound.get(k).getIdVariation());
+                        productVariationResponse.setName(productVariationFound.get(k).getName());
+                        orderItemResponse.setProduct_variation(productVariationResponse);
+
+                        orderItemResponse.setPrice(productVariationFound.get(k).getPrice() * orderItem.get(l).getQuantity());
+                        orderItemResponse.setQuantity(orderItem.get(l).getQuantity());
+
+                        OrderForSellerReadShipOfShopBodyResponse shipOfShopResponse = new OrderForSellerReadShipOfShopBodyResponse();
+
+                        ShipOfShopEntity shipOfShopEntity = shipofshopRepository.findByIdShip(orderItem.get(l).getIdShipOfShop());
+                        shipOfShopResponse.setId_ship(shipOfShopEntity.getIdShip());
+                        shipOfShopResponse.setPrice_ship(shipOfShopEntity.getPrice());
+                        TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(shipOfShopEntity.getIdType());
+                        shipOfShopResponse.setType(typeShippingEntity.getNameShip());
+                        shipOfShopResponse.setTime_ship(shipOfShopEntity.getTimeShip());
+                        orderItemResponse.setShip_of_shop(shipOfShopResponse);
+                        orderItemResponse.setTracking_number(orderItem.get(l).getTrackingNumber());
+                        orderItemResponseList.add(orderItemResponse);
+
+                        OrderEntity orderEntity = orderRepository.findByIdOrder(orderItem.get(l).getIdOrder());
+                        OrderForSellerReadOrderBodyResponse orderResponse = new OrderForSellerReadOrderBodyResponse();
+                        orderResponse.setId_order(orderEntity.getIdOrder());
+                        orderResponse.setId_buyer(orderEntity.getIdBuyer());
+                        orderResponse.setOrder_created_at(orderEntity.getOrderCreatedAt());
+                        orderResponse.setOrder_status(orderEntity.getOrderStatus());
+
+                        DeliveryAddressEntity deliveryAddressEntity = deliveryAddressRepository.findByIdAddress(orderEntity.getIdAddress());
+                        OrderForSellerDeliveryAddressOrderReadResponse deliveryResponse = new OrderForSellerDeliveryAddressOrderReadResponse();
+                        deliveryResponse.setId_address(deliveryAddressEntity.getIdAddress());
+                        deliveryResponse.setAddress(deliveryAddressEntity.getAddress());
+                        deliveryResponse.setDistrict(deliveryAddressEntity.getDistrict());
+                        deliveryResponse.setReceiver(deliveryAddressEntity.getReceiver());
+                        deliveryResponse.setPhone_receiver(deliveryAddressEntity.getPhoneReceiver());
+                        deliveryResponse.setPostal_code(deliveryAddressEntity.getPostalCode());
+                        deliveryResponse.setProvince(deliveryAddressEntity.getProvince());
+                        deliveryResponse.setSub_district(deliveryAddressEntity.getSubDistrict());
+
+                        orderResponse.setDelivery_address(deliveryResponse);
+                        orderItemResponse.setOrder(orderResponse);
+                    }
+                }
+            }
+        }
+        body.setOrder_item(orderItemResponseList);
+        response.setBody(body);
+
+        response.setStatus(200);
+        response.setMsg("Success");
+        return response;
+    }
+
+    @Override
     public OrderSellerUpdateResponse updateOrderForSellerResponse(String token, OrderSellerUpdateRequest restRequest) {
         OrderSellerUpdateResponse response = new OrderSellerUpdateResponse();
         OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getBody().getId_item());
@@ -544,15 +678,15 @@ public class SellerServiceImpl implements SellerService{
         TrackingServiceImpl tracking = new TrackingServiceImpl();
 
         try {
-            TrackingRestResponse trackingResponse = tracking.trackingResponse(trackingRequest);
+            TrackingCreateResponse trackingResponse = tracking.trackingPostResponse(trackingRequest);
             if (trackingResponse.getStatus() == 201) {
                 orderItemRepository.save(orderItem);
-                response.setStatus(200);
+                response.setStatus(trackingResponse.getStatus());
                 response.setMsg("Updated! Tracking number");
             }
             else {
-                response.setStatus(400);
-                response.setMsg("Bad Request to tracking AfterShip API");
+                response.setStatus(trackingResponse.getStatus());
+                response.setMsg(trackingResponse.getMsg());
             }
         } catch (Exception e) {
             response.setStatus(204);
@@ -560,4 +694,6 @@ public class SellerServiceImpl implements SellerService{
         }
         return response;
     }
+
+
 }

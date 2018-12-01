@@ -1,4 +1,4 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.tracking;
+package com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;

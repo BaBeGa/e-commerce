@@ -15,6 +15,7 @@ public class OrderReadOrderBodyResponse {
     private List<OrderReadOrderItemOrderBodyResponse> order_item;
     private OrderReadDeliveryAddressOrderResponse delivery_address;
     private OrderReadOrderPaymentOrderResponse order_payment;
+    private Double price_total;
 
     @JsonGetter
     public Integer getId_order() {
@@ -75,5 +76,15 @@ public class OrderReadOrderBodyResponse {
     @JsonSetter
     public void setOrder_payment(OrderReadOrderPaymentOrderResponse order_payment) {
         this.order_payment = order_payment;
+    }
+
+    @JsonGetter
+    public Double getPrice_total() {
+        return price_total;
+    }
+
+    @JsonSetter
+    public void setPrice_total(Double price_total) {
+        this.price_total = price_total;
     }
 }

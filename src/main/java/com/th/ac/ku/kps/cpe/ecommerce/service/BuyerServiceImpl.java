@@ -1,6 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
 import com.th.ac.ku.kps.cpe.ecommerce.model.*;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateResponse;
@@ -10,6 +11,7 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.read.TrackingReadResponseParam;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 
@@ -25,8 +27,10 @@ public class BuyerServiceImpl implements BuyerService {
     private final ShipOfShopRepository shipOfShopRepository;
     private final OrderPaymentRepository orderPaymentRepository;
     private final DeliveryAddressRepository deliveryAddressRepository;
+    private final TypeShippingRepository typeShippingRepository;
+    private final ConfigRepository configRepository;
 
-    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository) {
+    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
@@ -35,34 +39,71 @@ public class BuyerServiceImpl implements BuyerService {
         this.shipOfShopRepository = shipOfShopRepository;
         this.orderPaymentRepository = orderPaymentRepository;
         this.deliveryAddressRepository = deliveryAddressRepository;
+        this.typeShippingRepository = typeShippingRepository;
+        this.configRepository = configRepository;
     }
-
-    @Override
-    public OrderReadResponse orderReadAllResponse(String token) {
-        OrderReadResponse response = new OrderReadResponse();
-        OrderReadBodyResponse body = new OrderReadBodyResponse();
-        List<OrderReadOrderBodyResponse> orderBodyList = new ArrayList<>();
-
-        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
-        if (user.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
-        }
-
-        List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
-
-        Common.LoggerInfo(order);
+    private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order, Double price_total) {
         for (OrderEntity anOrder : order) {
             List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
             List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
             Common.LoggerInfo(orderItem);
-                for (OrderItemEntity anOrderItem: orderItem) {
+            for (OrderItemEntity anOrderItem: orderItem) {
                 OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
                 orderItemBody.setId_item(anOrderItem.getIdItem());
                 orderItemBody.setId_variation(anOrderItem.getIdVariation());
+                ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
+                price_total += productVariation.getPrice()*anOrderItem.getQuantity();
+                orderItemBody.setPrice(productVariation.getPrice());
                 orderItemBody.setQuantity(anOrderItem.getQuantity());
-                orderItemBody.setId_ship_of_shop(anOrderItem.getIdShipOfShop());
+                // **
+                ShipOfShopEntity shipOfShopEntity = shipOfShopRepository.findByIdShip(anOrderItem.getIdShipOfShop());
+                TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(shipOfShopEntity.getIdType());
+                OrderReadShipOfShopOrderItemOrderBodyResponse ship_of_shop = new OrderReadShipOfShopOrderItemOrderBodyResponse();
+                ship_of_shop.setId_ship_of_shop(anOrderItem.getIdShipOfShop());
+                ship_of_shop.setSlug(typeShippingEntity.getNameShip());
+                ship_of_shop.setPrice(shipOfShopEntity.getPrice());
+                price_total += ship_of_shop.getPrice();
+                ship_of_shop.setTime_ship(shipOfShopEntity.getTimeShip());
+                orderItemBody.setId_ship_of_shop(ship_of_shop);
+                orderItemBody.setTracking_number(anOrderItem.getTrackingNumber());
+
+                TrackingServiceImpl trackingService = new TrackingServiceImpl();
+                TrackingReadResponseParam trackingResponseParam = trackingService.trackingReadAllResponse(ship_of_shop.getSlug(), anOrderItem.getTrackingNumber());
+
+                List<OrderReadOrderItemCheckpointOrderItemResponse> checkpointList = new ArrayList<>();
+                if (trackingResponseParam.getData().getTracking() != null) {
+                    for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
+                        if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit")) {
+                            anOrderItem.setOrderItemStatus(OrderItemStatus.SHIPPED);
+                        } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered")) {
+                            anOrderItem.setOrderItemStatus(OrderItemStatus.DELIVERED);
+                            if (anOrderItem.getExpiredBuyerConfirm() == null) {
+                                Date dt = new Date();
+                                Calendar c = Calendar.getInstance();
+                                c.setTime(dt);
+                                c.add(Calendar.DATE, 7);
+                                dt = c.getTime();
+                                Timestamp expired_buyer_confirm = new Timestamp(dt.getTime());
+                                anOrderItem.setExpiredBuyerConfirm(expired_buyer_confirm);
+                            }
+                        }
+                        OrderReadOrderItemCheckpointOrderItemResponse checkpoint = new OrderReadOrderItemCheckpointOrderItemResponse();
+                        checkpoint.setCheckpoint_time(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCheckpoint_time());
+                        checkpoint.setCountry_iso3(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_iso3());
+                        checkpoint.setCountry_name(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_name());
+                        checkpoint.setCreated_at(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCreated_at());
+                        checkpoint.setLocation(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getLocation());
+                        checkpoint.setMessage(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getMessage());
+                        checkpoint.setSlug(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSlug());
+                        checkpoint.setSubtag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag());
+                        checkpoint.setSubtag_message(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag_message());
+                        checkpoint.setTag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag());
+                        checkpointList.add(checkpoint);
+                    }
+                    orderItemRepository.save(anOrderItem);
+                }
+
+                orderItemBody.setCheckpoint(checkpointList);
                 orderItemBodyList.add(orderItemBody);
             }
             OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
@@ -70,7 +111,6 @@ public class BuyerServiceImpl implements BuyerService {
             orderBody.setOrder_item(orderItemBodyList);
             orderBody.setOrder_status(anOrder.getOrderStatus());
             orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
-
             OrderReadDeliveryAddressOrderResponse deliveryAddressResponse = new OrderReadDeliveryAddressOrderResponse();
             DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(anOrder.getIdAddress());
             if (deliveryAddress != null) {
@@ -93,10 +133,28 @@ public class BuyerServiceImpl implements BuyerService {
                 orderPaymentResponse.setId_type_payment(orderPayment.getIdTypePayment());
                 orderBody.setOrder_payment(orderPaymentResponse);
             }
-
-
+            orderBody.setPrice_total(price_total);
             orderBodyList.add(orderBody);
+
         }
+    }
+    @Override
+    public OrderReadResponse orderReadAllResponse(String token) {
+        OrderReadResponse response = new OrderReadResponse();
+        OrderReadBodyResponse body = new OrderReadBodyResponse();
+        List<OrderReadOrderBodyResponse> orderBodyList = new ArrayList<>();
+
+        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
+        if (user.size() == 0) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+
+        List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
+        Double price_total = 0.0;
+        Common.LoggerInfo(order);
+        orderReadFunction(orderBodyList, order, price_total);
         body.setOrder(orderBodyList);
         response.setBody(body);
         response.setStatus(200);
@@ -106,6 +164,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     @Override
     public OrderReadResponse orderReadResponse(String token, int id) {
+
         OrderReadResponse response = new OrderReadResponse();
         OrderReadBodyResponse body = new OrderReadBodyResponse();
         List<OrderReadOrderBodyResponse> orderBodyList = new ArrayList<>();
@@ -122,40 +181,9 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Order is empty");
             return response;
         }
-
+        Double price_total = 0.0;
         Common.LoggerInfo(order);
-        for (OrderEntity anOrder : order) {
-            List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
-            List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
-            Common.LoggerInfo(orderItem);
-            for (OrderItemEntity anOrderItem: orderItem) {
-                OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
-                orderItemBody.setId_item(anOrderItem.getIdItem());
-                orderItemBody.setId_variation(anOrderItem.getIdVariation());
-                orderItemBody.setQuantity(anOrderItem.getQuantity());
-                orderItemBody.setId_ship_of_shop(anOrderItem.getIdShipOfShop());
-                orderItemBodyList.add(orderItemBody);
-            }
-            OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
-            orderBody.setId_order(anOrder.getIdOrder());
-            orderBody.setOrder_item(orderItemBodyList);
-            orderBody.setOrder_status(anOrder.getOrderStatus());
-            orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
-            OrderReadDeliveryAddressOrderResponse deliveryAddressResponse = new OrderReadDeliveryAddressOrderResponse();
-            DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(anOrder.getIdAddress());
-            if (deliveryAddress != null) {
-                deliveryAddressResponse.setId_address(deliveryAddress.getIdAddress());
-                deliveryAddressResponse.setReceiver(deliveryAddress.getReceiver());
-                deliveryAddressResponse.setAddress(deliveryAddress.getAddress());
-                deliveryAddressResponse.setSub_district(deliveryAddress.getSubDistrict());
-                deliveryAddressResponse.setDistrict(deliveryAddress.getDistrict());
-                deliveryAddressResponse.setProvince(deliveryAddress.getProvince());
-                deliveryAddressResponse.setPostal_code(deliveryAddress.getPostalCode());
-                deliveryAddressResponse.setPhone_receiver(deliveryAddress.getPhoneReceiver());
-                orderBody.setDelivery_address(deliveryAddressResponse);
-            }
-            orderBodyList.add(orderBody);
-        }
+        orderReadFunction(orderBodyList, order, price_total);
         body.setOrder(orderBodyList);
         response.setBody(body);
         response.setStatus(200);
@@ -332,8 +360,8 @@ public class BuyerServiceImpl implements BuyerService {
                 if (orderItem.get(i).getIdItem().equals(restRequest.getBody().getOrder_item().get(j).getId_item())) {
                     ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation());
                     List<ShipOfShopEntity> shipOfShop = shipOfShopRepository.findAllByIdProduct(productVariation.getIdProduct());
-                    for (int k = 0; k < shipOfShop.size(); k++) {
-                        if (shipOfShop.get(k).getIdShip() == restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop())
+                    for (ShipOfShopEntity aShipOfShop : shipOfShop) {
+                        if (aShipOfShop.getIdShip() == restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop())
                             orderItem.get(i).setIdShipOfShop(restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop());
                     }
                     if (orderItem.get(i).getIdShipOfShop() == null) {
@@ -364,10 +392,12 @@ public class BuyerServiceImpl implements BuyerService {
         orderPayment.setIdOrder(restRequest.getBody().getId_order());
         orderPayment.setIdTypePayment(restRequest.getBody().getId_type_payment());
 
+        ConfigEntity config = configRepository.findByName("expired_pay_time");
+
         Date dt = new Date();
         Calendar c = Calendar.getInstance();
         c.setTime(dt);
-        c.add(Calendar.DATE, 2);
+        c.add(Calendar.HOUR, Integer.parseInt(config.getValue()));
         dt = c.getTime();
         Timestamp expired_pay = new Timestamp(dt.getTime());
 
@@ -391,9 +421,9 @@ public class BuyerServiceImpl implements BuyerService {
 
         List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(restRequest.getBody().getId_order());
 
-        for (int i = 0; i < orderItem.size(); i++) {
-            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation());
-            if (productVariation.getStock() < orderItem.get(i).getQuantity()) {
+        for (OrderItemEntity anOrderItem1 : orderItem) {
+            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem1.getIdVariation());
+            if (productVariation.getStock() < anOrderItem1.getQuantity()) {
                 orderEntity.get(0).setOrderStatus(OrderStatus.PAY_CHOSEN);
                 orderRepository.save(orderEntity.get(0));
                 response.setStatus(200);
@@ -402,9 +432,9 @@ public class BuyerServiceImpl implements BuyerService {
             }
         }
 
-        for (int i = 0; i < orderItem.size(); i++) {
-            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation());
-            productVariation.setStock(productVariation.getStock() - orderItem.get(i).getQuantity());
+        for (OrderItemEntity anOrderItem : orderItem) {
+            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
+            productVariation.setStock(productVariation.getStock() - anOrderItem.getQuantity());
             productVariationRepository.save(productVariation);
         }
 
@@ -427,17 +457,16 @@ public class BuyerServiceImpl implements BuyerService {
         List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
         boolean foundOrder = false;
         if (restRequest.getBody().getId_order() != null) {
-            for (int i = 0; i < order.size(); i++) {
-                List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(order.get(i).getIdOrder());
+            for (OrderEntity anOrder : order) {
+                List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
                 for (int j = 0; j < restRequest.getBody().getId_order().length; j++) {
-                    if (order.get(i).getIdOrder() == restRequest.getBody().getId_order()[j]) {
+                    if (anOrder.getIdOrder() == restRequest.getBody().getId_order()[j]) {
                         foundOrder = true;
                         if (restRequest.getBody().getId_item() != null) { // delete order_item (required one order)
                             for (int k = 0; k < restRequest.getBody().getId_item().length; k++) {
                                 try {
                                     orderItemRepository.deleteById(orderItem.get(k).getIdItem());
-                                }
-                                catch (Exception e) {
+                                } catch (Exception e) {
                                     response.setStatus(204);
                                     response.setMsg("Order item not found! Can't deleted order item!");
                                     return response;
@@ -446,10 +475,9 @@ public class BuyerServiceImpl implements BuyerService {
                             response.setStatus(200);
                             response.setMsg("Deleted order item");
                             return response;
-                        }
-                        else { // delete order
+                        } else { // delete order
                             try {
-                                orderRepository.deleteById(order.get(i).getIdOrder());
+                                orderRepository.deleteById(anOrder.getIdOrder());
                                 response.setStatus(200);
                                 response.setMsg("Delete Successful");
                             } catch (Exception e) {

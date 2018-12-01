@@ -9,7 +9,5 @@ public enum OrderStatus {
     ORDERED,
     PAY_VERIFY,
     PAID,
-    SHIPPED,
-    COMPLETE,
     CANCEL
 }
