@@ -8,6 +8,12 @@ import java.util.List;
 public class OrderReadOrderItemOrderBodyResponse {
     private int id_item;
     private int id_variation;
+    private String name_variation;
+    private Integer id_shop;
+    private String shop_name;
+    private Integer id_product;
+    private String name_product;
+    private String pic_product;
     private int quantity;
     private Double price;
     private OrderReadShipOfShopOrderItemOrderBodyResponse id_ship_of_shop;
@@ -32,6 +38,66 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setId_variation(int id_variation) {
         this.id_variation = id_variation;
+    }
+
+    @JsonGetter
+    public Integer getId_shop() {
+        return id_shop;
+    }
+
+    @JsonSetter
+    public void setId_shop(Integer id_shop) {
+        this.id_shop = id_shop;
+    }
+
+    @JsonGetter
+    public String getShop_name() {
+        return shop_name;
+    }
+
+    @JsonSetter
+    public void setShop_name(String shop_name) {
+        this.shop_name = shop_name;
+    }
+
+    @JsonGetter
+    public Integer getId_product() {
+        return id_product;
+    }
+
+    @JsonSetter
+    public void setId_product(Integer id_product) {
+        this.id_product = id_product;
+    }
+
+    @JsonGetter
+    public String getName_variation() {
+        return name_variation;
+    }
+
+    @JsonSetter
+    public void setName_variation(String name_variation) {
+        this.name_variation = name_variation;
+    }
+
+    @JsonGetter
+    public String getName_product() {
+        return name_product;
+    }
+
+    @JsonSetter
+    public void setName_product(String name_product) {
+        this.name_product = name_product;
+    }
+
+    @JsonGetter
+    public String getPic_product() {
+        return pic_product;
+    }
+
+    @JsonSetter
+    public void setPic_product(String pic_product) {
+        this.pic_product = pic_product;
     }
 
     @JsonGetter

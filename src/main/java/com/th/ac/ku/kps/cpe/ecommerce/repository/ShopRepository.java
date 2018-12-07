@@ -1,6 +1,6 @@
 package com.th.ac.ku.kps.cpe.ecommerce.repository;
 
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class ShipOfShopUpdateRequest {
     private ShipOfShopUpdateBodyRequest body;
-@JsonGetter
+
+    @JsonGetter
     public ShipOfShopUpdateBodyRequest getBody() {
         return body;
     }
-@JsonSetter
+
+    @JsonSetter
     public void setBody(ShipOfShopUpdateBodyRequest body) {
         this.body = body;
     }

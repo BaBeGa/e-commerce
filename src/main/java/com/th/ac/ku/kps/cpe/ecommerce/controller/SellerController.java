@@ -56,27 +56,6 @@ public class SellerController {
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
 
-    @GetMapping(path="/all")
-    public @ResponseBody
-    Iterable<ProductEntity> getAllProducts() {
-        return productRepository.findAll();
-    }
-
-    @PostMapping("/shop/create")
-    public ShopCreateResponse createShop(@RequestBody ShopCreateRequest restRequest) {
-        Common.LoggerInfo(restRequest);
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
-        return sellerService.shopCreateResponse(restRequest);
-    }
-
-    @PostMapping("/shop/update")
-    public ShopUpdateResponse updateShop(@RequestBody ShopUpdateRequest restRequest) {
-        Common.LoggerInfo(restRequest);
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
-        return sellerService.shopUpdateResponse(restRequest);
-
-    }
-
     // ================================ Start Implement ========================================
 
     @RequestMapping(method = RequestMethod.POST, value = "/product")

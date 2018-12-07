@@ -1,28 +1,65 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.upload.UploadFileResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.ProductPicRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopHasProductRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.UserRepository;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 public class UploadFileServiceImpl implements UploadFileService {
     private final ProductPicRepository productPicRepository;
-    public UploadFileServiceImpl(ProductPicRepository productPicRepository) {
+    private final UserRepository userRepository;
+    private final ShopRepository shopRepository;
+    private final ShopHasProductRepository shopHasProductRepository;
+    public UploadFileServiceImpl(ProductPicRepository productPicRepository, UserRepository userRepository, ShopRepository shopRepository, ShopHasProductRepository shopHasProductRepository) {
         this.productPicRepository = productPicRepository;
+        this.userRepository = userRepository;
+        this.shopRepository = shopRepository;
+        this.shopHasProductRepository = shopHasProductRepository;
     }
 
     @Override
     public UploadFileResponse uploadResponse(String token, Integer id_product, MultipartFile file, String UPLOAD_FOLDER) {
+
+        UserEntity user = userRepository.findByToken(token);
         UploadFileResponse response = new UploadFileResponse();
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+        if (shop == null) {
+            response.setStatus(404);
+            response.setMsg("Shop not open or shop invalid!");
+            return response;
+        }
+        List<ShopHasProductEntity> shopHasProduct = shopHasProductRepository.findAllByIdShop(shop.getIdShop());
+        boolean foundProduct = false;
+        for (ShopHasProductEntity aShopHasProduct : shopHasProduct) {
+            if (aShopHasProduct.getIdProduct().equals(id_product)) {
+                foundProduct = true;
+                break;
+            }
+        }
+        if (!foundProduct) {
+            response.setStatus(404);
+            response.setMsg("Product not found!");
+        }
+
+
         ProductPicEntity productPicEntity = new ProductPicEntity();
-        ProductEntity productEntity = new ProductEntity();
 
         String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
         String filename = new Random().nextInt(999999) + "_" + System.currentTimeMillis();

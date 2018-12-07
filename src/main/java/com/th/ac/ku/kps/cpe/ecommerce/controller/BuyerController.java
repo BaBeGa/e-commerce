@@ -58,7 +58,7 @@ public class BuyerController implements Serializable {
         if (token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
         return buyerService.orderReadAllResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/order/{id}")
@@ -66,7 +66,7 @@ public class BuyerController implements Serializable {
         if (token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
         return buyerService.orderReadResponse(token, id);
     }
     @RequestMapping(method = RequestMethod.POST,value = "/order")
@@ -74,7 +74,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
         return buyerService.orderCreateResponse(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/order")
@@ -82,7 +82,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
         return buyerService.orderUpdateResponse(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/order")
@@ -90,7 +90,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
         return buyerService.orderDeleteResponse(token, restRequest);
     }
 }

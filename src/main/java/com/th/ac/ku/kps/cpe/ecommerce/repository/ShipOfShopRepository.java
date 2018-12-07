@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ShipOfShopRepository extends CrudRepository<ShipOfShopEntity, Integer> {
-    List<ShipOfShopEntity> findByIdShop(Integer id_shop);
+    ShipOfShopEntity findByIdShop(Integer id_shop);
     List<ShipOfShopEntity> findAllByIdProduct(Integer id_product);
+    List<ShipOfShopEntity> findAllByIdShop(Integer id_shop);
     ShipOfShopEntity findByIdShip(Integer id_ship);
 }

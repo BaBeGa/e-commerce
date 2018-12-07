@@ -4,6 +4,9 @@ import com.th.ac.ku.kps.cpe.ecommerce.exception.TokenNotFoundException;
 import com.th.ac.ku.kps.cpe.ecommerce.model.upload.UploadFileResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.ProductPicRepository;
 
+import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopHasProductRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.UserRepository;
 import com.th.ac.ku.kps.cpe.ecommerce.service.UploadFileService;
 import com.th.ac.ku.kps.cpe.ecommerce.service.UploadFileServiceImpl;
 
@@ -26,6 +29,12 @@ public class UploadAndDownloadController {
     public static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//eshop//pic_product//"; // //var//www//html//e-commerce_01//eshop//pic_product//
     @Autowired
     private ProductPicRepository productPicRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ShopRepository shopRepository;
+    @Autowired
+    private ShopHasProductRepository shopHasProductRepository;
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload")
     public UploadFileResponse upload(@RequestHeader (required = false) String token,
@@ -37,7 +46,7 @@ public class UploadAndDownloadController {
         if (id_product == null) {
             throw new TokenNotFoundException("id_product is required");
         }
-        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository);
+        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, userRepository, shopRepository ,shopHasProductRepository);
         return uploadFileService.uploadResponse(token, id_product, file, UPLOAD_FOLDER);
     }
 

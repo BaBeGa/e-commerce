@@ -4,7 +4,7 @@
     <persistence-unit name="e-commerce_01">
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity</class>
-        <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.ProductHasPromoEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity</class>

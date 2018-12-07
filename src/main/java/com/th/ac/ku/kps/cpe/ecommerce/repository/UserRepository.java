@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface UserRepository extends CrudRepository<UserEntity, Integer> {
     Iterable<UserEntity> findAllByToken(Iterable<String> iterable);
+    UserEntity findByToken(String token);
 
 
     UserEntity findByIdUser(Integer id_user);

@@ -17,17 +17,11 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopD
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopCreateRequest;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopCreateResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopUpdateRequest;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.ShopUpdateResponse;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface SellerService {
-    ShopCreateResponse shopCreateResponse(ShopCreateRequest restRequest);
-    ShopUpdateResponse shopUpdateResponse(ShopUpdateRequest restRequest);
-    // Start Implement
+
     ProductCreateResponse productCreateResponse(String token, ProductCreateRequest restRequest);
     ProductReadResponse productReadAllResponse(String token);
     ProductReadResponse productReadResponse(String token,int id);
