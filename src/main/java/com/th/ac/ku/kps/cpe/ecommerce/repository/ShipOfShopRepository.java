@@ -11,4 +11,6 @@ public interface ShipOfShopRepository extends CrudRepository<ShipOfShopEntity, I
     List<ShipOfShopEntity> findAllByIdProduct(Integer id_product);
     List<ShipOfShopEntity> findAllByIdShop(Integer id_shop);
     ShipOfShopEntity findByIdShip(Integer id_ship);
+    ShipOfShopEntity findByIdType(Integer idtype);
+
 }

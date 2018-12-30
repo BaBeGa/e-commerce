@@ -5,4 +5,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface TypeShippingRepository extends CrudRepository<TypeShippingEntity, Integer> {
     TypeShippingEntity findByIdType(Integer id_type);
+
+    TypeShippingEntity findByNameShip(String name_ship);
 }

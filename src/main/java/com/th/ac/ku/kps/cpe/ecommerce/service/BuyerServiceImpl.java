@@ -10,6 +10,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRespon
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
@@ -61,6 +63,7 @@ public class BuyerServiceImpl implements BuyerService {
                 OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
                 orderItemBody.setId_item(anOrderItem.getIdItem());
                 orderItemBody.setId_variation(anOrderItem.getIdVariation());
+
                 ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
                 orderItemBody.setName_variation(productVariation.getName());
                 ProductEntity product = productRepository.findByIdProduct(productVariation.getIdProduct());
@@ -95,9 +98,9 @@ public class BuyerServiceImpl implements BuyerService {
                 List<OrderReadOrderItemCheckpointOrderItemResponse> checkpointList = new ArrayList<>();
                 if (trackingResponseParam.getData().getTracking() != null) {
                     for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
-                        if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit")) {
+                        if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit") && anOrderItem.getOrderItemStatus() == OrderItemStatus.NOT_SHIP) {
                             anOrderItem.setOrderItemStatus(OrderItemStatus.SHIPPED);
-                        } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered")) {
+                        } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered") && (anOrderItem.getOrderItemStatus() == OrderItemStatus.NOT_SHIP || anOrderItem.getOrderItemStatus() == OrderItemStatus.SHIPPED)) {
                             anOrderItem.setOrderItemStatus(OrderItemStatus.DELIVERED);
                             if (anOrderItem.getExpiredBuyerConfirm() == null) {
                                 Date dt = new Date();
@@ -124,7 +127,7 @@ public class BuyerServiceImpl implements BuyerService {
                     }
                     orderItemRepository.save(anOrderItem);
                 }
-
+                orderItemBody.setOrder_item_status(anOrderItem.getOrderItemStatus());
                 orderItemBody.setCheckpoint(checkpointList);
                 orderItemBodyList.add(orderItemBody);
             }
@@ -503,6 +506,7 @@ public class BuyerServiceImpl implements BuyerService {
         return response;
     }
 
+
     @Override
     public OrderDeleteResponse orderDeleteResponse(String token, OrderDeleteRequest restRequest) {
         OrderDeleteResponse response = new OrderDeleteResponse();
@@ -552,4 +556,48 @@ public class BuyerServiceImpl implements BuyerService {
         return response;
     }
 
+    @Override
+    public OrderItemUpdateResponse orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest) {
+        OrderItemUpdateResponse response = new OrderItemUpdateResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        if (restRequest.getOrder_item_status() == OrderItemStatus.COMPLETED) {
+            return orderItemStatus_confirm(user, restRequest);
+        }
+        else {
+            response.setStatus(403);
+            response.setMsg("Access Denind. Can't update status!");
+            return response;
+        }
+    }
+
+    private OrderItemUpdateResponse orderItemStatus_confirm(UserEntity user, OrderItemUpdateRequest restRequest) {
+        OrderItemUpdateResponse response = new OrderItemUpdateResponse();
+        OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getId_item());
+        if (orderItem == null) {
+            response.setStatus(404);
+            response.setMsg("Wrong id_item");
+            return response;
+        }
+        OrderEntity order = orderRepository.findByIdOrder(orderItem.getIdOrder());
+        if (order == null) {
+            response.setStatus(404);
+            response.setMsg("No Order! Please check Id_item matching with Id_order");
+            return response;
+        }
+        if (order.getIdBuyer() != user.getIdUser()) {
+            response.setStatus(404);
+            response.setMsg("No id_item in your account");
+            return response;
+        }
+        orderItem.setOrderItemStatus(OrderItemStatus.COMPLETED);
+        orderItemRepository.save(orderItem);
+        response.setStatus(200);
+        response.setMsg("Update Successful");
+        return response;
+    }
 }

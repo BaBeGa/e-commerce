@@ -2,11 +2,13 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
 import java.util.List;
 
 public class OrderReadOrderItemOrderBodyResponse {
     private int id_item;
+    private OrderItemStatus order_item_status;
     private int id_variation;
     private String name_variation;
     private Integer id_shop;
@@ -28,6 +30,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setId_item(int id_item) {
         this.id_item = id_item;
+    }
+
+    @JsonGetter
+    public OrderItemStatus getOrder_item_status() {
+        return order_item_status;
+    }
+
+    @JsonSetter
+    public void setOrder_item_status(OrderItemStatus order_item_status) {
+        this.order_item_status = order_item_status;
     }
 
     @JsonGetter

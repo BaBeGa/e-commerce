@@ -7,6 +7,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRespon
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,4 +18,6 @@ public interface BuyerService {
     OrderCreateResponse orderCreateResponse(String token, OrderCreateRequest restRequest);
     OrderUpdateResponse orderUpdateResponse(String token, OrderUpdateRequest restRequest);
     OrderDeleteResponse orderDeleteResponse(String token, OrderDeleteRequest restRequest);
+
+    OrderItemUpdateResponse orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest);
 }

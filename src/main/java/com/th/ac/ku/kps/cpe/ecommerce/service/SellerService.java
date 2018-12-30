@@ -34,5 +34,8 @@ public interface SellerService {
     ShipOfShopDeleteResponse shipofshopDeleteResponse(String token, ShipOfShopDeleteRequest restRequest);
 
     OrderForSellerReadResponse readAllOrderForSellerResponse(String token);
+    OrderForSellerReadResponse readOrderForSellerResponse(String token, int id_item);
     OrderSellerUpdateResponse updateOrderForSellerResponse(String token, OrderSellerUpdateRequest restRequest);
+
+
 }

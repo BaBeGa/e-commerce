@@ -8,6 +8,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRespon
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.service.BuyerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,5 +94,14 @@ public class BuyerController implements Serializable {
         }
         BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
         return buyerService.orderDeleteResponse(token, restRequest);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/orderitem")
+    public OrderItemUpdateResponse orderItemUpdateResponse(@RequestHeader (required = false) String token, @RequestBody OrderItemUpdateRequest restRequest) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository);
+        return buyerService.orderItemUpdateResponse(token, restRequest);
     }
 }

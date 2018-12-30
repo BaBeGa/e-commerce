@@ -112,6 +112,11 @@ public class SellerController {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
         return sellerService.readAllOrderForSellerResponse(token);
     }
+    @RequestMapping(method = RequestMethod.GET, value = "/orderforseller/{id}")
+    public OrderForSellerReadResponse readOrderForSellerResponse(@RequestHeader("token") String token, @PathVariable("id") int id) {
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
+        return sellerService.readOrderForSellerResponse(token, id);
+    }
     @RequestMapping(method = RequestMethod.PUT, value = "/orderforseller")
     public OrderSellerUpdateResponse updateOrderForSellerResponse(@RequestHeader("token") String token, @RequestBody OrderSellerUpdateRequest restRequest) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
