@@ -7,8 +7,12 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRespon
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read.OrderReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update.OrderUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderhistory.OrderHistoryReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.create.RatingProductCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.create.RatingProductCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read.RatingProductReadResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,4 +24,11 @@ public interface BuyerService {
     OrderDeleteResponse orderDeleteResponse(String token, OrderDeleteRequest restRequest);
 
     OrderItemUpdateResponse orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest);
+
+    OrderHistoryReadResponse orderHistoryReadAllResponse(String token);
+    OrderHistoryReadResponse orderHistoryReadResponse(String token, int id_order_history);
+
+    RatingProductReadResponse ratingProductRead(String token);
+    RatingProductCreateResponse ratingProductCreate(String token, RatingProductCreateRequest restRequest);
+
 }

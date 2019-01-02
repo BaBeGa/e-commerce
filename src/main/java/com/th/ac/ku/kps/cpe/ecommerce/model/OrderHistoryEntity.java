@@ -1,5 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderHistoryStatus;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -9,14 +11,16 @@ public class OrderHistoryEntity {
     private int idOrderHistory;
     private int idBuyer;
     private String usernameBuyer;
+    private int idItem;
     private int idShop;
-    private int nameShop;
+    private String nameShop;
     private int idProduct;
     private String nameProduct;
     private int idVariation;
-    private int nameVariation;
+    private String nameVariation;
     private int quantity;
     private double price;
+    private OrderHistoryStatus status;
 
     @Id
     @Column(name = "id_order_history")
@@ -49,6 +53,16 @@ public class OrderHistoryEntity {
     }
 
     @Basic
+    @Column(name = "id_item")
+    public int getIdItem() {
+        return idItem;
+    }
+
+    public void setIdItem(int idItem) {
+        this.idItem = idItem;
+    }
+
+    @Basic
     @Column(name = "id_shop")
     public int getIdShop() {
         return idShop;
@@ -60,11 +74,11 @@ public class OrderHistoryEntity {
 
     @Basic
     @Column(name = "name_shop")
-    public int getNameShop() {
+    public String getNameShop() {
         return nameShop;
     }
 
-    public void setNameShop(int nameShop) {
+    public void setNameShop(String nameShop) {
         this.nameShop = nameShop;
     }
 
@@ -100,11 +114,11 @@ public class OrderHistoryEntity {
 
     @Basic
     @Column(name = "name_variation")
-    public int getNameVariation() {
+    public String getNameVariation() {
         return nameVariation;
     }
 
-    public void setNameVariation(int nameVariation) {
+    public void setNameVariation(String nameVariation) {
         this.nameVariation = nameVariation;
     }
 
@@ -126,6 +140,17 @@ public class OrderHistoryEntity {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    @Basic
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    public OrderHistoryStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderHistoryStatus status) {
+        this.status = status;
     }
 
     @Override
