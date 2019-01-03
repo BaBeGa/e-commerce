@@ -1,5 +1,10 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.read.FavoriteProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRequest;
@@ -30,5 +35,9 @@ public interface BuyerService {
 
     RatingProductReadResponse ratingProductRead(String token);
     RatingProductCreateResponse ratingProductCreate(String token, RatingProductCreateRequest restRequest);
+
+    FavoriteProductReadResponse favoriteProductRead(String token);
+    FavoriteProductCreateResponse favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest);
+    FavoriteProductDeleteResponse favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest);
 
 }

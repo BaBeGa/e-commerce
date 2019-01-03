@@ -2,11 +2,8 @@ package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
 import com.th.ac.ku.kps.cpe.ecommerce.exception.TokenNotFoundException;
 import com.th.ac.ku.kps.cpe.ecommerce.model.upload.UploadFileResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.ProductPicRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 
-import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopHasProductRepository;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopRepository;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.UserRepository;
 import com.th.ac.ku.kps.cpe.ecommerce.service.UploadFileService;
 import com.th.ac.ku.kps.cpe.ecommerce.service.UploadFileServiceImpl;
 
@@ -26,7 +23,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping(path = "/ecom/api/eshop")
 public class UploadAndDownloadController {
-    public static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//eshop//pic_product//"; // //var//www//html//e-commerce_01//eshop//pic_product//
+    public static final String UPLOAD_FOLDER = "//var//www//html//e-commerce_01//eshop//"; // //var//www//html//e-commerce_01//eshop//pic_product//
     @Autowired
     private ProductPicRepository productPicRepository;
     @Autowired
@@ -35,19 +32,34 @@ public class UploadAndDownloadController {
     private ShopRepository shopRepository;
     @Autowired
     private ShopHasProductRepository shopHasProductRepository;
+    @Autowired
+    private CommentProductRepository commentProductRepository;
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload")
     public UploadFileResponse upload(@RequestHeader (required = false) String token,
                                      @RequestParam("file") MultipartFile file,
-                                     @RequestParam(value = "id_product", required = false) Integer id_product) {
+                                     @RequestParam(value = "id_product", required = false) Integer id_product,
+                                     @RequestParam(value = "id_comment", required = false) Integer id_comment) {
         if (token == null || token.isEmpty()) {
            throw new TokenNotFoundException("Token can't be null");
         }
-        if (id_product == null) {
-            throw new TokenNotFoundException("id_product is required");
+        if (id_product == null && id_comment == null) {
+            throw new TokenNotFoundException("id_product or id_comment required");
         }
-        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, userRepository, shopRepository ,shopHasProductRepository);
-        return uploadFileService.uploadResponse(token, id_product, file, UPLOAD_FOLDER);
+        if (id_product != null && id_comment != null) {
+            throw new TokenNotFoundException("Can input only one parameter");
+        }
+        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, userRepository, shopRepository ,shopHasProductRepository, commentProductRepository);
+        String type;
+        if (id_product != null)  {
+            type = "product";
+            return uploadFileService.uploadResponse(token, id_product, file, UPLOAD_FOLDER, type);
+        }
+        else {
+            type = "comment";
+            return uploadFileService.uploadResponse(token, id_comment, file, UPLOAD_FOLDER, type);
+        }
+
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/download")

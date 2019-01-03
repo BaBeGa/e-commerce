@@ -1,14 +1,12 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.CommentProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.upload.UploadFileResponse;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.ProductPicRepository;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopHasProductRepository;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.ShopRepository;
-import com.th.ac.ku.kps.cpe.ecommerce.repository.UserRepository;
+import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,15 +20,17 @@ public class UploadFileServiceImpl implements UploadFileService {
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
     private final ShopHasProductRepository shopHasProductRepository;
-    public UploadFileServiceImpl(ProductPicRepository productPicRepository, UserRepository userRepository, ShopRepository shopRepository, ShopHasProductRepository shopHasProductRepository) {
+    private final CommentProductRepository commentProductRepository;
+    public UploadFileServiceImpl(ProductPicRepository productPicRepository, UserRepository userRepository, ShopRepository shopRepository, ShopHasProductRepository shopHasProductRepository, CommentProductRepository commentProductRepository) {
         this.productPicRepository = productPicRepository;
         this.userRepository = userRepository;
         this.shopRepository = shopRepository;
         this.shopHasProductRepository = shopHasProductRepository;
+        this.commentProductRepository = commentProductRepository;
     }
 
     @Override
-    public UploadFileResponse uploadResponse(String token, Integer id_product, MultipartFile file, String UPLOAD_FOLDER) {
+    public UploadFileResponse uploadResponse(String token, Integer id, MultipartFile file, String UPLOAD_FOLDER, String type) {
 
         UserEntity user = userRepository.findByToken(token);
         UploadFileResponse response = new UploadFileResponse();
@@ -39,54 +39,86 @@ public class UploadFileServiceImpl implements UploadFileService {
             response.setMsg("User not found. Please check token");
             return response;
         }
-        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
-        if (shop == null) {
-            response.setStatus(404);
-            response.setMsg("Shop not open or shop invalid!");
+        if (type.equals("product")) {
+            ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+            if (shop == null) {
+                response.setStatus(404);
+                response.setMsg("Shop not open or shop invalid!");
+                return response;
+            }
+            List<ShopHasProductEntity> shopHasProduct = shopHasProductRepository.findAllByIdShop(shop.getIdShop());
+            boolean foundProduct = false;
+            for (ShopHasProductEntity aShopHasProduct : shopHasProduct) {
+                if (aShopHasProduct.getIdProduct().equals(id)) {
+                    foundProduct = true;
+                    break;
+                }
+            }
+            if (!foundProduct) {
+                response.setStatus(404);
+                response.setMsg("Product not found!");
+            }
+
+
+            ProductPicEntity productPicEntity = new ProductPicEntity();
+
+            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
+            String filename = new Random().nextInt(999999) + "_" + System.currentTimeMillis();
+            File targetFile = new File(UPLOAD_FOLDER + "//pic_product//" + Integer.toString(id) + "//" + filename + fileExtension);
+            try {
+                File tmpDir = new File(UPLOAD_FOLDER + "//pic_product//" + Integer.toString(id));
+                boolean exists = tmpDir.exists();
+                Common.LoggerInfo(exists);
+                if (!exists) {
+                    new File(UPLOAD_FOLDER + "//pic_product//" + Integer.toString(id)).mkdir();
+                }
+                file.transferTo(targetFile);
+                productPicEntity.setIdProduct(id);
+                productPicEntity.setPicProduct(filename + fileExtension);
+                productPicRepository.save(productPicEntity);
+
+                response.setStatus(200);
+                response.setMsg("Upload successfully");
+
+            } catch (IOException e) {
+                response.setStatus(406);
+                response.setMsg("Can't upload. Because have some exception\n Exception : " + e.toString());
+            }
             return response;
         }
-        List<ShopHasProductEntity> shopHasProduct = shopHasProductRepository.findAllByIdShop(shop.getIdShop());
-        boolean foundProduct = false;
-        for (ShopHasProductEntity aShopHasProduct : shopHasProduct) {
-            if (aShopHasProduct.getIdProduct().equals(id_product)) {
-                foundProduct = true;
-                break;
-            }
-        }
-        if (!foundProduct) {
-            response.setStatus(404);
-            response.setMsg("Product not found!");
-        }
-
-
-        ProductPicEntity productPicEntity = new ProductPicEntity();
-
-        String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
-        String filename = new Random().nextInt(999999) + "_" + System.currentTimeMillis();
-        File targetFile = new File(UPLOAD_FOLDER + "//" + Integer.toString(id_product) + "//" + filename + fileExtension);
-        try {
-            File tmpDir = new File(UPLOAD_FOLDER + "//" + Integer.toString(id_product));
-            boolean exists = tmpDir.exists();
-            Common.LoggerInfo(exists);
-            if(!exists)
+        else {
+            CommentProductEntity comment = commentProductRepository.findByIdComment(id);
+            if (comment.getIdUser() != user.getIdUser())
             {
-                new File(UPLOAD_FOLDER + "//" + Integer.toString(id_product)).mkdir();
+                response.setStatus(404);
+                response.setMsg("id_comment is not yours");
+                return response;
             }
-            file.transferTo(targetFile);
-            Common.LoggerInfo(UPLOAD_FOLDER + filename + fileExtension);
-            productPicEntity.setIdProduct(id_product);
-            productPicEntity.setPicProduct(filename + fileExtension);
-            productPicRepository.save(productPicEntity);
 
-            response.setStatus(200);
-            response.setMsg("Upload successfully");
+            Common.LoggerInfo("98 + in type comment");
+            String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
+            String filename = new Random().nextInt(999999) + "_" + System.currentTimeMillis();
+            File targetFile = new File(UPLOAD_FOLDER + "//pic_comment//" + Integer.toString(id) + "//" + filename + fileExtension);
+            try {
+                File tmpDir = new File(UPLOAD_FOLDER + "//pic_comment//" + Integer.toString(id));
+                boolean exists = tmpDir.exists();
+                Common.LoggerInfo(exists);
+                if (!exists) {
+                    new File(UPLOAD_FOLDER + "//pic_comment//" + Integer.toString(id)).mkdir();
 
-        } catch (IOException e) {
-            response.setStatus(406);
-            response.setMsg("Can't upload. Because have some exception\n Exception : " + e.toString());
+                }
+                file.transferTo(targetFile);
+                comment.setContentPic(filename + fileExtension);
+                commentProductRepository.save(comment);
+
+                response.setStatus(200);
+                response.setMsg("Upload successfully");
+
+            } catch (IOException e) {
+                response.setStatus(406);
+                response.setMsg("Can't upload. Because have some exception\n Exception : " + e.toString());
+            }
+            return response;
         }
-        return response;
     }
-
-
 }

@@ -4,6 +4,13 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderHistoryStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.read.FavoriteProductReadBodyProductResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.read.FavoriteProductReadBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.read.FavoriteProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRequest;
@@ -28,8 +35,6 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.read.TrackingReadResponseParam;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -50,9 +55,11 @@ public class BuyerServiceImpl implements BuyerService {
     private final ProductPicRepository productPicRepository;
     private final OrderHistoryRepository orderHistoryRepository;
     private final RatingProductRepository ratingProductRepository;
+    private final CommentProductRepository commentProductRepository;
+    private final FavoriteProductRepository favoriteProductRepository;
 
     // ============= Order ============== //
-    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository) {
+    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, CommentProductRepository commentProductRepository, FavoriteProductRepository favoriteProductRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
@@ -68,6 +75,8 @@ public class BuyerServiceImpl implements BuyerService {
         this.productPicRepository = productPicRepository;
         this.orderHistoryRepository = orderHistoryRepository;
         this.ratingProductRepository = ratingProductRepository;
+        this.commentProductRepository = commentProductRepository;
+        this.favoriteProductRepository = favoriteProductRepository;
     }
     private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order) {
         for (OrderEntity anOrder : order) {
@@ -774,8 +783,15 @@ public class BuyerServiceImpl implements BuyerService {
             ratingProduct.setRating(restRequest.getRating());
             ratingProductRepository.save(ratingProduct);
             product.setCount(product.getCount()+1);
-            product.setMean((product.getMean() + restRequest.getRating())/product.getCount());
+            product.setMean(((product.getMean()*(product.getCount()-1)) + restRequest.getRating())/product.getCount());
             productRepository.save(product);
+            if (restRequest.getComment() != null) {
+                CommentProductEntity comment = new CommentProductEntity();
+                comment.setIdUser(user.getIdUser());
+                comment.setIdProduct(restRequest.getId_product());
+                comment.setContent(restRequest.getComment());
+                commentProductRepository.save(comment);
+            }
             response.setStatus(200);
             response.setMsg("Successful");
         }
@@ -784,6 +800,97 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("You haven't bought this product yet");
             return response;
         }
+        return response;
+    }
+
+    @Override
+    public FavoriteProductReadResponse favoriteProductRead(String token) {
+        FavoriteProductReadResponse response = new FavoriteProductReadResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        List<FavoriteProductEntity> favorite = favoriteProductRepository.findAllByIdUser(user.getIdUser());
+        FavoriteProductReadBodyResponse bodyResponse = new FavoriteProductReadBodyResponse();
+        List<FavoriteProductReadBodyProductResponse> productFavList = new ArrayList<>();
+        for (FavoriteProductEntity aFavorite : favorite) {
+            FavoriteProductReadBodyProductResponse productFav = new FavoriteProductReadBodyProductResponse();
+            productFav.setId_favorite(aFavorite.getIdFavorite());
+            productFav.setId_product(aFavorite.getIdProduct());
+            ProductEntity product = productRepository.findByIdProduct(aFavorite.getIdProduct());
+            productFav.setName_product(product.getNameProduct());
+            List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.getIdProduct());
+            productFav.setPic_product(productPic.get(0).getPicProduct());
+            productFavList.add(productFav);
+        }
+        bodyResponse.setProduct_favorite(productFavList);
+        response.setBody(bodyResponse);
+        response.setStatus(200);
+        response.setMsg("Successful");
+
+        return response;
+    }
+
+    @Override
+    public FavoriteProductCreateResponse favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest) {
+        FavoriteProductCreateResponse response = new FavoriteProductCreateResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        FavoriteProductEntity favoriteProduct = new FavoriteProductEntity();
+        favoriteProduct.setIdUser(user.getIdUser());
+        if (restRequest.getId_product() == null) {
+            response.setStatus(400);
+            response.setMsg("Bad Request. id_product required.");
+            return response;
+        }
+        if (productRepository.findByIdProduct(restRequest.getId_product()) == null) {
+            response.setStatus(404);
+            response.setMsg("This product is no longer available");
+            return response;
+        }
+        favoriteProduct.setIdProduct(restRequest.getId_product());
+        try {
+            favoriteProductRepository.save(favoriteProduct);
+            response.setStatus(200);
+            response.setMsg("Successful");
+            return response;
+        }
+        catch (Exception e) {
+            response.setStatus(406);
+            response.setMsg("favorite has exist.");
+            return response;
+        }
+    }
+
+    @Override
+    public FavoriteProductDeleteResponse favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest) {
+        FavoriteProductDeleteResponse response = new FavoriteProductDeleteResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        if (restRequest.getId_favorite() == null) {
+            response.setStatus(400);
+            response.setMsg("Bad Request. id_favorite required");
+            return response;
+        }
+        FavoriteProductEntity favoriteProduct = favoriteProductRepository.findByIdFavoriteAndIdUser(restRequest.getId_favorite(), user.getIdUser());
+        if (favoriteProduct == null) {
+            response.setStatus(404);
+            response.setMsg("id_favorite not found");
+            return response;
+        }
+        favoriteProductRepository.delete(favoriteProduct);
+        response.setStatus(200);
+        response.setMsg("Delete Successful");
         return response;
     }
 

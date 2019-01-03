@@ -1,6 +1,11 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
 import com.th.ac.ku.kps.cpe.ecommerce.exception.TokenNotFoundException;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.read.FavoriteProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.create.OrderCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.delete.OrderDeleteRequest;
@@ -62,13 +67,17 @@ public class BuyerController implements Serializable {
     private OrderHistoryRepository orderHistoryRepository;
     @Autowired
     private RatingProductRepository ratingProductRepository;
+    @Autowired
+    private CommentProductRepository commentProductRepository;
+    @Autowired
+    private FavoriteProductRepository favoriteProductRepository;
 
     @RequestMapping(method = RequestMethod.GET, value = "/order")
     public OrderReadResponse orderReadAllResponse(@RequestHeader (required = false) String token) {
         if (token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderReadAllResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/order/{id}")
@@ -76,7 +85,7 @@ public class BuyerController implements Serializable {
         if (token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderReadResponse(token, id);
     }
     @RequestMapping(method = RequestMethod.POST,value = "/order")
@@ -84,7 +93,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderCreateResponse(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/order")
@@ -92,7 +101,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderUpdateResponse(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/order")
@@ -100,7 +109,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderDeleteResponse(token, restRequest);
     }
 
@@ -109,7 +118,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderItemUpdateResponse(token, restRequest);
     }
 
@@ -118,7 +127,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderHistoryReadAllResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/orderhistory/{id}")
@@ -126,7 +135,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.orderHistoryReadResponse(token, id);
     }
 
@@ -135,7 +144,7 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.ratingProductRead(token);
     }
     @RequestMapping(method = RequestMethod.POST, value = "/rating/product")
@@ -143,7 +152,35 @@ public class BuyerController implements Serializable {
         if(token == null || token.isEmpty()) {
             throw new TokenNotFoundException("Token can't be null");
         }
-        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository);
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
         return buyerService.ratingProductCreate(token, restRequest);
     }
+    // PUT DELETE
+
+    @RequestMapping(method = RequestMethod.GET, value = "/favorite")
+    public FavoriteProductReadResponse favoriteProductReadResponse(@RequestHeader (required = false) String token) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
+        return buyerService.favoriteProductRead(token);
+    }
+    @RequestMapping(method = RequestMethod.POST, value = "/favorite")
+    public FavoriteProductCreateResponse favoriteProductCreateResponse(@RequestHeader (required = false) String token, @RequestBody FavoriteProductCreateRequest restRequest) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
+        return buyerService.favoriteProductCreate(token, restRequest);
+    }
+    @RequestMapping(method = RequestMethod.DELETE, value = "/favorite")
+    public FavoriteProductDeleteResponse favoriteProductDeleteResponse(@RequestHeader (required = false) String token,@RequestBody FavoriteProductDeleteRequest restRequest) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, shipOfShopRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository, commentProductRepository, favoriteProductRepository);
+        return buyerService.favoriteProductDelete(token, restRequest);
+    }
+
+
 }

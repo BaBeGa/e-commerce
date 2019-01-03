@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface UploadFileService {
-    UploadFileResponse uploadResponse(String token, Integer id_product, MultipartFile file, String UPLOAD_FOLDER);
+    UploadFileResponse uploadResponse(String token, Integer id_product, MultipartFile file, String UPLOAD_FOLDER, String type);
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class RatingProductCreateRequest {
     private Integer id_product;
     private Integer rating;
+    private String comment;
 
     @JsonGetter
     public Integer getId_product() {
@@ -25,5 +26,15 @@ public class RatingProductCreateRequest {
     @JsonSetter
     public void setRating(Integer rating) {
         this.rating = rating;
+    }
+
+    @JsonGetter
+    public String getComment() {
+        return comment;
+    }
+
+    @JsonSetter
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }
