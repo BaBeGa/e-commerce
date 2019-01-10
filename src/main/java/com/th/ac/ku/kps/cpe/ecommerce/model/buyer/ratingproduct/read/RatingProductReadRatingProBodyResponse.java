@@ -10,6 +10,8 @@ public class RatingProductReadRatingProBodyResponse {
     private Integer id_product;
     private String name_product;
     private Integer rating;
+    private String comment;
+    private String pic_comment;
 
     @JsonGetter
     public Integer getId_rating_product() {
@@ -69,5 +71,25 @@ public class RatingProductReadRatingProBodyResponse {
     @JsonSetter
     public void setRating(Integer rating) {
         this.rating = rating;
+    }
+
+    @JsonGetter
+    public String getComment() {
+        return comment;
+    }
+
+    @JsonSetter
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    @JsonGetter
+    public String getPic_comment() {
+        return pic_comment;
+    }
+
+    @JsonSetter
+    public void setPic_comment(String pic_comment) {
+        this.pic_comment = pic_comment;
     }
 }

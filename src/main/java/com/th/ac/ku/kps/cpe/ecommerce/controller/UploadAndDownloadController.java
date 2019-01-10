@@ -63,10 +63,23 @@ public class UploadAndDownloadController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/download")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String id_product, @RequestParam String filename) throws IOException {
+    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam(value = "id_product", required = false) String id_product,
+                                                            @RequestParam(value = "id_comment", required = false) String id_comment,
+                                                            @RequestParam String filename) throws IOException {
         MediaType mediaType = MediaType.IMAGE_PNG;
-
-        File file = new File(UPLOAD_FOLDER + "//" + id_product + "//" + filename);
+        if (id_product != null && id_comment != null) {
+            throw new TokenNotFoundException("Can input only one parameter");
+        }
+        if (id_product == null && id_comment == null) {
+            throw new TokenNotFoundException("id_product or id_comment required");
+        }
+        File file;
+        if (id_product != null) {
+            file = new File(UPLOAD_FOLDER + "//pic_product//" + id_product + "//" + filename);
+        }
+        else {
+            file = new File(UPLOAD_FOLDER + "//pic_comment//" + id_comment + "//" + filename);
+        }
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
         return ResponseEntity.ok()

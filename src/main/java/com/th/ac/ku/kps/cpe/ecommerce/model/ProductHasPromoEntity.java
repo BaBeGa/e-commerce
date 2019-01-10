@@ -19,6 +19,7 @@ public class ProductHasPromoEntity {
 
     @Id
     @Column(name = "id_product_has_promo")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Integer getIdProductHasPromo() {
         return idProductHasPromo;
     }

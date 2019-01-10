@@ -78,13 +78,14 @@ public class BuyerServiceImpl implements BuyerService {
         this.commentProductRepository = commentProductRepository;
         this.favoriteProductRepository = favoriteProductRepository;
     }
+
     private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order) {
         for (OrderEntity anOrder : order) {
             Double price_total = 0.0;
             List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
             List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
             Common.LoggerInfo(orderItem);
-            for (OrderItemEntity anOrderItem: orderItem) {
+            for (OrderItemEntity anOrderItem : orderItem) {
                 OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
                 orderItemBody.setId_item(anOrderItem.getIdItem());
                 orderItemBody.setId_variation(anOrderItem.getIdVariation());
@@ -100,7 +101,7 @@ public class BuyerServiceImpl implements BuyerService {
                 orderItemBody.setId_shop(shopHasProduct.getIdShop());
                 ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
                 orderItemBody.setShop_name(shop.getNameShop());
-                price_total += productVariation.getPrice()*anOrderItem.getQuantity();
+                price_total += productVariation.getPrice() * anOrderItem.getQuantity();
                 orderItemBody.setPrice(productVariation.getPrice());
                 orderItemBody.setQuantity(anOrderItem.getQuantity());
                 // **
@@ -188,6 +189,7 @@ public class BuyerServiceImpl implements BuyerService {
 
         }
     }
+
     @Override
     public OrderReadResponse orderReadAllResponse(String token) {
         OrderReadResponse response = new OrderReadResponse();
@@ -275,8 +277,7 @@ public class BuyerServiceImpl implements BuyerService {
                 response.setMsg("Unknown error. Can't create order.");
                 return response;
             }
-        }
-        else {
+        } else {
             List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndOrderStatus(user.get(0).getIdUser(), OrderStatus.ORDERING);
             for (int i = 0; i < restRequest.getBody().getOrder_item().size(); i++) {
                 OrderItemEntity orderItem = new OrderItemEntity();
@@ -309,29 +310,23 @@ public class BuyerServiceImpl implements BuyerService {
 
         if (restRequest.getBody().getOrder_status() == OrderStatus.ORDERING) {
             return orderStatus_ordering(user, restRequest);
-        }
-        else if (restRequest.getBody().getOrder_status() == OrderStatus.ADDRESSING) {
-            return orderStatus_addressing(user,restRequest);
-        }
-        else if (restRequest.getBody().getOrder_status() == OrderStatus.CHOOSING_SHIP) {
-            return orderStatus_choosing_ship(user,restRequest);
-        }
-        else if (restRequest.getBody().getOrder_status() == OrderStatus.SHIP_CHOSEN) {
-            return orderStatus_ship_chosen(user,restRequest);
-        }
-        else if (restRequest.getBody().getOrder_status() == OrderStatus.PAY_CHOSEN) {
-            return orderStatus_pay_chosen(user,restRequest);
-        }
-        else if (restRequest.getBody().getOrder_status() == OrderStatus.ORDERED) {
-            return orderStatus_ordered(user,restRequest);
-        }
-
-        else {
+        } else if (restRequest.getBody().getOrder_status() == OrderStatus.ADDRESSING) {
+            return orderStatus_addressing(user, restRequest);
+        } else if (restRequest.getBody().getOrder_status() == OrderStatus.CHOOSING_SHIP) {
+            return orderStatus_choosing_ship(user, restRequest);
+        } else if (restRequest.getBody().getOrder_status() == OrderStatus.SHIP_CHOSEN) {
+            return orderStatus_ship_chosen(user, restRequest);
+        } else if (restRequest.getBody().getOrder_status() == OrderStatus.PAY_CHOSEN) {
+            return orderStatus_pay_chosen(user, restRequest);
+        } else if (restRequest.getBody().getOrder_status() == OrderStatus.ORDERED) {
+            return orderStatus_ordered(user, restRequest);
+        } else {
             response.setStatus(403);
             response.setMsg("Access Denind. Can't update status!");
             return response;
         }
     }
+
     private OrderUpdateResponse orderStatus_ordering(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
@@ -362,13 +357,13 @@ public class BuyerServiceImpl implements BuyerService {
             }
             response.setStatus(201);
             response.setMsg("Updated");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(400);
             response.setMsg("Unknown error. Can't update order. Exception : " + e.toString());
         }
         return response;
     }
+
     private OrderUpdateResponse orderStatus_addressing(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
@@ -382,13 +377,13 @@ public class BuyerServiceImpl implements BuyerService {
             orderRepository.save(orderEntity.get(0));
             response.setStatus(200);
             response.setMsg("Updated");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(400);
             response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
         }
         return response;
     }
+
     private OrderUpdateResponse orderStatus_choosing_ship(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
@@ -409,13 +404,13 @@ public class BuyerServiceImpl implements BuyerService {
             orderRepository.save(orderEntity.get(0));
             response.setStatus(201);
             response.setMsg("Updated address");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(400);
             response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
         }
         return response;
     }
+
     private OrderUpdateResponse orderStatus_ship_chosen(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
@@ -448,13 +443,13 @@ public class BuyerServiceImpl implements BuyerService {
             orderRepository.save(orderEntity.get(0));
             response.setStatus(200);
             response.setMsg("Updated. ship chosen.");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(400);
             response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
         }
         return response;
     }
+
     private OrderUpdateResponse orderStatus_pay_chosen(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
@@ -483,13 +478,13 @@ public class BuyerServiceImpl implements BuyerService {
             response.setStatus(200);
             response.setMsg("Updated. payment chosen.");
             return response;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(400);
             response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
             return response;
         }
     }
+
     private OrderUpdateResponse orderStatus_ordered(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
@@ -523,8 +518,7 @@ public class BuyerServiceImpl implements BuyerService {
             orderRepository.save(orderEntity.get(0));
             response.setStatus(201);
             response.setMsg("Updated Ordered");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(400);
             response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
         }
@@ -571,7 +565,7 @@ public class BuyerServiceImpl implements BuyerService {
                 }
 
             }
-            if(!foundOrder) {
+            if (!foundOrder) {
                 response.setStatus(204);
                 response.setMsg("Order not found");
             }
@@ -592,13 +586,13 @@ public class BuyerServiceImpl implements BuyerService {
         }
         if (restRequest.getOrder_item_status() == OrderItemStatus.COMPLETED) {
             return orderItemStatus_confirm(user, restRequest);
-        }
-        else {
+        } else {
             response.setStatus(403);
             response.setMsg("Access Denind. Can't update status!");
             return response;
         }
     }
+
     private OrderItemUpdateResponse orderItemStatus_confirm(UserEntity user, OrderItemUpdateRequest restRequest) {
         OrderItemUpdateResponse response = new OrderItemUpdateResponse();
         OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getId_item());
@@ -705,7 +699,7 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("User not found. Please check token");
             return response;
         }
-        List<OrderHistoryEntity> orderHistory = orderHistoryRepository.findByIdBuyerAndIdOrderHistory(user.getIdUser(),id_order_history);
+        List<OrderHistoryEntity> orderHistory = orderHistoryRepository.findByIdBuyerAndIdOrderHistory(user.getIdUser(), id_order_history);
         OrderHistoryReadBodyResponse body = new OrderHistoryReadBodyResponse();
 
         List<OrderHistoryReadOrderHisBodyResponse> order_history_list = new ArrayList<>();
@@ -738,8 +732,10 @@ public class BuyerServiceImpl implements BuyerService {
             if (product != null) {
                 ratingProductResponse.setId_product(product.getIdProduct());
                 ratingProductResponse.setName_product(product.getNameProduct());
-            }
-            else {
+                CommentProductEntity comment = commentProductRepository.findByIdUserAndIdProduct(user.getIdUser(), product.getIdProduct());
+                ratingProductResponse.setComment(comment.getContent());
+                ratingProductResponse.setPic_comment(comment.getContentPic());
+            } else {
                 ratingProductResponse.setName_product("สินค้าไม่ถูกต้อง หรือ ถูกลบไปแล้ว");
             }
             ratingProductResponse.setId_user(ratingProduct.get(i).getIdUser());
@@ -782,8 +778,8 @@ public class BuyerServiceImpl implements BuyerService {
             ratingProduct.setIdProduct(restRequest.getId_product());
             ratingProduct.setRating(restRequest.getRating());
             ratingProductRepository.save(ratingProduct);
-            product.setCount(product.getCount()+1);
-            product.setMean(((product.getMean()*(product.getCount()-1)) + restRequest.getRating())/product.getCount());
+            product.setCount(product.getCount() + 1);
+            product.setMean(((product.getMean() * (product.getCount() - 1)) + restRequest.getRating()) / product.getCount());
             productRepository.save(product);
             if (restRequest.getComment() != null) {
                 CommentProductEntity comment = new CommentProductEntity();
@@ -794,8 +790,7 @@ public class BuyerServiceImpl implements BuyerService {
             }
             response.setStatus(200);
             response.setMsg("Successful");
-        }
-        else {
+        } else {
             response.setStatus(406);
             response.setMsg("You haven't bought this product yet");
             return response;
@@ -860,8 +855,7 @@ public class BuyerServiceImpl implements BuyerService {
             response.setStatus(200);
             response.setMsg("Successful");
             return response;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(406);
             response.setMsg("favorite has exist.");
             return response;

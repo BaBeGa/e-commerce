@@ -13,6 +13,16 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteR
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.create.PromotionCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.create.PromotionCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.delete.PromotionDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.delete.PromotionDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.read.PromotionProductReadBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.read.PromotionProductVariationReadBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.read.PromotionReadBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.read.PromotionReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.update.PromotionUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.update.PromotionUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadBodyResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadDataBodyResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadResponse;
@@ -203,6 +213,7 @@ public class SellerServiceImpl implements SellerService{
                 List<ProductHasPromoEntity> productHasPromoList = productHasPromoRepository.findAllByIdProductVariation(productVariationList.get(j).getIdVariation());
                 if (productHasPromoList.size() != 0) {
                     ProductReadPromotionVariationProductBodyResponse promotionVariationProductBodyResponse = new ProductReadPromotionVariationProductBodyResponse();
+                    promotionVariationProductBodyResponse.setId_product_has_promo(productHasPromoList.get(0).getIdProductHasPromo());
                     promotionVariationProductBodyResponse.setId_promo_type(productHasPromoList.get(0).getIdPromoType());
                     promotionVariationProductBodyResponse.setNew_price(productHasPromoList.get(0).getNewPrice());
                     promotionVariationProductBodyResponse.setTime_start(productHasPromoList.get(0).getTimeStart());
@@ -280,6 +291,7 @@ public class SellerServiceImpl implements SellerService{
                     List<ProductHasPromoEntity> productHasPromoList = productHasPromoRepository.findAllByIdProductVariation(productVariationList.get(j).getIdVariation());
                     if (productHasPromoList.size() != 0) {
                         ProductReadPromotionVariationProductBodyResponse promotionVariationProductBodyResponse = new ProductReadPromotionVariationProductBodyResponse();
+                        promotionVariationProductBodyResponse.setId_product_has_promo(productHasPromoList.get(0).getIdProductHasPromo());
                         promotionVariationProductBodyResponse.setId_promo_type(productHasPromoList.get(0).getIdPromoType());
                         promotionVariationProductBodyResponse.setNew_price(productHasPromoList.get(0).getNewPrice());
                         promotionVariationProductBodyResponse.setTime_start(productHasPromoList.get(0).getTimeStart());
@@ -865,6 +877,267 @@ public class SellerServiceImpl implements SellerService{
             response.setStatus(204);
             response.setMsg("Error, Exception : " + e.toString());
         }
+        return response;
+    }
+
+    @Override
+    public PromotionReadResponse readPromotion(String token) {
+        PromotionReadResponse response = new PromotionReadResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        productHasPromoRepository.deleteAllByTimeEndBefore(timeNow);
+
+        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+        if (shop == null) {
+            response.setStatus(404);
+            response.setMsg("Shop not open");
+            return response;
+        }
+
+        List<ProductHasPromoEntity> productHasPromo = productHasPromoRepository.findAll();
+        List<ProductVariationEntity> productVariationList = new ArrayList<>();
+        for (ProductHasPromoEntity aProductHasPromo : productHasPromo) {
+            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(aProductHasPromo.getIdProductVariation());
+            productVariationList.add(productVariation);
+        }
+        List<ProductEntity> allProductInMyPromotion = new ArrayList<>();
+        for (int i = 0; i < productVariationList.size(); i++) {
+            ProductEntity productInPromotion = productRepository.findByIdProduct(productVariationList.get(i).getIdProduct());
+            if (shopHasProductRepository.findByIdProduct(productInPromotion.getIdProduct()).getIdShop() == shop.getIdShop()) {
+                boolean flagHave = false;
+                for (int j = 0; j < allProductInMyPromotion.size(); j++) {
+                    if (allProductInMyPromotion.get(j).getIdProduct().equals(productInPromotion.getIdProduct())) {
+                        flagHave = true;
+                    }
+                }
+                if (!flagHave)
+                    allProductInMyPromotion.add(productInPromotion);
+            }
+        }
+
+        PromotionReadBodyResponse bodyResponse = new PromotionReadBodyResponse();
+        List<PromotionProductReadBodyResponse> promotionProductList = new ArrayList<>();
+        for (int i = 0; i < allProductInMyPromotion.size(); i++) {
+            PromotionProductReadBodyResponse promotionProduct = new PromotionProductReadBodyResponse();
+            promotionProduct.setId_product(allProductInMyPromotion.get(i).getIdProduct());
+            promotionProduct.setName_product(allProductInMyPromotion.get(i).getNameProduct());
+            List<ProductPicEntity> productPicEntity = productPicRepository.findAllByIdProduct(allProductInMyPromotion.get(i).getIdProduct());
+            promotionProduct.setPic_product(productPicEntity.get(0).getPicProduct());
+
+            List<PromotionProductVariationReadBodyResponse> promotionVariationResponseList = new ArrayList<>();
+            List<ProductVariationEntity> productVariationEntityList = productVariationRepository.findAllByIdProduct(allProductInMyPromotion.get(i).getIdProduct());
+            for (int j = 0; j < productVariationEntityList.size(); j++) {
+                if (productHasPromoRepository.findByIdProductVariation(productVariationEntityList.get(j).getIdVariation()) != null) {
+                    PromotionProductVariationReadBodyResponse promotionVariationResponse = new PromotionProductVariationReadBodyResponse();
+                    promotionVariationResponse.setId_product_has_promo(productHasPromoRepository.findByIdProductVariation(productVariationEntityList.get(j).getIdVariation()).getIdProductHasPromo());
+                    promotionVariationResponse.setId_variation(productVariationEntityList.get(j).getIdVariation());
+                    promotionVariationResponse.setName(productVariationEntityList.get(j).getName());
+                    promotionVariationResponse.setPrice(productVariationEntityList.get(j).getPrice());
+                    promotionVariationResponse.setNew_price(productHasPromoRepository.findByIdProductVariation(productVariationEntityList.get(j).getIdVariation()).getNewPrice());
+                    promotionVariationResponse.setTime_start(productHasPromoRepository.findByIdProductVariation(productVariationEntityList.get(j).getIdVariation()).getTimeStart());
+                    promotionVariationResponse.setTime_end(productHasPromoRepository.findByIdProductVariation(productVariationEntityList.get(j).getIdVariation()).getTimeEnd());
+                    promotionVariationResponseList.add(promotionVariationResponse);
+                }
+            }
+            promotionProduct.setProduct_variation(promotionVariationResponseList);
+            promotionProductList.add(promotionProduct);
+        }
+        bodyResponse.setPromotion_product(promotionProductList);
+        response.setBody(bodyResponse);
+        response.setStatus(200);
+        response.setMsg("Successful");
+        return response;
+    }
+
+    @Override
+    public PromotionCreateResponse createPromotion(String token, PromotionCreateRequest restRequest) {
+        PromotionCreateResponse response = new PromotionCreateResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        ProductHasPromoEntity productHasPromo = new ProductHasPromoEntity();
+        if (restRequest.getId_product_variation() == null) {
+            response.setStatus(400);
+            response.setMsg("id_product_variation required");
+            return response;
+        }
+        if (restRequest.getId_promo_type() == null) {
+            response.setStatus(400);
+            response.setMsg("id_promo_type required");
+            return response;
+        }
+        if (restRequest.getNew_price() == null) {
+            response.setStatus(400);
+            response.setMsg("new_price required");
+            return response;
+        }
+        if (restRequest.getTime_start() == null) {
+            response.setStatus(400);
+            response.setMsg("time_start required");
+            return response;
+        }
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        if (restRequest.getTime_start().before(timeNow)) {
+            response.setStatus(400);
+            response.setMsg("Can't create the past time");
+            return response;
+        }
+        if (restRequest.getTime_end() == null) {
+            response.setStatus(400);
+            response.setMsg("time_end required");
+            return response;
+        }
+        if (restRequest.getTime_start().after(restRequest.getTime_end())) {
+            response.setStatus(400);
+            response.setMsg("Cannot set the time end before the start time");
+            return response;
+        }
+        ProductVariationEntity productVariationCheck = productVariationRepository.findByIdVariation(restRequest.getId_product_variation());
+        if (productVariationCheck == null) {
+            response.setStatus(404);
+            response.setMsg("Product variaton not found !");
+            return response;
+        }
+        ProductEntity productCheck = productRepository.findByIdProduct(productVariationCheck.getIdProduct());
+        ShopHasProductEntity shopHasProductCheck = shopHasProductRepository.findByIdProduct(productCheck.getIdProduct());
+        ShopEntity shopCheck = shopRepository.findByIdShop(shopHasProductCheck.getIdShop());
+        if (user.getIdUser() != shopCheck.getIdUser()) {
+            response.setStatus(406);
+            response.setMsg("Not found product in shop");
+            return response;
+        }
+
+        productHasPromoRepository.deleteAllByTimeEndBefore(timeNow);
+
+        ProductHasPromoEntity productHasPromoCheck = productHasPromoRepository.findByIdProductVariation(restRequest.getId_product_variation());
+        Common.LoggerInfo(productHasPromoCheck);
+        if (productHasPromoCheck != null) {
+            response.setStatus(406);
+            response.setMsg("This promotion is already available.");
+            return response;
+        }
+        productHasPromo.setIdPromoType(restRequest.getId_promo_type());
+        productHasPromo.setIdProductVariation(restRequest.getId_product_variation());
+        productHasPromo.setNewPrice(restRequest.getNew_price());
+        productHasPromo.setTimeStart(restRequest.getTime_start());
+        productHasPromo.setTimeEnd(restRequest.getTime_end());
+        productHasPromoRepository.save(productHasPromo);
+        response.setStatus(200);
+        response.setMsg("Created Promotion!");
+        return response;
+    }
+
+    @Override
+    public PromotionUpdateResponse updatePromotion(String token, PromotionUpdateRequest restRequest) {
+        PromotionUpdateResponse response = new PromotionUpdateResponse();
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        productHasPromoRepository.deleteAllByTimeEndBefore(timeNow);
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        if (restRequest.getId_product_has_promo() == null) {
+            response.setStatus(400);
+            response.setMsg("Id_product_has_promo is required");
+            return response;
+        }
+        ProductHasPromoEntity productHasPromoCheck = productHasPromoRepository.findByIdProductHasPromo(restRequest.getId_product_has_promo());
+        if (productHasPromoCheck == null) {
+            response.setStatus(404);
+            response.setMsg("Product has promo not found!");
+            return response;
+        }
+        ProductVariationEntity productVariationCheck = productVariationRepository.findByIdVariation(productHasPromoCheck.getIdProductVariation());
+        ProductEntity productCheck = productRepository.findByIdProduct(productVariationCheck.getIdProduct());
+        ShopHasProductEntity shopHasProductCheck = shopHasProductRepository.findByIdProduct(productCheck.getIdProduct());
+        ShopEntity shopCheck = shopRepository.findByIdShop(shopHasProductCheck.getIdShop());
+        if (user.getIdUser() != shopCheck.getIdUser()) {
+            response.setStatus(406);
+            response.setMsg("Product has promo not found in your shop!");
+            return response;
+        }
+
+        if (restRequest.getId_promo_type() != null)
+            productHasPromoCheck.setIdPromoType(restRequest.getId_promo_type());
+        if (restRequest.getNew_price() != null) {
+            if (productHasPromoCheck.getTimeStart().after(timeNow)) {
+                response.setStatus(406);
+                response.setMsg("Cannot update new price. In the promotion period");
+                return response;
+            }
+            productHasPromoCheck.setNewPrice(restRequest.getNew_price());
+        }
+        if (restRequest.getTime_start() != null) {
+            if (productHasPromoCheck.getTimeStart().before(timeNow)) {
+                response.setStatus(406);
+                response.setMsg("Cannot update time start. In the promotion period");
+                return response;
+            }
+            productHasPromoCheck.setTimeStart(restRequest.getTime_start());
+        }
+        if (restRequest.getTime_end() != null) {
+            if (productHasPromoCheck.getTimeStart().after(restRequest.getTime_end())) {
+                response.setStatus(400);
+                response.setMsg("Cannot set the time end before the start time");
+                return response;
+            }
+            productHasPromoCheck.setTimeEnd(restRequest.getTime_end());
+        }
+        productHasPromoRepository.save(productHasPromoCheck);
+        response.setStatus(200);
+        response.setMsg("Update Successful");
+        return response;
+    }
+
+    @Override
+    public PromotionDeleteResponse deletePromotion(String token, PromotionDeleteRequest restRequest) {
+        PromotionDeleteResponse response = new PromotionDeleteResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        if (restRequest.getId_product_has_promo() == null) {
+            response.setStatus(400);
+            response.setMsg("Id_product_has_promo is required");
+            return response;
+        }
+        ProductHasPromoEntity productHasPromoCheck = productHasPromoRepository.findByIdProductHasPromo(restRequest.getId_product_has_promo());
+        if (productHasPromoCheck == null) {
+            response.setStatus(404);
+            response.setMsg("Product has promo not found!");
+            return response;
+        }
+        ProductVariationEntity productVariationCheck = productVariationRepository.findByIdVariation(productHasPromoCheck.getIdProductVariation());
+        ProductEntity productCheck = productRepository.findByIdProduct(productVariationCheck.getIdProduct());
+        ShopHasProductEntity shopHasProductCheck = shopHasProductRepository.findByIdProduct(productCheck.getIdProduct());
+        ShopEntity shopCheck = shopRepository.findByIdShop(shopHasProductCheck.getIdShop());
+        if (user.getIdUser() != shopCheck.getIdUser()) {
+            response.setStatus(406);
+            response.setMsg("Product has promo not found in your shop!");
+            return response;
+        }
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        productHasPromoRepository.deleteAllByTimeEndBefore(timeNow);
+
+        productHasPromoRepository.delete(productHasPromoCheck);
+        response.setStatus(200);
+        response.setMsg("Delete Successful");
         return response;
     }
 

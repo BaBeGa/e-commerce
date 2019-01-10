@@ -5,4 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface CommentProductRepository extends CrudRepository<CommentProductEntity, Integer> {
     CommentProductEntity findByIdComment(Integer id_comment);
+    CommentProductEntity findByIdUserAndIdProduct(Integer id_user, Integer id_product);
 }

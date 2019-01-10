@@ -10,6 +10,13 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteR
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.ProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.create.PromotionCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.create.PromotionCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.delete.PromotionDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.delete.PromotionDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.read.PromotionReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.update.PromotionUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.update.PromotionUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create.ShipOfShopCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create.ShipOfShopCreateResponse;
@@ -36,6 +43,11 @@ public interface SellerService {
     OrderForSellerReadResponse readAllOrderForSellerResponse(String token);
     OrderForSellerReadResponse readOrderForSellerResponse(String token, int id_item);
     OrderSellerUpdateResponse updateOrderForSellerResponse(String token, OrderSellerUpdateRequest restRequest);
+
+    PromotionReadResponse readPromotion(String token);
+    PromotionCreateResponse createPromotion(String token, PromotionCreateRequest restRequest);
+    PromotionUpdateResponse updatePromotion(String token, PromotionUpdateRequest restRequest);
+    PromotionDeleteResponse deletePromotion(String token, PromotionDeleteRequest restRequest);
 
 
 }

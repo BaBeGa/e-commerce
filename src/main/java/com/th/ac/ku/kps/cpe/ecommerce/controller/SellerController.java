@@ -1,5 +1,6 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
+import com.th.ac.ku.kps.cpe.ecommerce.exception.TokenNotFoundException;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.OrderForSellerReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
@@ -9,6 +10,13 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.delete.ProductDeleteR
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read.ProductReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update.ProductUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.create.PromotionCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.create.PromotionCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.delete.PromotionDeleteRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.delete.PromotionDeleteResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.read.PromotionReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.update.PromotionUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.promotion.update.PromotionUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create.ShipOfShopCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read.ShipOfShopReadResponse;
@@ -20,6 +28,7 @@ import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shop.*;
+import com.th.ac.ku.kps.cpe.ecommerce.service.SellerService;
 import com.th.ac.ku.kps.cpe.ecommerce.service.SellerServiceImpl;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,5 +131,38 @@ public class SellerController {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
 
         return sellerService.updateOrderForSellerResponse(token, restRequest);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/promotion")
+    public PromotionReadResponse readPromotion(@RequestHeader (required = false) String token) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
+        return sellerService.readPromotion(token);
+    }
+    @RequestMapping(method = RequestMethod.POST, value = "/promotion")
+    public PromotionCreateResponse createPromotion(@RequestHeader (required = false) String token, @RequestBody PromotionCreateRequest restRequest) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
+        return sellerService.createPromotion(token, restRequest);
+    }
+    @RequestMapping(method = RequestMethod.PUT, value = "/promotion")
+    public PromotionUpdateResponse updatePromotion(@RequestHeader (required = false) String token, @RequestBody PromotionUpdateRequest restRequest) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
+        return sellerService.updatePromotion(token, restRequest);
+    }
+    @RequestMapping(method = RequestMethod.DELETE, value = "/promotion")
+    public PromotionDeleteResponse deletePromotion(@RequestHeader (required = false) String token, @RequestBody PromotionDeleteRequest restRequest) {
+        if(token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository);
+        return sellerService.deletePromotion(token, restRequest);
     }
 }
