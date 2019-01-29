@@ -19,8 +19,9 @@
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.ConfigEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderHistoryEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.RatingProductEntity</class>
-        <class>com.th.ac.ku.kps.cpe.ecommerce.model.CommentProductEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.FavoriteProductEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.RatingProductPicEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.RatingShopEntity</class>
         <properties>
             <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/e-commerce_01"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>

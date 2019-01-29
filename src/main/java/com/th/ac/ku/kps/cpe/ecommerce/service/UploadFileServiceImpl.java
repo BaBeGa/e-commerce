@@ -1,6 +1,6 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
-import com.th.ac.ku.kps.cpe.ecommerce.model.CommentProductEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.RatingProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
@@ -20,13 +20,13 @@ public class UploadFileServiceImpl implements UploadFileService {
     private final UserRepository userRepository;
     private final ShopRepository shopRepository;
     private final ShopHasProductRepository shopHasProductRepository;
-    private final CommentProductRepository commentProductRepository;
-    public UploadFileServiceImpl(ProductPicRepository productPicRepository, UserRepository userRepository, ShopRepository shopRepository, ShopHasProductRepository shopHasProductRepository, CommentProductRepository commentProductRepository) {
+    private final RatingProductPicRepository ratingProductPicRepository;
+    public UploadFileServiceImpl(ProductPicRepository productPicRepository, UserRepository userRepository, ShopRepository shopRepository, ShopHasProductRepository shopHasProductRepository, RatingProductPicRepository ratingProductPicRepository) {
         this.productPicRepository = productPicRepository;
         this.userRepository = userRepository;
         this.shopRepository = shopRepository;
         this.shopHasProductRepository = shopHasProductRepository;
-        this.commentProductRepository = commentProductRepository;
+        this.ratingProductPicRepository = ratingProductPicRepository;
     }
 
     @Override
@@ -87,29 +87,23 @@ public class UploadFileServiceImpl implements UploadFileService {
             return response;
         }
         else {
-            CommentProductEntity comment = commentProductRepository.findByIdComment(id);
-            if (comment.getIdUser() != user.getIdUser())
-            {
-                response.setStatus(404);
-                response.setMsg("id_comment is not yours");
-                return response;
-            }
+            RatingProductPicEntity ratingProductPic = new RatingProductPicEntity();
+            ratingProductPic.setIdRatingProduct(id);
 
-            Common.LoggerInfo("98 + in type comment");
             String fileExtension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.'));
             String filename = new Random().nextInt(999999) + "_" + System.currentTimeMillis();
-            File targetFile = new File(UPLOAD_FOLDER + "//pic_comment//" + Integer.toString(id) + "//" + filename + fileExtension);
+            File targetFile = new File(UPLOAD_FOLDER + "//pic_rating_product//" + Integer.toString(id) + "//" + filename + fileExtension);
             try {
-                File tmpDir = new File(UPLOAD_FOLDER + "//pic_comment//" + Integer.toString(id));
+                File tmpDir = new File(UPLOAD_FOLDER + "//pic_rating_product//" + Integer.toString(id));
                 boolean exists = tmpDir.exists();
                 Common.LoggerInfo(exists);
                 if (!exists) {
-                    new File(UPLOAD_FOLDER + "//pic_comment//" + Integer.toString(id)).mkdir();
+                    new File(UPLOAD_FOLDER + "//pic_rating_product//" + Integer.toString(id)).mkdir();
 
                 }
                 file.transferTo(targetFile);
-                comment.setContentPic(filename + fileExtension);
-                commentProductRepository.save(comment);
+                ratingProductPic.setContentPic(filename + fileExtension);
+                ratingProductPicRepository.save(ratingProductPic);
 
                 response.setStatus(200);
                 response.setMsg("Upload successfully");

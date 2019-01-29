@@ -33,7 +33,7 @@ public interface BuyerService {
     OrderHistoryReadResponse orderHistoryReadAllResponse(String token);
     OrderHistoryReadResponse orderHistoryReadResponse(String token, int id_order_history);
 
-    RatingProductReadResponse ratingProductRead(String token);
+    RatingProductReadResponse ratingProductReadByIdRatingProduct(String token, int id);
     RatingProductCreateResponse ratingProductCreate(String token, RatingProductCreateRequest restRequest);
 
     FavoriteProductReadResponse favoriteProductRead(String token);

@@ -24,6 +24,7 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopD
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics.StatisticsResponse;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,5 +50,5 @@ public interface SellerService {
     PromotionUpdateResponse updatePromotion(String token, PromotionUpdateRequest restRequest);
     PromotionDeleteResponse deletePromotion(String token, PromotionDeleteRequest restRequest);
 
-
+    StatisticsResponse readStatistics(String token, Integer day_1, Integer month_1, Integer year_1, Integer day_2, Integer month_2, Integer year_2);
 }

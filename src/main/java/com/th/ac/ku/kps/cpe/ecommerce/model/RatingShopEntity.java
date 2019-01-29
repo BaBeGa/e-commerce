@@ -5,22 +5,24 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
-@Table(name = "rating_product", schema = "e-commerce_01")
-public class RatingProductEntity {
-    private int idRatingProduct;
+@Table(name = "rating_shop", schema = "e-commerce_01")
+public class RatingShopEntity {
+    private int idRatingShop;
     private int idOrderHistory;
+    private int idUser;
+    private int idShop;
     private int rating;
     private String content;
     private Timestamp ratedDate;
 
     @Id
-    @Column(name = "id_rating_product")
-    public int getIdRatingProduct() {
-        return idRatingProduct;
+    @Column(name = "id_rating_shop")
+    public int getIdRatingShop() {
+        return idRatingShop;
     }
 
-    public void setIdRatingProduct(int idRatingProduct) {
-        this.idRatingProduct = idRatingProduct;
+    public void setIdRatingShop(int idRatingShop) {
+        this.idRatingShop = idRatingShop;
     }
 
     @Basic
@@ -31,6 +33,26 @@ public class RatingProductEntity {
 
     public void setIdOrderHistory(int idOrderHistory) {
         this.idOrderHistory = idOrderHistory;
+    }
+
+    @Basic
+    @Column(name = "id_user")
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(int idUser) {
+        this.idUser = idUser;
+    }
+
+    @Basic
+    @Column(name = "id_shop")
+    public int getIdShop() {
+        return idShop;
+    }
+
+    public void setIdShop(int idShop) {
+        this.idShop = idShop;
     }
 
     @Basic
@@ -67,9 +89,11 @@ public class RatingProductEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RatingProductEntity that = (RatingProductEntity) o;
-        return idRatingProduct == that.idRatingProduct &&
+        RatingShopEntity that = (RatingShopEntity) o;
+        return idRatingShop == that.idRatingShop &&
                 idOrderHistory == that.idOrderHistory &&
+                idUser == that.idUser &&
+                idShop == that.idShop &&
                 rating == that.rating &&
                 Objects.equals(content, that.content) &&
                 Objects.equals(ratedDate, that.ratedDate);
@@ -77,6 +101,6 @@ public class RatingProductEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idRatingProduct, idOrderHistory, rating, content, ratedDate);
+        return Objects.hash(idRatingShop, idOrderHistory, idUser, idShop, rating, content, ratedDate);
     }
 }

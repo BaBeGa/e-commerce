@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ProductPicRepository extends CrudRepository<ProductPicEntity, Integer> {
     List<ProductPicEntity> findAllByIdProduct(Integer id_product);
+    ProductPicEntity findByPicProduct(String pic_product);
 }

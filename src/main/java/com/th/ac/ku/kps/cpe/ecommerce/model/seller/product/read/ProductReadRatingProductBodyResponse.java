@@ -1,19 +1,19 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.sql.Timestamp;
 
-public class RatingProductReadRatingProBodyResponse {
+public class ProductReadRatingProductBodyResponse {
     private Integer id_rating_product;
+    private Integer id_user;
+    private String username;
     private Integer id_order_history;
-    private Integer id_product;
-    private String name_product;
     private Integer rating;
     private String content;
     private Timestamp rated_date;
-    private String[] pic_comment;
+    private String[] rating_product_pic;
 
     @JsonGetter
     public Integer getId_rating_product() {
@@ -26,6 +26,26 @@ public class RatingProductReadRatingProBodyResponse {
     }
 
     @JsonGetter
+    public Integer getId_user() {
+        return id_user;
+    }
+
+    @JsonSetter
+    public void setId_user(Integer id_user) {
+        this.id_user = id_user;
+    }
+
+    @JsonGetter
+    public String getUsername() {
+        return username;
+    }
+
+    @JsonSetter
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @JsonGetter
     public Integer getId_order_history() {
         return id_order_history;
     }
@@ -33,26 +53,6 @@ public class RatingProductReadRatingProBodyResponse {
     @JsonSetter
     public void setId_order_history(Integer id_order_history) {
         this.id_order_history = id_order_history;
-    }
-
-    @JsonGetter
-    public Integer getId_product() {
-        return id_product;
-    }
-
-    @JsonSetter
-    public void setId_product(Integer id_product) {
-        this.id_product = id_product;
-    }
-
-    @JsonGetter
-    public String getName_product() {
-        return name_product;
-    }
-
-    @JsonSetter
-    public void setName_product(String name_product) {
-        this.name_product = name_product;
     }
 
     @JsonGetter
@@ -86,13 +86,12 @@ public class RatingProductReadRatingProBodyResponse {
     }
 
     @JsonGetter
-    public String[] getPic_comment() {
-        return pic_comment;
+    public String[] getRating_product_pic() {
+        return rating_product_pic;
     }
 
     @JsonSetter
-    public void setPic_comment(String[] pic_comment) {
-        this.pic_comment = pic_comment;
+    public void setRating_product_pic(String[] rating_product_pic) {
+        this.rating_product_pic = rating_product_pic;
     }
 }
-

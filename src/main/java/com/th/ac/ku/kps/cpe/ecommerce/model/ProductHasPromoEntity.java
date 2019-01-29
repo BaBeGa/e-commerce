@@ -1,8 +1,5 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
-
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Objects;

@@ -3,6 +3,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderHistoryStatus;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -20,7 +21,9 @@ public class OrderHistoryEntity {
     private String nameVariation;
     private int quantity;
     private double price;
+    private double shippingPrice;
     private OrderHistoryStatus status;
+    private Date successfulDate;
 
     @Id
     @Column(name = "id_order_history")
@@ -143,6 +146,16 @@ public class OrderHistoryEntity {
     }
 
     @Basic
+    @Column(name = "shipping_price")
+    public double getShippingPrice() {
+        return shippingPrice;
+    }
+
+    public void setShippingPrice(double shippingPrice) {
+        this.shippingPrice = shippingPrice;
+    }
+
+    @Basic
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     public OrderHistoryStatus getStatus() {
@@ -153,6 +166,16 @@ public class OrderHistoryEntity {
         this.status = status;
     }
 
+    @Basic
+    @Column(name = "successful_date")
+    public Date getSuccessfulDate() {
+        return successfulDate;
+    }
+
+    public void setSuccessfulDate(Date successfulDate) {
+        this.successfulDate = successfulDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -160,19 +183,23 @@ public class OrderHistoryEntity {
         OrderHistoryEntity that = (OrderHistoryEntity) o;
         return idOrderHistory == that.idOrderHistory &&
                 idBuyer == that.idBuyer &&
+                idItem == that.idItem &&
                 idShop == that.idShop &&
-                nameShop == that.nameShop &&
                 idProduct == that.idProduct &&
                 idVariation == that.idVariation &&
-                nameVariation == that.nameVariation &&
                 quantity == that.quantity &&
                 Double.compare(that.price, price) == 0 &&
+                Double.compare(that.shippingPrice, shippingPrice) == 0 &&
                 Objects.equals(usernameBuyer, that.usernameBuyer) &&
-                Objects.equals(nameProduct, that.nameProduct);
+                Objects.equals(nameShop, that.nameShop) &&
+                Objects.equals(nameProduct, that.nameProduct) &&
+                Objects.equals(nameVariation, that.nameVariation) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(successfulDate, that.successfulDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOrderHistory, idBuyer, usernameBuyer, idShop, nameShop, idProduct, nameProduct, idVariation, nameVariation, quantity, price);
+        return Objects.hash(idOrderHistory, idBuyer, usernameBuyer, idItem, idShop, nameShop, idProduct, nameProduct, idVariation, nameVariation, quantity, price, shippingPrice, status, successfulDate);
     }
 }

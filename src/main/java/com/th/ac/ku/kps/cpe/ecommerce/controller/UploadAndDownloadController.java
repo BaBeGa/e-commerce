@@ -1,6 +1,9 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
 import com.th.ac.ku.kps.cpe.ecommerce.exception.TokenNotFoundException;
+import com.th.ac.ku.kps.cpe.ecommerce.model.RatingProductPicEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.upload.DeleteFileResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.upload.UploadFileResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 
@@ -33,23 +36,23 @@ public class UploadAndDownloadController {
     @Autowired
     private ShopHasProductRepository shopHasProductRepository;
     @Autowired
-    private CommentProductRepository commentProductRepository;
+    private RatingProductPicRepository ratingProductPicRepository;
 
     @RequestMapping(method = RequestMethod.POST, value = "/upload")
     public UploadFileResponse upload(@RequestHeader (required = false) String token,
                                      @RequestParam("file") MultipartFile file,
                                      @RequestParam(value = "id_product", required = false) Integer id_product,
-                                     @RequestParam(value = "id_comment", required = false) Integer id_comment) {
+                                     @RequestParam(value = "id_rating_product", required = false) Integer id_rating_product) {
         if (token == null || token.isEmpty()) {
            throw new TokenNotFoundException("Token can't be null");
         }
-        if (id_product == null && id_comment == null) {
-            throw new TokenNotFoundException("id_product or id_comment required");
+        if (id_product == null && id_rating_product == null) {
+            throw new TokenNotFoundException("id_product or id_rating_product required");
         }
-        if (id_product != null && id_comment != null) {
+        if (id_product != null && id_rating_product != null) {
             throw new TokenNotFoundException("Can input only one parameter");
         }
-        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, userRepository, shopRepository ,shopHasProductRepository, commentProductRepository);
+        UploadFileService uploadFileService = new UploadFileServiceImpl(productPicRepository, userRepository, shopRepository ,shopHasProductRepository, ratingProductPicRepository);
         String type;
         if (id_product != null)  {
             type = "product";
@@ -57,28 +60,28 @@ public class UploadAndDownloadController {
         }
         else {
             type = "comment";
-            return uploadFileService.uploadResponse(token, id_comment, file, UPLOAD_FOLDER, type);
+            return uploadFileService.uploadResponse(token, id_rating_product, file, UPLOAD_FOLDER, type);
         }
 
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/download")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam(value = "id_product", required = false) String id_product,
-                                                            @RequestParam(value = "id_comment", required = false) String id_comment,
+                                                            @RequestParam(value = "id_rating_product", required = false) String id_rating_product,
                                                             @RequestParam String filename) throws IOException {
         MediaType mediaType = MediaType.IMAGE_PNG;
-        if (id_product != null && id_comment != null) {
+        if (id_product != null && id_rating_product != null) {
             throw new TokenNotFoundException("Can input only one parameter");
         }
-        if (id_product == null && id_comment == null) {
-            throw new TokenNotFoundException("id_product or id_comment required");
+        if (id_product == null && id_rating_product == null) {
+            throw new TokenNotFoundException("id_product or id_rating_product required");
         }
         File file;
         if (id_product != null) {
             file = new File(UPLOAD_FOLDER + "//pic_product//" + id_product + "//" + filename);
         }
         else {
-            file = new File(UPLOAD_FOLDER + "//pic_comment//" + id_comment + "//" + filename);
+            file = new File(UPLOAD_FOLDER + "//pic_rating_product//" + id_rating_product + "//" + filename);
         }
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
@@ -90,5 +93,61 @@ public class UploadAndDownloadController {
                 // Contet-Length
                 .contentLength(file.length()) //
                 .body(resource);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/deletefile")
+    public DeleteFileResponse deleteFile(@RequestHeader (required = false) String token,
+                                         @RequestParam(value = "id_product", required = false) String id_product,
+                                         @RequestParam(value = "id_rating_product", required = false) String id_rating_product,
+                                         @RequestParam String filename) {
+        DeleteFileResponse response = new DeleteFileResponse();
+        if (token == null || token.isEmpty()) {
+            throw new TokenNotFoundException("Token can't be null");
+        }
+        if (id_product != null && id_rating_product != null) {
+            throw new TokenNotFoundException("Can input only one parameter");
+        }
+        if (id_product == null && id_rating_product == null) {
+            throw new TokenNotFoundException("id_product or id_rating_product required");
+        }
+        File file;
+        if (id_product != null) {
+            file = new File(UPLOAD_FOLDER + "//pic_product//" + id_product + "//" + filename);
+            ProductPicEntity productPic = productPicRepository.findByPicProduct(filename);
+            if (productPic == null) {
+                response.setStatus(404);
+                response.setMsg("Fail to delete file. File not found");
+                return response;
+            }
+            productPicRepository.delete(productPic);
+        }
+        else {
+            file = new File(UPLOAD_FOLDER + "//pic_rating_product//" + id_rating_product + "//" + filename);
+            RatingProductPicEntity ratingProductPic = ratingProductPicRepository.findByContentPic(filename);
+            if (ratingProductPic == null) {
+                response.setStatus(404);
+                response.setMsg("Fail to delete file. File not found");
+                return response;
+            }
+            ratingProductPicRepository.delete(ratingProductPic);
+        }
+
+        if (file.exists()) {
+            if(file.delete()) {
+                response.setStatus(200);
+                response.setMsg("Delete Successful");
+                return response;
+            }
+            else {
+                response.setStatus(404);
+                response.setMsg("Fail to delete file");
+                return response;
+            }
+        }
+        else {
+            response.setStatus(404);
+            response.setMsg("Fail to delete file");
+            return response;
+        }
     }
 }

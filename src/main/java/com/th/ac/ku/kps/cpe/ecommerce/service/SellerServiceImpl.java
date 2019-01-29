@@ -32,6 +32,9 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopD
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete.ShipOfShopDeleteResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.update.ShipOfShopUpdateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics.StatisticsBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics.StatisticsOrderHistoryBodyResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics.StatisticsResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create.TrackingRestRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create.TrackingRestRequestBody;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.create.TrackingCreateResponse;
@@ -46,6 +49,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.th.ac.ku.kps.cpe.ecommerce.controller.UploadAndDownloadController.UPLOAD_FOLDER;
@@ -66,13 +70,16 @@ public class SellerServiceImpl implements SellerService{
     private final OrderItemRepository orderItemRepository;
     private final TypeShippingRepository typeShippingRepository;
     private final DeliveryAddressRepository deliveryAddressRepository;
+    private final OrderHistoryRepository orderHistoryRepository;
+    private final RatingProductRepository ratingProductRepository;
+    private final RatingProductPicRepository ratingProductPicRepository;
 
     @Autowired
     public SellerServiceImpl(ShopRepository shopRepository,
                              ProductRepository productRepository,
                              UserRepository userRepository,
                              ShopHasProductRepository shopHasProductRepository,
-                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ShipOfShopRepository shipofshopRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository, TypeShippingRepository typeShippingRepository, DeliveryAddressRepository deliveryAddressRepository) {
+                             CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ShipOfShopRepository shipofshopRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository, TypeShippingRepository typeShippingRepository, DeliveryAddressRepository deliveryAddressRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, RatingProductPicRepository ratingProductPicRepository) {
         this.shopRepository = shopRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
@@ -86,6 +93,9 @@ public class SellerServiceImpl implements SellerService{
         this.orderItemRepository = orderItemRepository;
         this.typeShippingRepository = typeShippingRepository;
         this.deliveryAddressRepository = deliveryAddressRepository;
+        this.orderHistoryRepository = orderHistoryRepository;
+        this.ratingProductRepository = ratingProductRepository;
+        this.ratingProductPicRepository = ratingProductPicRepository;
     }
 
 
@@ -173,7 +183,6 @@ public class SellerServiceImpl implements SellerService{
         List<ShopHasProductEntity> shopHasProduct = shopHasProductRepository.findAllByIdShop(shop.get(0).getIdShop());
         Common.LoggerInfo(shopHasProduct);
 
-
         ProductReadBodyResponse bodyResponse = new ProductReadBodyResponse();
 
         List<ProductReadProductBodyResponse> productBodyResponseList = new ArrayList<>();
@@ -223,6 +232,8 @@ public class SellerServiceImpl implements SellerService{
                 variationProductBodyResponseList.add(variationProductBodyResponse);
             }
             productBodyResponse.setProduct_variation(variationProductBodyResponseList);
+            productBodyResponse.setMean_rating(product.get(0).getMean());
+            productBodyResponse.setCount_rating(product.get(0).getCount());
             productBodyResponseList.add(productBodyResponse);
         }
         bodyResponse.setProduct(productBodyResponseList);
@@ -301,12 +312,40 @@ public class SellerServiceImpl implements SellerService{
                     variationProductBodyResponseList.add(variationProductBodyResponse);
                 }
                 productBodyResponse.setProduct_variation(variationProductBodyResponseList);
+                productBodyResponse.setMean_rating(product.get(0).getMean());
+                productBodyResponse.setCount_rating(product.get(0).getCount());
+
+                List<ProductReadRatingProductBodyResponse> ratingResponseList = new ArrayList<>();
+                List<OrderHistoryEntity> orderHistoryList = orderHistoryRepository.findAllByIdProduct(product.get(0).getIdProduct());
+                for (int j = 0,countRating = 0; j < orderHistoryList.size(); j++) {
+                    ProductReadRatingProductBodyResponse ratingResponse = new ProductReadRatingProductBodyResponse();
+                    RatingProductEntity ratingProduct = ratingProductRepository.findByIdOrderHistory(orderHistoryList.get(j).getIdOrderHistory());
+                    if (ratingProduct == null)
+                        continue;
+                    countRating++;
+                    ratingResponse.setId_order_history(ratingProduct.getIdOrderHistory());
+                    ratingResponse.setId_rating_product(ratingProduct.getIdRatingProduct());
+                    ratingResponse.setId_user(orderHistoryList.get(j).getIdBuyer());
+                    ratingResponse.setUsername(orderHistoryList.get(j).getUsernameBuyer());
+                    ratingResponse.setRating(ratingProduct.getRating());
+                    ratingResponse.setContent(ratingProduct.getContent());
+                    ratingResponse.setRated_date(ratingProduct.getRatedDate());
+                    ratingResponseList.add(ratingResponse);
+                    List<RatingProductPicEntity> ratingProductPicList = ratingProductPicRepository.findAllByIdRatingProduct(ratingProduct.getIdRatingProduct());
+                    List<String> picList = new ArrayList<>();
+                    for (int k = 0; k < ratingProductPicList.size(); k++) {
+                        picList.add(ratingProductPicList.get(k).getContentPic());
+                    }
+                    String[] picArr = new String[picList.size()];
+                    picArr = picList.toArray(picArr);
+                    ratingResponse.setRating_product_pic(picArr);
+                    if (countRating >= 3) break;
+                }
+                productBodyResponse.setRating_product(ratingResponseList);
                 productBodyResponseList.add(productBodyResponse);
             }
             bodyResponse.setProduct(productBodyResponseList);
-
         }
-
         response.setBody(bodyResponse);
         response.setStatus(200);
         response.setMsg("successful");
@@ -433,7 +472,7 @@ public class SellerServiceImpl implements SellerService{
                             List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.get(0).getIdProduct());
 
                             for (int k = 0; k < productPic.size(); k++) { // Delete File in Drive
-                                File file = new File(UPLOAD_FOLDER + "//" + product.get(ll).getIdProduct() + "//"+ productPic.get(k).getPicProduct());
+                                File file = new File(UPLOAD_FOLDER + "//pic_product//" + product.get(ll).getIdProduct() + "//"+ productPic.get(k).getPicProduct());
                                 if (file.exists()) {
                                     if (file.delete()) {
                                         Common.LoggerInfo("File deleted successfully");
@@ -526,9 +565,6 @@ public class SellerServiceImpl implements SellerService{
             typeshipping.add(typeShippingRepository.findByIdType(shipofshop.get(i).getIdType()));
         }
 
-        Common.LoggerInfo(shipofshop);
-        Common.LoggerInfo(typeshipping);
-
         ShipOfShopReadBodyResponse bodyResponse = new ShipOfShopReadBodyResponse();
         List<ShipOfShopReadDataBodyResponse> dataList = new ArrayList<>();
         for (ShipOfShopEntity aShipofshop : shipofshop) {
@@ -548,7 +584,6 @@ public class SellerServiceImpl implements SellerService{
         }
         bodyResponse.setShip_of_shop(dataList);
         response.setBody(bodyResponse);
-
         response.setStatus(200);
         response.setMsg("successful");
         return response;
@@ -1073,7 +1108,7 @@ public class SellerServiceImpl implements SellerService{
         if (restRequest.getId_promo_type() != null)
             productHasPromoCheck.setIdPromoType(restRequest.getId_promo_type());
         if (restRequest.getNew_price() != null) {
-            if (productHasPromoCheck.getTimeStart().after(timeNow)) {
+            if (productHasPromoCheck.getTimeStart().before(timeNow)) {
                 response.setStatus(406);
                 response.setMsg("Cannot update new price. In the promotion period");
                 return response;
@@ -1084,6 +1119,16 @@ public class SellerServiceImpl implements SellerService{
             if (productHasPromoCheck.getTimeStart().before(timeNow)) {
                 response.setStatus(406);
                 response.setMsg("Cannot update time start. In the promotion period");
+                return response;
+            }
+            if (restRequest.getTime_start().before(timeNow)) {
+                response.setStatus(406);
+                response.setMsg("Can't update the past time");
+                return response;
+            }
+            if (restRequest.getTime_start().after(productHasPromoCheck.getTimeEnd())) {
+                response.setStatus(400);
+                response.setMsg("Cannot set the time start after the start end");
                 return response;
             }
             productHasPromoCheck.setTimeStart(restRequest.getTime_start());
@@ -1135,10 +1180,89 @@ public class SellerServiceImpl implements SellerService{
         Timestamp timeNow = new Timestamp(date.getTime());
         productHasPromoRepository.deleteAllByTimeEndBefore(timeNow);
 
+        if (productHasPromoCheck.getTimeStart().before(timeNow)) {
+            response.setStatus(406);
+            response.setMsg("Cannot delete. In the promotion period");
+            return response;
+        }
+
         productHasPromoRepository.delete(productHasPromoCheck);
         response.setStatus(200);
         response.setMsg("Delete Successful");
         return response;
+    }
+
+    @Override
+    public StatisticsResponse readStatistics(String token, Integer day_1, Integer month_1, Integer year_1, Integer day_2, Integer month_2, Integer year_2) {
+        StatisticsResponse response = new StatisticsResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+        if (!isValidDate(year_1 + "-" + month_1 + "-" + day_1)) {
+            response.setStatus(406);
+            response.setMsg("Invalid initial date!");
+            return response;
+        }
+        if (!isValidDate(year_2 + "-" + month_2 + "-" + day_2)) {
+            response.setStatus(406);
+            response.setMsg("Invalid final date!");
+            return response;
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Date date_1;
+        Date date_2;
+        try {
+            date_1 = dateFormat.parse(year_1 + "-" + month_1 + "-" + day_1);
+            date_2 = dateFormat.parse(year_2 + "-" + month_2 + "-" + day_2);
+        } catch (Exception e) {
+            response.setStatus(406);
+            response.setMsg("Invalid date!");
+            return response;
+        }
+        // pass
+        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+        List<OrderHistoryEntity> orderHistoryList = orderHistoryRepository.findAllBySuccessfulDateGreaterThanEqualAndSuccessfulDateLessThanEqualAndIdShop(date_1, date_2, shop.getIdShop());
+
+        StatisticsBodyResponse body = new StatisticsBodyResponse();
+        List<StatisticsOrderHistoryBodyResponse> orderHistoryListResponse = new ArrayList<>();
+        Double total_income = 0.0;
+        for (int i = 0; i < orderHistoryList.size(); i++) {
+            StatisticsOrderHistoryBodyResponse orderHistoryResponse = new StatisticsOrderHistoryBodyResponse();
+            orderHistoryResponse.setId_order_history(orderHistoryList.get(i).getIdOrderHistory());
+            orderHistoryResponse.setId_buyer(orderHistoryList.get(i).getIdBuyer());
+            orderHistoryResponse.setUsername_buyer(orderHistoryList.get(i).getUsernameBuyer());
+            orderHistoryResponse.setId_item(orderHistoryList.get(i).getIdItem());
+            orderHistoryResponse.setId_product(orderHistoryList.get(i).getIdProduct());
+            orderHistoryResponse.setName_product(orderHistoryList.get(i).getNameProduct());
+            orderHistoryResponse.setId_variation(orderHistoryList.get(i).getIdVariation());
+            orderHistoryResponse.setName_variation(orderHistoryList.get(i).getNameVariation());
+            orderHistoryResponse.setQuantity(orderHistoryList.get(i).getQuantity());
+            orderHistoryResponse.setPrice(orderHistoryList.get(i).getPrice());
+            orderHistoryResponse.setStatus(orderHistoryList.get(i).getStatus());
+            orderHistoryResponse.setSuccessful_date(orderHistoryList.get(i).getSuccessfulDate());
+            orderHistoryResponse.setIncome(orderHistoryList.get(i).getQuantity()*orderHistoryList.get(i).getPrice());
+            total_income += orderHistoryList.get(i).getQuantity()*orderHistoryList.get(i).getPrice();
+            orderHistoryListResponse.add(orderHistoryResponse);
+        }
+        body.setOrder_history(orderHistoryListResponse);
+        body.setTotal_income(total_income);
+        response.setBody(body);
+        response.setStatus(200);
+        response.setMsg("Successful");
+        return response;
+    }
+    private static boolean isValidDate(String inDate) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dateFormat.setLenient(false);
+        try {
+            dateFormat.parse(inDate.trim());
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
 

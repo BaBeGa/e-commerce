@@ -55,11 +55,11 @@ public class BuyerServiceImpl implements BuyerService {
     private final ProductPicRepository productPicRepository;
     private final OrderHistoryRepository orderHistoryRepository;
     private final RatingProductRepository ratingProductRepository;
-    private final CommentProductRepository commentProductRepository;
     private final FavoriteProductRepository favoriteProductRepository;
+    private final RatingProductPicRepository ratingProductPicRepository;
 
     // ============= Order ============== //
-    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, CommentProductRepository commentProductRepository, FavoriteProductRepository favoriteProductRepository) {
+    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
@@ -75,8 +75,8 @@ public class BuyerServiceImpl implements BuyerService {
         this.productPicRepository = productPicRepository;
         this.orderHistoryRepository = orderHistoryRepository;
         this.ratingProductRepository = ratingProductRepository;
-        this.commentProductRepository = commentProductRepository;
         this.favoriteProductRepository = favoriteProductRepository;
+        this.ratingProductPicRepository = ratingProductPicRepository;
     }
 
     private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order) {
@@ -540,7 +540,7 @@ public class BuyerServiceImpl implements BuyerService {
                         if (restRequest.getBody().getId_item() != null) { // delete order_item (required one order)
                             for (int k = 0; k < restRequest.getBody().getId_item().length; k++) {
                                 try {
-                                    orderItemRepository.deleteById(orderItem.get(k).getIdItem());
+                                    orderItemRepository.deleteById(restRequest.getBody().getId_item()[k]);
                                 } catch (Exception e) {
                                     response.setStatus(204);
                                     response.setMsg("Order item not found! Can't deleted order item!");
@@ -638,6 +638,8 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setQuantity(orderItem.getQuantity());
             orderHistory.setPrice(productVariation.getPrice());
             orderHistory.setStatus(OrderHistoryStatus.COMPLETED);
+            Date date = new Date();
+            orderHistory.setSuccessfulDate(date);
 
             orderHistoryRepository.save(orderHistory);
         }
@@ -714,7 +716,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     // ======== Rating Product =========== //
     @Override
-    public RatingProductReadResponse ratingProductRead(String token) {
+    public RatingProductReadResponse ratingProductReadByIdRatingProduct(String token, int id) {
         RatingProductReadResponse response = new RatingProductReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
@@ -722,28 +724,38 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("User not found. Please check token");
             return response;
         }
+
         RatingProductReadBodyResponse bodyResponse = new RatingProductReadBodyResponse();
-        List<RatingProductReadRatingProBodyResponse> ratingProductResponseList = new ArrayList<>();
-        List<RatingProductEntity> ratingProduct = ratingProductRepository.findAllByIdUser(user.getIdUser());
-        for (int i = 0; i < ratingProduct.size(); i++) {
-            RatingProductReadRatingProBodyResponse ratingProductResponse = new RatingProductReadRatingProBodyResponse();
-            ratingProductResponse.setId_rating_product(ratingProduct.get(i).getIdRatingProduct());
-            ProductEntity product = productRepository.findByIdProduct(ratingProduct.get(i).getIdProduct());
-            if (product != null) {
-                ratingProductResponse.setId_product(product.getIdProduct());
-                ratingProductResponse.setName_product(product.getNameProduct());
-                CommentProductEntity comment = commentProductRepository.findByIdUserAndIdProduct(user.getIdUser(), product.getIdProduct());
-                ratingProductResponse.setComment(comment.getContent());
-                ratingProductResponse.setPic_comment(comment.getContentPic());
-            } else {
-                ratingProductResponse.setName_product("สินค้าไม่ถูกต้อง หรือ ถูกลบไปแล้ว");
-            }
-            ratingProductResponse.setId_user(ratingProduct.get(i).getIdUser());
-            ratingProductResponse.setUsername(user.getUsername());
-            ratingProductResponse.setRating(ratingProduct.get(i).getRating());
-            ratingProductResponseList.add(ratingProductResponse);
+        RatingProductReadRatingProBodyResponse ratingProductResponse = new RatingProductReadRatingProBodyResponse();
+        RatingProductEntity ratingProduct = ratingProductRepository.findByIdRatingProduct(id);
+
+        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(ratingProduct.getIdOrderHistory());
+
+        if (user.getIdUser() != orderHistory.getIdBuyer()) {
+            response.setStatus(404);
+            response.setMsg("id_rating_product is not your");
+            return response;
         }
-        bodyResponse.setRating_product(ratingProductResponseList);
+
+        ratingProductResponse.setId_rating_product(ratingProduct.getIdRatingProduct());
+        ratingProductResponse.setId_order_history(ratingProduct.getIdOrderHistory());
+        ratingProductResponse.setId_product(orderHistory.getIdProduct());
+        ProductEntity product = productRepository.findByIdProduct(orderHistory.getIdProduct());
+        ratingProductResponse.setName_product(product.getNameProduct());
+        ratingProductResponse.setRating(ratingProduct.getRating());
+        ratingProductResponse.setContent(ratingProduct.getContent());
+        ratingProductResponse.setRated_date(ratingProduct.getRatedDate());
+
+        List<RatingProductPicEntity> ratingProductPicList = ratingProductPicRepository.findAllByIdRatingProduct(ratingProduct.getIdRatingProduct());
+        List<String> picList = new ArrayList<>();
+        for (int i = 0; i < ratingProductPicList.size(); i++) {
+            picList.add(ratingProductPicList.get(i).getContentPic());
+        }
+        String[] picArr = new String[picList.size()];
+        picArr = picList.toArray(picArr);
+        ratingProductResponse.setPic_comment(picArr);
+
+        bodyResponse.setRating_product(ratingProductResponse);
         response.setBody(bodyResponse);
         response.setStatus(200);
         response.setMsg("Successful");
@@ -759,42 +771,44 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("User not found. Please check token");
             return response;
         }
-        ProductEntity product = productRepository.findByIdProduct(restRequest.getId_product());
+        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(restRequest.getId_order_history());
+        if (orderHistory == null) {
+            response.setStatus(404);
+            response.setMsg("Order history not found!");
+            return response;
+        }
+        if (user.getIdUser() != orderHistory.getIdBuyer()) {
+            response.setStatus(403);
+            response.setMsg("Order history isn't you");
+            return response;
+        }
+        ProductEntity product = productRepository.findByIdProduct(orderHistory.getIdProduct());
         if (product == null) {
             response.setStatus(404);
             response.setMsg("Not found the product or has been deleted");
             return response;
         }
-        if (ratingProductRepository.findByIdUserAndIdProduct(user.getIdUser(), restRequest.getId_product()) != null) {
+        if (ratingProductRepository.findByIdOrderHistory(restRequest.getId_order_history()) != null) {
             response.setStatus(406);
             response.setMsg("Already rate.");
             return response;
         }
         RatingProductEntity ratingProduct = new RatingProductEntity();
-        ratingProduct.setIdUser(user.getIdUser());
-        // check bought
-        List<OrderHistoryEntity> orderHistory = orderHistoryRepository.findAllByIdBuyerAndIdProduct(user.getIdUser(), restRequest.getId_product());
-        if (orderHistory.size() > 0) { // bought
-            ratingProduct.setIdProduct(restRequest.getId_product());
-            ratingProduct.setRating(restRequest.getRating());
-            ratingProductRepository.save(ratingProduct);
-            product.setCount(product.getCount() + 1);
-            product.setMean(((product.getMean() * (product.getCount() - 1)) + restRequest.getRating()) / product.getCount());
-            productRepository.save(product);
-            if (restRequest.getComment() != null) {
-                CommentProductEntity comment = new CommentProductEntity();
-                comment.setIdUser(user.getIdUser());
-                comment.setIdProduct(restRequest.getId_product());
-                comment.setContent(restRequest.getComment());
-                commentProductRepository.save(comment);
-            }
-            response.setStatus(200);
-            response.setMsg("Successful");
-        } else {
-            response.setStatus(406);
-            response.setMsg("You haven't bought this product yet");
-            return response;
-        }
+
+        ratingProduct.setIdOrderHistory(restRequest.getId_order_history());
+        ratingProduct.setRating(restRequest.getRating());
+        ratingProduct.setContent(restRequest.getContent());
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        ratingProduct.setRatedDate(timeNow);
+        ratingProductRepository.save(ratingProduct);
+        product.setCount(product.getCount() + 1);
+        product.setMean(((product.getMean() * (product.getCount() - 1)) + restRequest.getRating()) / product.getCount());
+        productRepository.save(product);
+
+        response.setStatus(200);
+        response.setMsg("Successful");
+
         return response;
     }
 

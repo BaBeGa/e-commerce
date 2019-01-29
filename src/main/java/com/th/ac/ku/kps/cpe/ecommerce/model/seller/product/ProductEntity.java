@@ -12,7 +12,6 @@ import java.util.Set;
 @Table(name = "`product`", schema = "e-commerce_01")
 public class ProductEntity {
     private Integer idProduct;
-//    private CatagoryEntity catagorySet;
     private Integer catagory;
     private String nameProduct;
     private String description;
@@ -20,9 +19,6 @@ public class ProductEntity {
     private Timestamp createdAt;
     private Integer count;
     private Double mean;
-//    private Set<ProductPicEntity> productPicEntitySet;
-//    private Set<ProductVariationEntity> productVariationEntitySet;
-
 
     @Id
     @Column(name = "`id_product`")
@@ -33,17 +29,6 @@ public class ProductEntity {
     public void setIdProduct(Integer idProduct) {
         this.idProduct = idProduct;
     }
-
-//    @JsonIgnore
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "`catagory`" , insertable = false,updatable = false)
-//    public CatagoryEntity getCatagorySet() {
-//        return catagorySet;
-//    }
-//
-//    public void setCatagorySet(CatagoryEntity catagory) {
-//        this.catagorySet = catagory;
-//    }
 
     @Basic
     @Column(name = "`catagory`")
@@ -114,25 +99,6 @@ public class ProductEntity {
     public void setMean(Double mean) {
         this.mean = mean;
     }
-
-//    @OneToMany(mappedBy = "productEntitySet", fetch = FetchType.LAZY)
-//    public Set<ProductPicEntity> getProductPicEntitySet() {
-//        return productPicEntitySet;
-//    }
-//
-//    public void setProductPicEntitySet(Set<ProductPicEntity> productPicEntitySet) {
-//        this.productPicEntitySet = productPicEntitySet;
-//    }
-//
-//    @OneToMany(mappedBy = "productEntityOfVariationSet", fetch = FetchType.LAZY)
-//    public Set<ProductVariationEntity> getProductVariationEntitySet() {
-//        return productVariationEntitySet;
-//    }
-//
-//    public void setProductVariationEntitySet(Set<ProductVariationEntity> productVariationEntitySet) {
-//        this.productVariationEntitySet = productVariationEntitySet;
-//    }
-
 
     @Override
     public boolean equals(Object o) {
