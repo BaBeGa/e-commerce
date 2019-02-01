@@ -1,6 +1,5 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
-import com.th.ac.ku.kps.cpe.ecommerce.exception.TokenNotFoundException;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.OrderForSellerReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
@@ -28,7 +27,6 @@ import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.service.SellerServiceImpl;
-import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,17 +71,16 @@ public class SellerController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/product")
     public ProductCreateResponse createProduct(@RequestHeader String token, @RequestBody ProductCreateRequest restRequest) {
-        Common.LoggerInfo(restRequest);
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.productCreateResponse(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/product")
-    public ProductReadResponse readAllProduct(@RequestHeader("token") String token) {
+    public ProductReadResponse readAllProduct(@RequestHeader String token) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.productReadAllResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/product/{id}")
-    public ProductReadResponse readProduct(@RequestHeader("token") String token, @PathVariable("id") int id) {
+    public ProductReadResponse readProduct(@RequestHeader String token, @PathVariable("id") int id) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.productReadResponse(token, id);
     }
@@ -94,7 +91,6 @@ public class SellerController {
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/product")
     public ProductDeleteResponse deleteProduct(@RequestHeader String token, @RequestBody ProductDeleteRequest restRequest) {
-        Common.LoggerInfo(restRequest);
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.productDeleteResponse(token, restRequest);
     }
@@ -121,66 +117,50 @@ public class SellerController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/orderforseller")
-    public OrderForSellerReadResponse readAllOrderForSellerResponse(@RequestHeader("token") String token) {
+    public OrderForSellerReadResponse readAllOrderForSellerResponse(@RequestHeader String token) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.readAllOrderForSellerResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/orderforseller/{id}")
-    public OrderForSellerReadResponse readOrderForSellerResponse(@RequestHeader("token") String token, @PathVariable("id") int id) {
+    public OrderForSellerReadResponse readOrderForSellerResponse(@RequestHeader String token, @PathVariable("id") int id) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.readOrderForSellerResponse(token, id);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/orderforseller")
-    public OrderSellerUpdateResponse updateOrderForSellerResponse(@RequestHeader("token") String token, @RequestBody OrderSellerUpdateRequest restRequest) {
+    public OrderSellerUpdateResponse updateOrderForSellerResponse(@RequestHeader String token, @RequestBody OrderSellerUpdateRequest restRequest) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
-
         return sellerService.updateOrderForSellerResponse(token, restRequest);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/promotion")
-    public PromotionReadResponse readPromotion(@RequestHeader (required = false) String token) {
-        if(token == null || token.isEmpty()) {
-            throw new TokenNotFoundException("Token can't be null");
-        }
+    public PromotionReadResponse readPromotion(@RequestHeader String token) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.readPromotion(token);
     }
     @RequestMapping(method = RequestMethod.POST, value = "/promotion")
-    public PromotionCreateResponse createPromotion(@RequestHeader (required = false) String token, @RequestBody PromotionCreateRequest restRequest) {
-        if(token == null || token.isEmpty()) {
-            throw new TokenNotFoundException("Token can't be null");
-        }
+    public PromotionCreateResponse createPromotion(@RequestHeader String token, @RequestBody PromotionCreateRequest restRequest) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.createPromotion(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/promotion")
-    public PromotionUpdateResponse updatePromotion(@RequestHeader (required = false) String token, @RequestBody PromotionUpdateRequest restRequest) {
-        if(token == null || token.isEmpty()) {
-            throw new TokenNotFoundException("Token can't be null");
-        }
+    public PromotionUpdateResponse updatePromotion(@RequestHeader String token, @RequestBody PromotionUpdateRequest restRequest) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.updatePromotion(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/promotion")
-    public PromotionDeleteResponse deletePromotion(@RequestHeader (required = false) String token, @RequestBody PromotionDeleteRequest restRequest) {
-        if(token == null || token.isEmpty()) {
-            throw new TokenNotFoundException("Token can't be null");
-        }
+    public PromotionDeleteResponse deletePromotion(@RequestHeader String token, @RequestBody PromotionDeleteRequest restRequest) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.deletePromotion(token, restRequest);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/statistics/{day_1}/{month_1}/{year_1}/{day_2}/{month_2}/{year_2}")
-    public StatisticsResponse readStatistics(@RequestHeader (required = false) String token,
+    public StatisticsResponse readStatistics(@RequestHeader String token,
                                              @PathVariable("day_1") Integer day_1,
                                              @PathVariable("month_1") Integer month_1,
                                              @PathVariable("year_1") Integer year_1,
                                              @PathVariable("day_2") Integer day_2,
                                              @PathVariable("month_2") Integer month_2,
                                              @PathVariable("year_2") Integer year_2) {
-        if(token == null || token.isEmpty()) {
-            throw new TokenNotFoundException("Token can't be null");
-        }
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository);
         return sellerService.readStatistics(token, day_1, month_1, year_1, day_2, month_2, year_2);
     }

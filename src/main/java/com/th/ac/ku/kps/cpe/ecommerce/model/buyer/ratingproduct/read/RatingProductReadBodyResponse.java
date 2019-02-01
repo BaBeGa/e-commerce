@@ -1,6 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class RatingProductReadBodyResponse {

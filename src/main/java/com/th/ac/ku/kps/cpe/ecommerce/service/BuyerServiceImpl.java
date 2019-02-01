@@ -28,6 +28,11 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.create.RatingPro
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read.RatingProductReadBodyResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read.RatingProductReadRatingProBodyResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read.RatingProductReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.create.RatingShopCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.create.RatingShopCreateResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.read.RatingShopBodyReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.read.RatingShopRatingShopBodyReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.read.RatingShopReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntity;
@@ -35,6 +40,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.read.TrackingReadResponseParam;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -57,9 +64,11 @@ public class BuyerServiceImpl implements BuyerService {
     private final RatingProductRepository ratingProductRepository;
     private final FavoriteProductRepository favoriteProductRepository;
     private final RatingProductPicRepository ratingProductPicRepository;
+    private final TypePaymentRepository typePaymentRepository;
+    private final RatingShopRepository ratingShopRepository;
 
     // ============= Order ============== //
-    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository) {
+    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository, TypePaymentRepository typePaymentRepository, RatingShopRepository ratingShopRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
@@ -77,6 +86,8 @@ public class BuyerServiceImpl implements BuyerService {
         this.ratingProductRepository = ratingProductRepository;
         this.favoriteProductRepository = favoriteProductRepository;
         this.ratingProductPicRepository = ratingProductPicRepository;
+        this.typePaymentRepository = typePaymentRepository;
+        this.ratingShopRepository = ratingShopRepository;
     }
 
     private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order) {
@@ -600,24 +611,22 @@ public class BuyerServiceImpl implements BuyerService {
             response.setStatus(404);
             response.setMsg("Wrong id_item");
             return response;
-        }
+        } // check
         OrderEntity order = orderRepository.findByIdOrder(orderItem.getIdOrder());
         if (order == null) {
             response.setStatus(404);
             response.setMsg("No Order! Please check Id_item matching with Id_order");
             return response;
-        }
+        } // check
         if (order.getIdBuyer() != user.getIdUser()) {
             response.setStatus(404);
             response.setMsg("No id_item in your account");
             return response;
-        }
+        } // check
         orderItem.setOrderItemStatus(OrderItemStatus.COMPLETED);
         orderItemRepository.save(orderItem);
 
-        Common.LoggerInfo(user);
-
-        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(orderItem.getIdItem());
+        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(orderItem.getIdItem()); // protect to add more than once
         if (orderHistory == null) {
             orderHistory = new OrderHistoryEntity();
             orderHistory.setIdBuyer(user.getIdUser());
@@ -635,8 +644,28 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setNameProduct(product.getNameProduct());
             orderHistory.setIdVariation(productVariation.getIdVariation());
             orderHistory.setNameVariation(productVariation.getName());
+
+            ShipOfShopEntity shipOfShop = shipOfShopRepository.findByIdShip(orderItem.getIdShipOfShop());
+            TypeShippingEntity typeShipping = typeShippingRepository.findByIdType(shipOfShop.getIdType());
+            orderHistory.setTypeShipping(typeShipping.getNameShip());
+
             orderHistory.setQuantity(orderItem.getQuantity());
             orderHistory.setPrice(productVariation.getPrice());
+            orderHistory.setShippingPrice(shipOfShop.getPrice());
+
+            DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(order.getIdAddress());
+
+            orderHistory.setReceiver(deliveryAddress.getReceiver());
+            orderHistory.setAddress(deliveryAddress.getAddress());
+            orderHistory.setSubDistrict(deliveryAddress.getSubDistrict());
+            orderHistory.setDistrict(deliveryAddress.getDistrict());
+            orderHistory.setProvince(deliveryAddress.getProvince());
+            orderHistory.setPostalCode(deliveryAddress.getPostalCode());
+
+            OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(orderItem.getIdOrder());
+            TypePaymentEntity typePayment = typePaymentRepository.findByIdTypePayment(orderPayment.getIdTypePayment());
+
+            orderHistory.setNameTypePayment(typePayment.getNameType());
             orderHistory.setStatus(OrderHistoryStatus.COMPLETED);
             Date date = new Date();
             orderHistory.setSuccessfulDate(date);
@@ -716,7 +745,7 @@ public class BuyerServiceImpl implements BuyerService {
 
     // ======== Rating Product =========== //
     @Override
-    public RatingProductReadResponse ratingProductReadByIdRatingProduct(String token, int id) {
+    public RatingProductReadResponse ratingProductReadByIdOrderHistory(String token, int id) {
         RatingProductReadResponse response = new RatingProductReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
@@ -727,8 +756,12 @@ public class BuyerServiceImpl implements BuyerService {
 
         RatingProductReadBodyResponse bodyResponse = new RatingProductReadBodyResponse();
         RatingProductReadRatingProBodyResponse ratingProductResponse = new RatingProductReadRatingProBodyResponse();
-        RatingProductEntity ratingProduct = ratingProductRepository.findByIdRatingProduct(id);
-
+        RatingProductEntity ratingProduct = ratingProductRepository.findByIdOrderHistory(id);
+        if (ratingProduct == null) {
+            response.setStatus(404);
+            response.setMsg("id_order_history not found");
+            return response;
+        }
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(ratingProduct.getIdOrderHistory());
 
         if (user.getIdUser() != orderHistory.getIdBuyer()) {
@@ -900,6 +933,90 @@ public class BuyerServiceImpl implements BuyerService {
         response.setStatus(200);
         response.setMsg("Delete Successful");
         return response;
+    }
+
+    @Override
+    public ResponseEntity<?> ratingShopReadByIdOrderHistory(String token, int id) {
+        RatingShopReadResponse response = new RatingShopReadResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        RatingShopBodyReadResponse bodyResponse = new RatingShopBodyReadResponse();
+        RatingShopRatingShopBodyReadResponse ratingShopResponse = new RatingShopRatingShopBodyReadResponse();
+        RatingShopEntity ratingShop = ratingShopRepository.findByIdOrderHistory(id);
+        if (ratingShop == null) {
+            response.setStatus(404);
+            response.setMsg("id_order_history not found");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        ratingShopResponse.setId_rating_shop(ratingShop.getIdRatingShop());
+        ratingShopResponse.setId_order_history(ratingShop.getIdOrderHistory());
+
+        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(id);
+        ShopEntity shop = shopRepository.findByIdShop(orderHistory.getIdShop());
+        ratingShopResponse.setId_shop(shop.getIdShop());
+        ratingShopResponse.setName_shop(shop.getNameShop());
+        ratingShopResponse.setRating(ratingShop.getRating());
+        ratingShopResponse.setContent(ratingShop.getContent());
+        ratingShopResponse.setRated_date(ratingShop.getRatedDate());
+
+        bodyResponse.setRating_shop(ratingShopResponse);
+        response.setBody(bodyResponse);
+        response.setStatus(200);
+        response.setMsg("successful");
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<?> ratingShopCreate(String token, RatingShopCreateRequest restRequest) {
+        RatingShopCreateResponse response = new RatingShopCreateResponse();
+
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(restRequest.getId_order_history());
+        if (orderHistory == null){
+            response.setStatus(404);
+            response.setMsg("order history not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        if (user.getIdUser() != orderHistory.getIdBuyer()) {
+            response.setStatus(403);
+            response.setMsg("order history isn't you");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+        RatingShopEntity ratingShop = ratingShopRepository.findByIdOrderHistory(restRequest.getId_order_history());
+        if (ratingShop != null) {
+            response.setStatus(406);
+            response.setMsg("Already rated");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
+        }
+        if (!(restRequest.getRating() == 1 || restRequest.getRating() == 2 || restRequest.getRating() == 3 || restRequest.getRating() == 4 || restRequest.getRating() == 5)) {
+            response.setStatus(406);
+            response.setMsg("Invalid rating. Only input 1,2,3,4,5");
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
+        }
+
+        ratingShop = new RatingShopEntity();
+        ratingShop.setIdOrderHistory(restRequest.getId_order_history());
+        ratingShop.setRating(restRequest.getRating());
+        ratingShop.setContent(restRequest.getContent());
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        ratingShop.setRatedDate(timeNow);
+        ratingShopRepository.save(ratingShop);
+        response.setStatus(200);
+        response.setMsg("Create Successful");
+        return ResponseEntity.ok(response);
     }
 
 

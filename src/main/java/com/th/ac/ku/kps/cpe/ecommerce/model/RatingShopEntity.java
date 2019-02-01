@@ -9,8 +9,6 @@ import java.util.Objects;
 public class RatingShopEntity {
     private int idRatingShop;
     private int idOrderHistory;
-    private int idUser;
-    private int idShop;
     private int rating;
     private String content;
     private Timestamp ratedDate;
@@ -33,26 +31,6 @@ public class RatingShopEntity {
 
     public void setIdOrderHistory(int idOrderHistory) {
         this.idOrderHistory = idOrderHistory;
-    }
-
-    @Basic
-    @Column(name = "id_user")
-    public int getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(int idUser) {
-        this.idUser = idUser;
-    }
-
-    @Basic
-    @Column(name = "id_shop")
-    public int getIdShop() {
-        return idShop;
-    }
-
-    public void setIdShop(int idShop) {
-        this.idShop = idShop;
     }
 
     @Basic
@@ -92,8 +70,6 @@ public class RatingShopEntity {
         RatingShopEntity that = (RatingShopEntity) o;
         return idRatingShop == that.idRatingShop &&
                 idOrderHistory == that.idOrderHistory &&
-                idUser == that.idUser &&
-                idShop == that.idShop &&
                 rating == that.rating &&
                 Objects.equals(content, that.content) &&
                 Objects.equals(ratedDate, that.ratedDate);
@@ -101,6 +77,6 @@ public class RatingShopEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idRatingShop, idOrderHistory, idUser, idShop, rating, content, ratedDate);
+        return Objects.hash(idRatingShop, idOrderHistory, rating, content, ratedDate);
     }
 }

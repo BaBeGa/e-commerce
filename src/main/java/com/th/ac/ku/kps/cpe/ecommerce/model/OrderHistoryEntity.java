@@ -19,9 +19,17 @@ public class OrderHistoryEntity {
     private String nameProduct;
     private int idVariation;
     private String nameVariation;
+    private String typeShipping;
     private int quantity;
     private double price;
     private double shippingPrice;
+    private String receiver;
+    private String address;
+    private String subDistrict;
+    private String district;
+    private String province;
+    private String postalCode;
+    private String nameTypePayment;
     private OrderHistoryStatus status;
     private Date successfulDate;
 
@@ -126,6 +134,16 @@ public class OrderHistoryEntity {
     }
 
     @Basic
+    @Column(name = "type_shipping")
+    public String getTypeShipping() {
+        return typeShipping;
+    }
+
+    public void setTypeShipping(String typeShipping) {
+        this.typeShipping = typeShipping;
+    }
+
+    @Basic
     @Column(name = "quantity")
     public int getQuantity() {
         return quantity;
@@ -153,6 +171,76 @@ public class OrderHistoryEntity {
 
     public void setShippingPrice(double shippingPrice) {
         this.shippingPrice = shippingPrice;
+    }
+
+    @Basic
+    @Column(name = "receiver")
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    @Basic
+    @Column(name = "address")
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Basic
+    @Column(name = "sub_district")
+    public String getSubDistrict() {
+        return subDistrict;
+    }
+
+    public void setSubDistrict(String subDistrict) {
+        this.subDistrict = subDistrict;
+    }
+
+    @Basic
+    @Column(name = "district")
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    @Basic
+    @Column(name = "province")
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    @Basic
+    @Column(name = "postal_code")
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    @Basic
+    @Column(name = "name_type_payment")
+    public String getNameTypePayment() {
+        return nameTypePayment;
+    }
+
+    public void setNameTypePayment(String nameTypePayment) {
+        this.nameTypePayment = nameTypePayment;
     }
 
     @Basic
@@ -194,12 +282,20 @@ public class OrderHistoryEntity {
                 Objects.equals(nameShop, that.nameShop) &&
                 Objects.equals(nameProduct, that.nameProduct) &&
                 Objects.equals(nameVariation, that.nameVariation) &&
+                Objects.equals(typeShipping, that.typeShipping) &&
+                Objects.equals(receiver, that.receiver) &&
+                Objects.equals(address, that.address) &&
+                Objects.equals(subDistrict, that.subDistrict) &&
+                Objects.equals(district, that.district) &&
+                Objects.equals(province, that.province) &&
+                Objects.equals(postalCode, that.postalCode) &&
+                Objects.equals(nameTypePayment, that.nameTypePayment) &&
                 Objects.equals(status, that.status) &&
                 Objects.equals(successfulDate, that.successfulDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOrderHistory, idBuyer, usernameBuyer, idItem, idShop, nameShop, idProduct, nameProduct, idVariation, nameVariation, quantity, price, shippingPrice, status, successfulDate);
+        return Objects.hash(idOrderHistory, idBuyer, usernameBuyer, idItem, idShop, nameShop, idProduct, nameProduct, idVariation, nameVariation, typeShipping, quantity, price, shippingPrice, receiver, address, subDistrict, district, province, postalCode, nameTypePayment, status, successfulDate);
     }
 }

@@ -18,6 +18,9 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderitem.OrderItemUpdateRespo
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.create.RatingProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.create.RatingProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingproduct.read.RatingProductReadResponse;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.create.RatingShopCreateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.read.RatingShopReadResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -33,11 +36,13 @@ public interface BuyerService {
     OrderHistoryReadResponse orderHistoryReadAllResponse(String token);
     OrderHistoryReadResponse orderHistoryReadResponse(String token, int id_order_history);
 
-    RatingProductReadResponse ratingProductReadByIdRatingProduct(String token, int id);
+    RatingProductReadResponse ratingProductReadByIdOrderHistory(String token, int id);
     RatingProductCreateResponse ratingProductCreate(String token, RatingProductCreateRequest restRequest);
 
     FavoriteProductReadResponse favoriteProductRead(String token);
     FavoriteProductCreateResponse favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest);
     FavoriteProductDeleteResponse favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest);
 
+    ResponseEntity<?> ratingShopReadByIdOrderHistory(String token, int id);
+    ResponseEntity<?> ratingShopCreate(String token, RatingShopCreateRequest restRequest);
 }
