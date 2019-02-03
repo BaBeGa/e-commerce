@@ -47,6 +47,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateR
 import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -97,7 +99,6 @@ public class SellerServiceImpl implements SellerService{
         this.ratingProductPicRepository = ratingProductPicRepository;
         this.configRepository = configRepository;
     }
-
 
     @Override
     public ProductCreateResponse productCreateResponse(String token,ProductCreateRequest restRequest) {
@@ -822,8 +823,12 @@ public class SellerServiceImpl implements SellerService{
                         OrderForSellerReadVariationBodyResponse productVariationResponse = new OrderForSellerReadVariationBodyResponse();
 
                         productVariationResponse.setId_product(productVariationFound.get(k).getIdProduct());
+                        ProductEntity product = productRepository.findByIdProduct(productVariationFound.get(k).getIdProduct());
+                        productVariationResponse.setName_product(product.getNameProduct());
                         productVariationResponse.setId_variation(productVariationFound.get(k).getIdVariation());
-                        productVariationResponse.setName(productVariationFound.get(k).getName());
+                        productVariationResponse.setName_variation(productVariationFound.get(k).getName());
+                        List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.getIdProduct());
+                        productVariationResponse.setPic_product(productPic.get(0).getPicProduct());
                         orderItemResponse.setProduct_variation(productVariationResponse);
 
                         orderItemResponse.setPrice(productVariationFound.get(k).getPrice() * orderItem.get(l).getQuantity());
@@ -917,8 +922,13 @@ public class SellerServiceImpl implements SellerService{
         TrackingRestRequest trackingRequest = new TrackingRestRequest();
         TrackingRestRequestBody trackingBody = new TrackingRestRequestBody();
 
+        ProductDeliveryEntity productDelivery = productDeliveryRepository.findByIdShip(orderItem.getIdShipOfShop());
+        TypeShippingEntity typeShipping = typeShippingRepository.findByIdType(productDelivery.getIdType());
+
         trackingBody.setTracking_number(restRequest.getBody().getTracking_number());
+        trackingBody.setSlug(typeShipping.getNameShip());
         trackingRequest.setTracking(trackingBody);
+
 
         TrackingServiceImpl tracking = new TrackingServiceImpl();
 
@@ -1279,6 +1289,70 @@ public class SellerServiceImpl implements SellerService{
         response.setMsg("Successful");
         return response;
     }
+
+    @Override
+    public ResponseEntity<?> readStatistics(String token, Integer id_product) {
+        StatisticsResponse response = new StatisticsResponse();
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+        if (shop == null) {
+            response.setStatus(404);
+            response.setMsg("Shop doesn't open!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        ShopHasProductEntity shopHasProduct = shopHasProductRepository.findByIdProduct(id_product);
+        if (shopHasProduct == null || shop.getIdShop() != shopHasProduct.getIdShop()) {
+            response.setStatus(403);
+            response.setMsg("This product isn't your");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
+
+        List<OrderHistoryEntity> orderHistoryList = orderHistoryRepository.findAllByIdProduct(id_product);
+        StatisticsBodyResponse body = new StatisticsBodyResponse();
+        double total_income = 0.0;
+        List<StatisticsOrderHistoryBodyResponse> orderHistoryResponseList = new ArrayList<>();
+        for (OrderHistoryEntity anOrderHistory : orderHistoryList) {
+            StatisticsOrderHistoryBodyResponse orderHistoryResponse = new StatisticsOrderHistoryBodyResponse();
+            orderHistoryResponse.setId_buyer(anOrderHistory.getIdBuyer());
+            orderHistoryResponse.setId_item(anOrderHistory.getIdItem());
+            orderHistoryResponse.setId_order_history(anOrderHistory.getIdOrderHistory());
+            orderHistoryResponse.setUsername_buyer(anOrderHistory.getUsernameBuyer());
+            orderHistoryResponse.setId_product(anOrderHistory.getIdProduct());
+            orderHistoryResponse.setName_product(anOrderHistory.getNameProduct());
+            orderHistoryResponse.setId_variation(anOrderHistory.getIdVariation());
+            orderHistoryResponse.setName_variation(anOrderHistory.getNameVariation());
+            orderHistoryResponse.setType_shipping(anOrderHistory.getTypeShipping());
+            orderHistoryResponse.setQuantity(anOrderHistory.getQuantity());
+            orderHistoryResponse.setPrice(anOrderHistory.getPrice());
+            orderHistoryResponse.setShipping_price(anOrderHistory.getShippingPrice());
+            orderHistoryResponse.setIncome(anOrderHistory.getPrice()+anOrderHistory.getShippingPrice());
+            total_income += (anOrderHistory.getPrice() + anOrderHistory.getShippingPrice());
+            orderHistoryResponse.setReceiver(anOrderHistory.getReceiver());
+            orderHistoryResponse.setAddress(anOrderHistory.getAddress());
+            orderHistoryResponse.setSub_district(anOrderHistory.getSubDistrict());
+            orderHistoryResponse.setDistrict(anOrderHistory.getDistrict());
+            orderHistoryResponse.setProvince(anOrderHistory.getProvince());
+            orderHistoryResponse.setPostal_code(anOrderHistory.getPostalCode());
+            orderHistoryResponse.setName_type_payment(anOrderHistory.getNameTypePayment());
+            orderHistoryResponse.setStatus(anOrderHistory.getStatus());
+            orderHistoryResponse.setSuccessful_date(anOrderHistory.getSuccessfulDate());
+            orderHistoryResponseList.add(orderHistoryResponse);
+        }
+        body.setOrder_history(orderHistoryResponseList);
+        body.setTotal_income(total_income);
+        body.setTotal_sold(orderHistoryList.size());
+        response.setBody(body);
+        response.setStatus(200);
+        response.setMsg("Successful");
+
+        return ResponseEntity.ok(response);
+    }
+
     private static boolean isValidDate(String inDate) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setLenient(false);

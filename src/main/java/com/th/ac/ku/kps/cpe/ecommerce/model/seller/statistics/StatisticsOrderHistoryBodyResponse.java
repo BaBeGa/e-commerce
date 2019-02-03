@@ -15,8 +15,17 @@ public class StatisticsOrderHistoryBodyResponse {
     private String name_product;
     private Integer id_variation;
     private String name_variation;
+    private String type_shipping;
     private Integer quantity;
     private Double price;
+    private Double shipping_price;
+    private String receiver;
+    private String address;
+    private String sub_district;
+    private String district;
+    private String province;
+    private String postal_code;
+    private String name_type_payment;
     private Double income;
     private OrderHistoryStatus status;
     private Date successful_date;
@@ -102,6 +111,16 @@ public class StatisticsOrderHistoryBodyResponse {
     }
 
     @JsonGetter
+    public String getType_shipping() {
+        return type_shipping;
+    }
+
+    @JsonSetter
+    public void setType_shipping(String type_shipping) {
+        this.type_shipping = type_shipping;
+    }
+
+    @JsonGetter
     public Integer getQuantity() {
         return quantity;
     }
@@ -119,6 +138,86 @@ public class StatisticsOrderHistoryBodyResponse {
     @JsonSetter
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    @JsonGetter
+    public Double getShipping_price() {
+        return shipping_price;
+    }
+
+    @JsonSetter
+    public void setShipping_price(Double shipping_price) {
+        this.shipping_price = shipping_price;
+    }
+
+    @JsonGetter
+    public String getReceiver() {
+        return receiver;
+    }
+
+    @JsonSetter
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    @JsonGetter
+    public String getAddress() {
+        return address;
+    }
+
+    @JsonSetter
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @JsonGetter
+    public String getSub_district() {
+        return sub_district;
+    }
+
+    @JsonSetter
+    public void setSub_district(String sub_district) {
+        this.sub_district = sub_district;
+    }
+
+    @JsonGetter
+    public String getDistrict() {
+        return district;
+    }
+
+    @JsonSetter
+    public void setDistrict(String district) {
+        this.district = district;
+    }
+
+    @JsonGetter
+    public String getProvince() {
+        return province;
+    }
+
+    @JsonSetter
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    @JsonGetter
+    public String getPostal_code() {
+        return postal_code;
+    }
+
+    @JsonSetter
+    public void setPostal_code(String postal_code) {
+        this.postal_code = postal_code;
+    }
+
+    @JsonGetter
+    public String getName_type_payment() {
+        return name_type_payment;
+    }
+
+    @JsonSetter
+    public void setName_type_payment(String name_type_payment) {
+        this.name_type_payment = name_type_payment;
     }
 
     @JsonGetter

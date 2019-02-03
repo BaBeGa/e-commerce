@@ -28,6 +28,7 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateR
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.create.ProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.service.SellerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -165,6 +166,12 @@ public class SellerController {
                                              @PathVariable("year_2") Integer year_2) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
         return sellerService.readStatistics(token, day_1, month_1, year_1, day_2, month_2, year_2);
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/statistics/{id_product}")
+    public ResponseEntity<?> readStatustics(@RequestHeader String token, @PathVariable("id_product") Integer id_product) {
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        return sellerService.readStatistics(token, id_product);
     }
 
 }

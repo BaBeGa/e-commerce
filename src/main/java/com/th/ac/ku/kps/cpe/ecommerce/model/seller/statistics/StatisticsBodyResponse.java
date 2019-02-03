@@ -8,6 +8,7 @@ import java.util.List;
 public class StatisticsBodyResponse {
     private List<StatisticsOrderHistoryBodyResponse> order_history;
     private Double total_income;
+    private Integer total_sold;
 
     @JsonGetter
     public List<StatisticsOrderHistoryBodyResponse> getOrder_history() {
@@ -27,5 +28,15 @@ public class StatisticsBodyResponse {
     @JsonSetter
     public void setTotal_income(Double total_income) {
         this.total_income = total_income;
+    }
+
+    @JsonGetter
+    public Integer getTotal_sold() {
+        return total_sold;
+    }
+
+    @JsonSetter
+    public void setTotal_sold(Integer total_sold) {
+        this.total_sold = total_sold;
     }
 }

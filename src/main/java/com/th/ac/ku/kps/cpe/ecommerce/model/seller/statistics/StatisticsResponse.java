@@ -1,9 +1,11 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class StatisticsResponse {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private StatisticsBodyResponse body;
     private Integer status;
     private String msg;

@@ -25,6 +25,7 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.delete.Produc
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.update.ProductDeliveryUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.update.ProductDeliveryUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics.StatisticsResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,4 +52,5 @@ public interface SellerService {
     PromotionDeleteResponse deletePromotion(String token, PromotionDeleteRequest restRequest);
 
     StatisticsResponse readStatistics(String token, Integer day_1, Integer month_1, Integer year_1, Integer day_2, Integer month_2, Integer year_2);
+    ResponseEntity<?> readStatistics(String token, Integer id_product);
 }

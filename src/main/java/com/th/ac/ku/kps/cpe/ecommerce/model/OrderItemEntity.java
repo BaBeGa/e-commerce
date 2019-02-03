@@ -19,6 +19,7 @@ public class OrderItemEntity {
     private Timestamp expiredShip;
     private Timestamp expiredBuyerConfirm;
     private Timestamp successfulDate;
+    private String descriptionReject;
 
     @Id
     @Column(name = "id_item")
@@ -122,6 +123,16 @@ public class OrderItemEntity {
         this.successfulDate = successfulDate;
     }
 
+    @Basic
+    @Column(name = "description_reject")
+    public String getDescriptionReject() {
+        return descriptionReject;
+    }
+
+    public void setDescriptionReject(String descriptionReject) {
+        this.descriptionReject = descriptionReject;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -136,11 +147,12 @@ public class OrderItemEntity {
                 orderItemStatus == that.orderItemStatus &&
                 Objects.equals(expiredShip, that.expiredShip) &&
                 Objects.equals(expiredBuyerConfirm, that.expiredBuyerConfirm) &&
-                Objects.equals(successfulDate, that.successfulDate);
+                Objects.equals(successfulDate, that.successfulDate) &&
+                Objects.equals(descriptionReject, that.descriptionReject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idItem, idOrder, idVariation, quantity, idShipOfShop, trackingNumber, orderItemStatus, expiredShip, expiredBuyerConfirm, successfulDate);
+        return Objects.hash(idItem, idOrder, idVariation, quantity, idShipOfShop, trackingNumber, orderItemStatus, expiredShip, expiredBuyerConfirm, successfulDate, descriptionReject);
     }
 }

@@ -39,7 +39,6 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductVariationEntit
 import com.th.ac.ku.kps.cpe.ecommerce.model.ShopEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.tracking.read.TrackingReadResponseParam;
 import com.th.ac.ku.kps.cpe.ecommerce.repository.*;
-import com.th.ac.ku.kps.cpe.ecommerce.unity.Common;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -242,7 +241,6 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Order is empty");
             return response;
         }
-        Common.LoggerInfo(order);
         orderReadFunction(orderBodyList, order);
         body.setOrder(orderBodyList);
         response.setBody(body);
@@ -345,6 +343,11 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Order not found!");
             return response;
         }
+        if (orderEntity.get(0).getOrderStatus() != OrderStatus.ORDERING) {
+            response.setStatus(400);
+            response.setMsg("Only status Ordering!");
+            return response;
+        }
         if (restRequest.getBody().getId_buyer() != null)
             orderEntity.get(0).setIdBuyer(restRequest.getBody().getId_buyer());
         if (restRequest.getBody().getOrder_status() != null)
@@ -375,11 +378,17 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     private OrderUpdateResponse orderStatus_addressing(UserEntity user, OrderUpdateRequest restRequest) {
+
         OrderUpdateResponse response = new OrderUpdateResponse();
         List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
         if (orderEntity.size() == 0) {
             response.setStatus(404);
             response.setMsg("Order not found");
+            return response;
+        }
+        if (orderEntity.get(0).getOrderStatus() != OrderStatus.ORDERING || orderEntity.get(0).getOrderStatus() != OrderStatus.CHOOSING_SHIP) {
+            response.setStatus(400);
+            response.setMsg("Only status Ordering or Choosing ship");
             return response;
         }
         orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
@@ -429,6 +438,11 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Order not found!");
             return response;
         }
+        if (orderEntity.get(0).getOrderStatus() != OrderStatus.ADDRESSING || orderEntity.get(0).getOrderStatus() != OrderStatus.PAY_CHOSEN) {
+            response.setStatus(400);
+            response.setMsg("Only status Addressing or Pay Chosen");
+            return response;
+        }
         orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
         List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(orderEntity.get(0).getIdOrder());
         for (int i = 0; i < orderItem.size(); i++) {
@@ -468,6 +482,11 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Order not found!");
             return response;
         }
+        if (orderEntity.get(0).getOrderStatus() != OrderStatus.SHIP_CHOSEN) {
+            response.setStatus(400);
+            response.setMsg("Only status Ship Chosen");
+            return response;
+        }
         orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
         OrderPaymentEntity orderPayment = new OrderPaymentEntity();
         orderPayment.setIdOrder(restRequest.getBody().getId_order());
@@ -504,7 +523,11 @@ public class BuyerServiceImpl implements BuyerService {
             return response;
         }
         orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-
+        if (orderEntity.get(0).getOrderStatus() != OrderStatus.PAY_CHOSEN) {
+            response.setStatus(400);
+            response.setMsg("Only status Ship Pay chosen");
+            return response;
+        }
         List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(restRequest.getBody().getId_order());
 
         for (OrderItemEntity anOrderItem1 : orderItem) {
@@ -596,7 +619,14 @@ public class BuyerServiceImpl implements BuyerService {
         }
         if (restRequest.getOrder_item_status() == OrderItemStatus.COMPLETED) {
             return orderItemStatus_confirm(user, restRequest);
-        } else {
+        } else if (restRequest.getOrder_item_status() == OrderItemStatus.REJECTED) {
+            return orderItemStatus_rejected(user, restRequest);
+        } else if (restRequest.getOrder_item_status() == OrderItemStatus.CANCEL_REJECTED) {
+            return orderItemStatus_cancel_rejected(user, restRequest);
+        } else if (restRequest.getOrder_item_status() == OrderItemStatus.CANCEL_BUYER) {
+            return orderItemStatus_cancel_buyer(user, restRequest);
+        }
+        else {
             response.setStatus(403);
             response.setMsg("Access Denind. Can't update status!");
             return response;
@@ -622,7 +652,15 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("No id_item in your account");
             return response;
         } // check
+        if (orderItem.getOrderItemStatus() == OrderItemStatus.REJECTED || orderItem.getOrderItemStatus() == OrderItemStatus.WAITING_DECISION || orderItem.getOrderItemStatus() == OrderItemStatus.ADMIN_REJECTED || orderItem.getOrderItemStatus() == OrderItemStatus.CANCEL_BUYER || orderItem.getOrderItemStatus() == OrderItemStatus.CANCEL_SELLER) {
+            response.setStatus(400);
+            response.setMsg("This status can't change to complete!");
+            return response;
+        }
         orderItem.setOrderItemStatus(OrderItemStatus.COMPLETED);
+        Date date = new Date();
+        Timestamp timeNow = new Timestamp(date.getTime());
+        orderItem.setSuccessfulDate(timeNow);
         orderItemRepository.save(orderItem);
 
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(orderItem.getIdItem()); // protect to add more than once
@@ -666,8 +704,6 @@ public class BuyerServiceImpl implements BuyerService {
 
             orderHistory.setNameTypePayment(typePayment.getNameType());
             orderHistory.setStatus(OrderHistoryStatus.COMPLETED);
-            Date date = new Date();
-            orderHistory.setSuccessfulDate(date);
 
             orderHistoryRepository.save(orderHistory);
         }
@@ -676,6 +712,107 @@ public class BuyerServiceImpl implements BuyerService {
         response.setMsg("Update Successful");
         return response;
     }
+
+    private OrderItemUpdateResponse orderItemStatus_rejected(UserEntity user,OrderItemUpdateRequest restRequest) {
+        OrderItemUpdateResponse response = new OrderItemUpdateResponse();
+        OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getId_item());
+        if (orderItem == null) {
+            response.setStatus(404);
+            response.setMsg("Wrong id_item");
+            return response;
+        } // check
+        OrderEntity order = orderRepository.findByIdOrder(orderItem.getIdOrder());
+        if (order == null) {
+            response.setStatus(404);
+            response.setMsg("No Order! Please check Id_item matching with Id_order");
+            return response;
+        } // check
+        if (order.getIdBuyer() != user.getIdUser()) {
+            response.setStatus(404);
+            response.setMsg("No id_item in your account");
+            return response;
+        } // check
+        if (!(order.getOrderStatus() == OrderStatus.PAID || order.getOrderStatus() == OrderStatus.PAY_VERIFY)) {
+            response.setStatus(403);
+            response.setMsg("Only status Paid or Pay verify");
+            return response;
+        }
+        orderItem.setOrderItemStatus(OrderItemStatus.REJECTED);
+        orderItem.setDescriptionReject(restRequest.getDescription_reject());
+        orderItemRepository.save(orderItem);
+        response.setStatus(200);
+        response.setMsg("Successful, sent request reject to seller!");
+        return response;
+    }
+
+    private OrderItemUpdateResponse orderItemStatus_cancel_rejected(UserEntity user, OrderItemUpdateRequest restRequest) {
+        OrderItemUpdateResponse response = new OrderItemUpdateResponse();
+        OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getId_item());
+        if (orderItem == null) {
+            response.setStatus(404);
+            response.setMsg("Wrong id_item");
+            return response;
+        } // check
+        OrderEntity order = orderRepository.findByIdOrder(orderItem.getIdOrder());
+        if (order == null) {
+            response.setStatus(404);
+            response.setMsg("No Order! Please check Id_item matching with Id_order");
+            return response;
+        } // check
+        if (order.getIdBuyer() != user.getIdUser()) {
+            response.setStatus(404);
+            response.setMsg("No id_item in your account");
+            return response;
+        } // check
+        if (orderItem.getOrderItemStatus() != OrderItemStatus.REJECTED) {
+            response.setStatus(400);
+            response.setMsg("Only status Rejected!");
+            return response;
+        }
+        orderItem.setOrderItemStatus(OrderItemStatus.NOT_SHIP);
+        orderItem.setDescriptionReject(null);
+        orderItemRepository.save(orderItem);
+        response.setStatus(200);
+        response.setMsg("Successful");
+        return response;
+    }
+
+    private OrderItemUpdateResponse orderItemStatus_cancel_buyer(UserEntity user, OrderItemUpdateRequest restRequest) {
+        OrderItemUpdateResponse response = new OrderItemUpdateResponse();
+        OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getId_item());
+        if (orderItem == null) {
+            response.setStatus(404);
+            response.setMsg("Wrong id_item");
+            return response;
+        } // check
+        OrderEntity order = orderRepository.findByIdOrder(orderItem.getIdOrder());
+        if (order == null) {
+            response.setStatus(404);
+            response.setMsg("No Order! Please check Id_item matching with Id_order");
+            return response;
+        } // check
+        if (order.getIdBuyer() != user.getIdUser()) {
+            response.setStatus(404);
+            response.setMsg("No id_item in your account");
+            return response;
+        } // check
+        if (!(order.getOrderStatus() == OrderStatus.ORDERED)) {
+            response.setStatus(403);
+            response.setMsg("Only status ordered");
+            return response;
+        }
+        orderItem.setOrderItemStatus(OrderItemStatus.CANCEL_BUYER);
+        ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderItem.getIdVariation());
+        productVariation.setStock(productVariation.getStock()+orderItem.getQuantity());
+        productVariationRepository.save(productVariation);
+        orderItemRepository.save(orderItem);
+
+        response.setStatus(200);
+        response.setMsg("Cancel Successful");
+        return response;
+
+    }
+
 
     // =========== OrderHistory ========== //
     private void setOrderHistoryToJSON(List<OrderHistoryEntity> orderHistory, List<OrderHistoryReadOrderHisBodyResponse> order_history_list) {
@@ -1019,8 +1156,4 @@ public class BuyerServiceImpl implements BuyerService {
         response.setMsg("Rate Successful");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
-
-
 }

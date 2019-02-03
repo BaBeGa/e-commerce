@@ -7,27 +7,33 @@ public class OrderForSellerReadResponse {
     private OrderForSellerReadBodyResponse body;
     private int status;
     private String msg;
-@JsonGetter
+
+    @JsonGetter
     public OrderForSellerReadBodyResponse getBody() {
         return body;
     }
-@JsonSetter
+
+    @JsonSetter
     public void setBody(OrderForSellerReadBodyResponse body) {
         this.body = body;
     }
-@JsonGetter
+
+    @JsonGetter
     public int getStatus() {
         return status;
     }
-@JsonSetter
+
+    @JsonSetter
     public void setStatus(int status) {
         this.status = status;
     }
-@JsonGetter
+
+    @JsonGetter
     public String getMsg() {
         return msg;
     }
-@JsonSetter
+
+    @JsonSetter
     public void setMsg(String msg) {
         this.msg = msg;
     }

@@ -7,5 +7,8 @@ public enum OrderItemStatus {
     REJECTED,
     WAITING_DECISION,
     ADMIN_REJECTED,
-    COMPLETED
+    COMPLETED,
+    CANCEL_BUYER,
+    CANCEL_SELLER,
+    CANCEL_REJECTED,
 }
