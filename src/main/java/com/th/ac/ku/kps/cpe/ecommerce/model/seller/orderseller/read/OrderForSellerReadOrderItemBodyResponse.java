@@ -3,14 +3,17 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import java.util.List;
+
 public class OrderForSellerReadOrderItemBodyResponse {
 
     private Integer id_item;
     private OrderForSellerReadVariationBodyResponse product_variation;
     private Integer quantity;
     private Double price;
-    private OrderForSellerReadShipOfShopBodyResponse ship_of_shop;
+    private OrderForSellerReadProductDeliveryBodyResponse product_delivery;
     private String tracking_number;
+    private List<OrderForSellerCheckPointBodyResponse> checkpoint;
     private OrderForSellerReadOrderBodyResponse order;
 
     @JsonGetter
@@ -54,13 +57,13 @@ public class OrderForSellerReadOrderItemBodyResponse {
     }
 
     @JsonGetter
-    public OrderForSellerReadShipOfShopBodyResponse getShip_of_shop() {
-        return ship_of_shop;
+    public OrderForSellerReadProductDeliveryBodyResponse getProduct_delivery() {
+        return product_delivery;
     }
 
     @JsonSetter
-    public void setShip_of_shop(OrderForSellerReadShipOfShopBodyResponse ship_of_shop) {
-        this.ship_of_shop = ship_of_shop;
+    public void setProduct_delivery(OrderForSellerReadProductDeliveryBodyResponse product_delivery) {
+        this.product_delivery = product_delivery;
     }
 
     @JsonGetter
@@ -71,6 +74,16 @@ public class OrderForSellerReadOrderItemBodyResponse {
     @JsonSetter
     public void setTracking_number(String tracking_number) {
         this.tracking_number = tracking_number;
+    }
+
+    @JsonGetter
+    public List<OrderForSellerCheckPointBodyResponse> getCheckpoint() {
+        return checkpoint;
+    }
+
+    @JsonSetter
+    public void setCheckpoint(List<OrderForSellerCheckPointBodyResponse> checkpoint) {
+        this.checkpoint = checkpoint;
     }
 
     @JsonGetter

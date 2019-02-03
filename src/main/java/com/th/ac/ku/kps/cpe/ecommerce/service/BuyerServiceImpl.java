@@ -52,7 +52,7 @@ public class BuyerServiceImpl implements BuyerService {
     private final OrderItemRepository orderItemRepository;
     private final ProductVariationRepository productVariationRepository;
     private final ProductRepository productRepository;
-    private final ShipOfShopRepository shipOfShopRepository;
+    private final ProductDeliveryRepository productDeliveryRepository;
     private final OrderPaymentRepository orderPaymentRepository;
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final TypeShippingRepository typeShippingRepository;
@@ -68,13 +68,13 @@ public class BuyerServiceImpl implements BuyerService {
     private final RatingShopRepository ratingShopRepository;
 
     // ============= Order ============== //
-    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ShipOfShopRepository shipOfShopRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository, TypePaymentRepository typePaymentRepository, RatingShopRepository ratingShopRepository) {
+    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ProductDeliveryRepository productDeliveryRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository, TypePaymentRepository typePaymentRepository, RatingShopRepository ratingShopRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
         this.productVariationRepository = productVariationRepository;
         this.productRepository = productRepository;
-        this.shipOfShopRepository = shipOfShopRepository;
+        this.productDeliveryRepository = productDeliveryRepository;
         this.orderPaymentRepository = orderPaymentRepository;
         this.deliveryAddressRepository = deliveryAddressRepository;
         this.typeShippingRepository = typeShippingRepository;
@@ -95,7 +95,6 @@ public class BuyerServiceImpl implements BuyerService {
             Double price_total = 0.0;
             List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
             List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
-            Common.LoggerInfo(orderItem);
             for (OrderItemEntity anOrderItem : orderItem) {
                 OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
                 orderItemBody.setId_item(anOrderItem.getIdItem());
@@ -116,56 +115,58 @@ public class BuyerServiceImpl implements BuyerService {
                 orderItemBody.setPrice(productVariation.getPrice());
                 orderItemBody.setQuantity(anOrderItem.getQuantity());
                 // **
-                OrderReadShipOfShopOrderItemOrderBodyResponse ship_of_shop = new OrderReadShipOfShopOrderItemOrderBodyResponse();
-                ShipOfShopEntity shipOfShopEntity = shipOfShopRepository.findByIdShip(anOrderItem.getIdShipOfShop());
-                if (shipOfShopEntity != null) {
-                    TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(shipOfShopEntity.getIdType());
-                    ship_of_shop.setId_ship_of_shop(anOrderItem.getIdShipOfShop());
-                    ship_of_shop.setSlug(typeShippingEntity.getNameShip());
-                    ship_of_shop.setPrice(shipOfShopEntity.getPrice());
-                    price_total += ship_of_shop.getPrice();
-                    ship_of_shop.setTime_ship(shipOfShopEntity.getTimeShip());
+                OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery = new OrderReadProductDeliveryOrderItemOrderBodyResponse();
+                ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(anOrderItem.getIdShipOfShop());
+                if (productDeliveryEntity != null) {
+                    TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(productDeliveryEntity.getIdType());
+                    product_delivery.setId_ship(anOrderItem.getIdShipOfShop());
+                    product_delivery.setName_ship(typeShippingEntity.getNameShip());
+                    product_delivery.setPrice(productDeliveryEntity.getPrice());
+                    price_total += product_delivery.getPrice();
+                    product_delivery.setTime_ship(productDeliveryEntity.getTimeShip());
                 }
-                orderItemBody.setId_ship_of_shop(ship_of_shop);
+                orderItemBody.setProduct_delivery(product_delivery);
                 orderItemBody.setTracking_number(anOrderItem.getTrackingNumber());
 
-                TrackingServiceImpl trackingService = new TrackingServiceImpl();
-                TrackingReadResponseParam trackingResponseParam = trackingService.trackingReadAllResponse(ship_of_shop.getSlug(), anOrderItem.getTrackingNumber());
+                if (anOrderItem.getTrackingNumber() != null) {
+                    TrackingServiceImpl trackingService = new TrackingServiceImpl();
+                    TrackingReadResponseParam trackingResponseParam = trackingService.trackingReadAllResponse(product_delivery.getName_ship(), anOrderItem.getTrackingNumber());
 
-                List<OrderReadOrderItemCheckpointOrderItemResponse> checkpointList = new ArrayList<>();
-                if (trackingResponseParam.getData().getTracking() != null) {
-                    for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
-                        if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit") && anOrderItem.getOrderItemStatus() == OrderItemStatus.NOT_SHIP) {
-                            anOrderItem.setOrderItemStatus(OrderItemStatus.SHIPPED);
-                        } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered") && (anOrderItem.getOrderItemStatus() == OrderItemStatus.NOT_SHIP || anOrderItem.getOrderItemStatus() == OrderItemStatus.SHIPPED)) {
-                            anOrderItem.setOrderItemStatus(OrderItemStatus.DELIVERED);
-                            if (anOrderItem.getExpiredBuyerConfirm() == null) {
-                                Date dt = new Date();
-                                Calendar c = Calendar.getInstance();
-                                c.setTime(dt);
-                                c.add(Calendar.DATE, 7);
-                                dt = c.getTime();
-                                Timestamp expired_buyer_confirm = new Timestamp(dt.getTime());
-                                anOrderItem.setExpiredBuyerConfirm(expired_buyer_confirm);
+                    List<OrderReadOrderItemCheckpointOrderItemResponse> checkpointList = new ArrayList<>();
+                    if (trackingResponseParam.getData().getTracking() != null) {
+                        for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
+                            if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit") && anOrderItem.getOrderItemStatus() == OrderItemStatus.NOT_SHIP) {
+                                anOrderItem.setOrderItemStatus(OrderItemStatus.SHIPPED);
+                            } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered") && (anOrderItem.getOrderItemStatus() == OrderItemStatus.NOT_SHIP || anOrderItem.getOrderItemStatus() == OrderItemStatus.SHIPPED)) {
+                                anOrderItem.setOrderItemStatus(OrderItemStatus.DELIVERED);
+                                if (anOrderItem.getExpiredBuyerConfirm() == null) {
+                                    Date dt = new Date();
+                                    Calendar c = Calendar.getInstance();
+                                    c.setTime(dt);
+                                    c.add(Calendar.HOUR, Integer.parseInt(configRepository.findByName("expired_buyer_confirm").getValue()));
+                                    dt = c.getTime();
+                                    Timestamp expired_buyer_confirm = new Timestamp(dt.getTime());
+                                    anOrderItem.setExpiredBuyerConfirm(expired_buyer_confirm);
+                                }
                             }
+                            OrderReadOrderItemCheckpointOrderItemResponse checkpoint = new OrderReadOrderItemCheckpointOrderItemResponse();
+                            checkpoint.setCheckpoint_time(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCheckpoint_time());
+                            checkpoint.setCountry_iso3(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_iso3());
+                            checkpoint.setCountry_name(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_name());
+                            checkpoint.setCreated_at(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCreated_at());
+                            checkpoint.setLocation(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getLocation());
+                            checkpoint.setMessage(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getMessage());
+                            checkpoint.setSlug(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSlug());
+                            checkpoint.setSubtag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag());
+                            checkpoint.setSubtag_message(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag_message());
+                            checkpoint.setTag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag());
+                            checkpointList.add(checkpoint);
                         }
-                        OrderReadOrderItemCheckpointOrderItemResponse checkpoint = new OrderReadOrderItemCheckpointOrderItemResponse();
-                        checkpoint.setCheckpoint_time(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCheckpoint_time());
-                        checkpoint.setCountry_iso3(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_iso3());
-                        checkpoint.setCountry_name(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_name());
-                        checkpoint.setCreated_at(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCreated_at());
-                        checkpoint.setLocation(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getLocation());
-                        checkpoint.setMessage(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getMessage());
-                        checkpoint.setSlug(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSlug());
-                        checkpoint.setSubtag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag());
-                        checkpoint.setSubtag_message(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag_message());
-                        checkpoint.setTag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag());
-                        checkpointList.add(checkpoint);
+                        orderItemRepository.save(anOrderItem);
                     }
-                    orderItemRepository.save(anOrderItem);
+                    orderItemBody.setCheckpoint(checkpointList);
                 }
                 orderItemBody.setOrder_item_status(anOrderItem.getOrderItemStatus());
-                orderItemBody.setCheckpoint(checkpointList);
                 orderItemBodyList.add(orderItemBody);
             }
             OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
@@ -213,9 +214,7 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("User not found. Please check token");
             return response;
         }
-
         List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
-        Common.LoggerInfo(order);
         orderReadFunction(orderBodyList, order);
         body.setOrder(orderBodyList);
         response.setBody(body);
@@ -436,8 +435,8 @@ public class BuyerServiceImpl implements BuyerService {
             for (int j = 0; j < restRequest.getBody().getOrder_item().size(); j++) {
                 if (orderItem.get(i).getIdItem().equals(restRequest.getBody().getOrder_item().get(j).getId_item())) {
                     ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation());
-                    List<ShipOfShopEntity> shipOfShop = shipOfShopRepository.findAllByIdProduct(productVariation.getIdProduct());
-                    for (ShipOfShopEntity aShipOfShop : shipOfShop) {
+                    List<ProductDeliveryEntity> shipOfShop = productDeliveryRepository.findAllByIdProduct(productVariation.getIdProduct());
+                    for (ProductDeliveryEntity aShipOfShop : shipOfShop) {
                         if (aShipOfShop.getIdShip() == restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop())
                             orderItem.get(i).setIdShipOfShop(restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop());
                     }
@@ -645,7 +644,7 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setIdVariation(productVariation.getIdVariation());
             orderHistory.setNameVariation(productVariation.getName());
 
-            ShipOfShopEntity shipOfShop = shipOfShopRepository.findByIdShip(orderItem.getIdShipOfShop());
+            ProductDeliveryEntity shipOfShop = productDeliveryRepository.findByIdShip(orderItem.getIdShipOfShop());
             TypeShippingEntity typeShipping = typeShippingRepository.findByIdType(shipOfShop.getIdType());
             orderHistory.setTypeShipping(typeShipping.getNameShip());
 
@@ -1000,11 +999,6 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Already rated");
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
         }
-        if (!(restRequest.getRating() == 1 || restRequest.getRating() == 2 || restRequest.getRating() == 3 || restRequest.getRating() == 4 || restRequest.getRating() == 5)) {
-            response.setStatus(406);
-            response.setMsg("Invalid rating. Only input 1,2,3,4,5");
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
-        }
 
         ratingShop = new RatingShopEntity();
         ratingShop.setIdOrderHistory(restRequest.getId_order_history());
@@ -1014,10 +1008,19 @@ public class BuyerServiceImpl implements BuyerService {
         Timestamp timeNow = new Timestamp(date.getTime());
         ratingShop.setRatedDate(timeNow);
         ratingShopRepository.save(ratingShop);
-        response.setStatus(200);
-        response.setMsg("Create Successful");
-        return ResponseEntity.ok(response);
+
+        ShopEntity shop = shopRepository.findByIdShop(orderHistory.getIdShop());
+
+        shop.setCount(shop.getCount()+1);
+        shop.setMean((shop.getMean()+restRequest.getRating())/shop.getCount());
+        shopRepository.save(shop);
+
+        response.setStatus(201);
+        response.setMsg("Rate Successful");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+
 
 
 }

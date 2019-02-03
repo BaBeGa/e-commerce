@@ -1,17 +1,12 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.update;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ShipOfShopReadDataBodyResponse {
-
+public class ProductDeliveryUpdateBodyRequest {
     private int id_ship;
-    private int id_shop;
-    private String name_shop;
     private int id_product;
-    private String name_product;
     private int id_type;
-    private String slug;
     private double price;
     private Integer time_ship;
 
@@ -26,26 +21,6 @@ public class ShipOfShopReadDataBodyResponse {
     }
 
     @JsonGetter
-    public int getId_shop() {
-        return id_shop;
-    }
-
-    @JsonSetter
-    public void setId_shop(int id_shop) {
-        this.id_shop = id_shop;
-    }
-
-    @JsonGetter
-    public String getName_shop() {
-        return name_shop;
-    }
-
-    @JsonSetter
-    public void setName_shop(String name_shop) {
-        this.name_shop = name_shop;
-    }
-
-    @JsonGetter
     public int getId_product() {
         return id_product;
     }
@@ -56,16 +31,6 @@ public class ShipOfShopReadDataBodyResponse {
     }
 
     @JsonGetter
-    public String getName_product() {
-        return name_product;
-    }
-
-    @JsonSetter
-    public void setName_product(String name_product) {
-        this.name_product = name_product;
-    }
-
-    @JsonGetter
     public int getId_type() {
         return id_type;
     }
@@ -73,15 +38,6 @@ public class ShipOfShopReadDataBodyResponse {
     @JsonSetter
     public void setId_type(int id_type) {
         this.id_type = id_type;
-    }
-
-    @JsonGetter
-    public String getSlug() {
-        return slug;
-    }
-    @JsonSetter
-    public void setSlug(String slug) {
-        this.slug = slug;
     }
 
     @JsonGetter

@@ -1,6 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
@@ -18,8 +19,10 @@ public class OrderReadOrderItemOrderBodyResponse {
     private String pic_product;
     private int quantity;
     private Double price;
-    private OrderReadShipOfShopOrderItemOrderBodyResponse id_ship_of_shop;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery;
     private String tracking_number;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<OrderReadOrderItemCheckpointOrderItemResponse> checkpoint;
 
     @JsonGetter
@@ -133,13 +136,13 @@ public class OrderReadOrderItemOrderBodyResponse {
     }
 
     @JsonGetter
-    public OrderReadShipOfShopOrderItemOrderBodyResponse getId_ship_of_shop() {
-        return id_ship_of_shop;
+    public OrderReadProductDeliveryOrderItemOrderBodyResponse getProduct_delivery() {
+        return product_delivery;
     }
 
     @JsonSetter
-    public void setId_ship_of_shop(OrderReadShipOfShopOrderItemOrderBodyResponse id_ship_of_shop) {
-        this.id_ship_of_shop = id_ship_of_shop;
+    public void setProduct_delivery(OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery) {
+        this.product_delivery = product_delivery;
     }
 
     @JsonGetter

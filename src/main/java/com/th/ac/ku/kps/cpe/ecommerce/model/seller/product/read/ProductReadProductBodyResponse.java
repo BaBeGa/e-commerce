@@ -1,6 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.sql.Timestamp;
@@ -15,6 +16,8 @@ public class ProductReadProductBodyResponse {
     private Timestamp created_at;
     private List<ProductReadProductpicProductBodyResponse> product_pic;
     private List<ProductReadVariationProductBodyResponse> product_variation;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<ProductReadProductDeliveryBodyResponse> product_delivery;
     private List<ProductReadRatingProductBodyResponse> rating_product;
     private Double mean_rating;
     private Integer count_rating;
@@ -97,6 +100,16 @@ public class ProductReadProductBodyResponse {
     @JsonSetter
     public void setProduct_variation(List<ProductReadVariationProductBodyResponse> product_variation) {
         this.product_variation = product_variation;
+    }
+
+    @JsonGetter
+    public List<ProductReadProductDeliveryBodyResponse> getProduct_delivery() {
+        return product_delivery;
+    }
+
+    @JsonSetter
+    public void setProduct_delivery(List<ProductReadProductDeliveryBodyResponse> product_delivery) {
+        this.product_delivery = product_delivery;
     }
 
     @JsonGetter

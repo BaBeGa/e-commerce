@@ -3,13 +3,19 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.ratingshop.create;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 public class RatingShopCreateRequest {
     @NotNull(message = "id_order_history required")
     private Integer id_order_history;
+
     @NotNull(message = "rating required")
+    @Min(1)
+    @Max(5)
     private Integer rating;
+
     private String content;
 
     @JsonGetter

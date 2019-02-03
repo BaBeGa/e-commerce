@@ -1,26 +1,24 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.update;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ShipOfShopCreateResponse {
-
+public class ProductDeliveryUpdateResponse {
     private int status;
     private String msg;
-
-   @JsonGetter
+@JsonGetter
     public int getStatus() {
         return status;
     }
-    @JsonSetter
+@JsonSetter
     public void setStatus(int status) {
         this.status = status;
     }
-    @JsonGetter
+@JsonGetter
     public String getMsg() {
         return msg;
     }
-    @JsonSetter
+@JsonSetter
     public void setMsg(String msg) {
         this.msg = msg;
     }

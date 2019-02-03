@@ -1,19 +1,19 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.read;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ShipOfShopReadResponse {
-    private ShipOfShopReadBodyResponse body;
+public class ProductDeliveryReadResponse {
+    private ProductDeliveryReadBodyResponse body;
     private int status;
     private String msg;
 
 @JsonGetter
-    public ShipOfShopReadBodyResponse getBody() {
+    public ProductDeliveryReadBodyResponse getBody() {
         return body;
     }
 @JsonSetter
-    public void setBody(ShipOfShopReadBodyResponse body) {
+    public void setBody(ProductDeliveryReadBodyResponse body) {
         this.body = body;
     }
 @JsonGetter

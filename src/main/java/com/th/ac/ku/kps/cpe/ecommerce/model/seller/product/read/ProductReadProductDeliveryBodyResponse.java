@@ -1,32 +1,32 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class OrderReadShipOfShopOrderItemOrderBodyResponse {
-    private Integer id_ship_of_shop;
-    private String slug;
+public class ProductReadProductDeliveryBodyResponse {
+    private Integer id_ship;
+    private String name_ship;
     private Double price;
     private Integer time_ship;
 
     @JsonGetter
-    public Integer getId_ship_of_shop() {
-        return id_ship_of_shop;
+    public Integer getId_ship() {
+        return id_ship;
     }
 
     @JsonSetter
-    public void setId_ship_of_shop(Integer id_ship_of_shop) {
-        this.id_ship_of_shop = id_ship_of_shop;
+    public void setId_ship(Integer id_ship) {
+        this.id_ship = id_ship;
     }
 
     @JsonGetter
-    public String getSlug() {
-        return slug;
+    public String getName_ship() {
+        return name_ship;
     }
 
     @JsonSetter
-    public void setSlug(String slug) {
-        this.slug = slug;
+    public void setName_ship(String name_ship) {
+        this.name_ship = name_ship;
     }
 
     @JsonGetter

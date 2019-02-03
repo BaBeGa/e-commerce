@@ -1,9 +1,9 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.delete;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ShipOfShopDeleteResponse {
+public class ProductDeliveryDeleteResponse {
     private int status;
     private String msg;
 @JsonGetter

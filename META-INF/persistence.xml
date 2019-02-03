@@ -10,7 +10,7 @@
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.ShopHasProductEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity</class>
-        <class>com.th.ac.ku.kps.cpe.ecommerce.model.ShipOfShopEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.ProductDeliveryEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderItemEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderPaymentEntity</class>

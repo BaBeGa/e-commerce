@@ -1,14 +1,12 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
 import javax.persistence.*;
-import java.sql.Time;
 import java.util.Objects;
 
 @Entity
-@Table(name = "ship_of_shop", schema = "e-commerce_01")
-public class ShipOfShopEntity {
+@Table(name = "product_delivery", schema = "e-commerce_01")
+public class ProductDeliveryEntity {
     private int idShip;
-    private int idShop;
     private int idProduct;
     private int idType;
     private double price;
@@ -22,16 +20,6 @@ public class ShipOfShopEntity {
 
     public void setIdShip(int idShip) {
         this.idShip = idShip;
-    }
-
-    @Basic
-    @Column(name = "id_shop")
-    public int getIdShop() {
-        return idShop;
-    }
-
-    public void setIdShop(int idShop) {
-        this.idShop = idShop;
     }
 
     @Basic
@@ -78,9 +66,8 @@ public class ShipOfShopEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ShipOfShopEntity that = (ShipOfShopEntity) o;
+        ProductDeliveryEntity that = (ProductDeliveryEntity) o;
         return idShip == that.idShip &&
-                idShop == that.idShop &&
                 idProduct == that.idProduct &&
                 idType == that.idType &&
                 Double.compare(that.price, price) == 0 &&
@@ -89,6 +76,6 @@ public class ShipOfShopEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShip, idShop, idProduct, idType, price, timeShip);
+        return Objects.hash(idShip, idProduct, idType, price, timeShip);
     }
 }

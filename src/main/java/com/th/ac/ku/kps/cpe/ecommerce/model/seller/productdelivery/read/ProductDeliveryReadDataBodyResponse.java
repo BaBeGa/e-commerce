@@ -1,14 +1,13 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.create;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ShipOfShopCreateBodyRequest {
+public class ProductDeliveryReadDataBodyResponse {
     private int id_ship;
-    private int id_shop;
-    private int id_product;
     private int id_type;
-    private double price;
+    private String name_ship;
+    private Double price;
     private Integer time_ship;
 
     @JsonGetter
@@ -22,26 +21,6 @@ public class ShipOfShopCreateBodyRequest {
     }
 
     @JsonGetter
-    public int getId_shop() {
-        return id_shop;
-    }
-
-    @JsonSetter
-    public void setId_shop(int id_shop) {
-        this.id_shop = id_shop;
-    }
-
-    @JsonGetter
-    public int getId_product() {
-        return id_product;
-    }
-
-    @JsonSetter
-    public void setId_product(int id_product) {
-        this.id_product = id_product;
-    }
-
-    @JsonGetter
     public int getId_type() {
         return id_type;
     }
@@ -52,12 +31,21 @@ public class ShipOfShopCreateBodyRequest {
     }
 
     @JsonGetter
-    public double getPrice() {
+    public String getName_ship() {
+        return name_ship;
+    }
+    @JsonSetter
+    public void setName_ship(String name_ship) {
+        this.name_ship = name_ship;
+    }
+
+    @JsonGetter
+    public Double getPrice() {
         return price;
     }
 
     @JsonSetter
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

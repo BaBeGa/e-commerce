@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.sql.Time;
 
-public class OrderForSellerReadShipOfShopBodyResponse {
+public class OrderForSellerReadProductDeliveryBodyResponse {
     private Integer id_ship;
     private String type;
     private Double price_ship;

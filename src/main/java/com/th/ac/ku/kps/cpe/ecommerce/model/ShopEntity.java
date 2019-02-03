@@ -15,6 +15,8 @@ public class ShopEntity {
     private String bankAccountNumber;
     private Integer idBankCompany;
     private Timestamp createdAt;
+    private int mean;
+    private int count;
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -97,6 +99,26 @@ public class ShopEntity {
         this.createdAt = createdAt;
     }
 
+    @Basic
+    @Column(name = "mean")
+    public int getMean() {
+        return mean;
+    }
+
+    public void setMean(int mean) {
+        this.mean = mean;
+    }
+
+    @Basic
+    @Column(name = "count")
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -104,6 +126,8 @@ public class ShopEntity {
         ShopEntity that = (ShopEntity) o;
         return idShop == that.idShop &&
                 idUser == that.idUser &&
+                mean == that.mean &&
+                count == that.count &&
                 Objects.equals(nameShop, that.nameShop) &&
                 Objects.equals(shopAddress, that.shopAddress) &&
                 Objects.equals(bankAccountName, that.bankAccountName) &&
@@ -114,6 +138,6 @@ public class ShopEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idShop, idUser, nameShop, shopAddress, bankAccountName, bankAccountNumber, idBankCompany, createdAt);
+        return Objects.hash(idShop, idUser, nameShop, shopAddress, bankAccountName, bankAccountNumber, idBankCompany, createdAt, mean, count);
     }
 }

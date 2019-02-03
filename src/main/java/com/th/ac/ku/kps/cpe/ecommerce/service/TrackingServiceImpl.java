@@ -28,17 +28,13 @@ public class TrackingServiceImpl implements TrackingService {
             ObjectMapper obj = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             String jsonString = obj.writeValueAsString(restRequest);
             HttpPost request = new HttpPost("https://api.aftership.com/v4/trackings");
-            LOGGER.info("HttpPost : Connected ");
             StringEntity params = new StringEntity(jsonString);
             request.addHeader("content-type", "application/json");
             request.addHeader("aftership-api-key", "4e377d7d-932c-4019-8a5b-07833b975c1e");
             request.setEntity(params);
             HttpResponse response = httpClient.execute(request);
-            LOGGER.info("HttpResponse : " + response);
             String json_string = EntityUtils.toString(response.getEntity());
             responseParam = obj.readValue(json_string,TrackingRestResponseParam.class);
-            LOGGER.info("RESPONSE : " + json_string);
-            Common.LoggerInfo("RESPONSE responseParam :" , responseParam);
             return responseParam;
         }catch (Exception ex) {
            ex.getStackTrace();
@@ -54,13 +50,11 @@ public class TrackingServiceImpl implements TrackingService {
         try {
             ObjectMapper obj = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             HttpGet request = new HttpGet("https://api.aftership.com/v4/trackings/"+slug+"/"+tracking_number);
-            Common.LoggerInfo("HttpGet : Connected");
             request.addHeader("content-type", "application/json");
             request.addHeader("aftership-api-key", "4e377d7d-932c-4019-8a5b-07833b975c1e");
             HttpResponse response = httpClient.execute(request);
             String json_string = EntityUtils.toString(response.getEntity());
             responseParam = obj.readValue(json_string, TrackingReadResponseParam.class);
-            Common.LoggerInfo("RESPONSE responseParam : ", responseParam);
             return responseParam;
         }
         catch (Exception e) {

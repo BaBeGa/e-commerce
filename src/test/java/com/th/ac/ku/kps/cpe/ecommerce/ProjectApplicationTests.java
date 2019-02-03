@@ -16,7 +16,7 @@ public class ProjectApplicationTests {
     public void TrackingTest() {
 //        TrackingRestRequest tracking = new TrackingRestRequest();
 //        TrackingRestRequestBody body = new TrackingRestRequestBody();
-//        body.setSlug("thailand-post");
+//        body.setName_ship("thailand-post");
 //        body.setTracking_number("EV123456789TH");
 //        tracking.setTracking(body);
 //        ObjectMapper obj = new ObjectMapper();

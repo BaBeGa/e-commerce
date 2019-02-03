@@ -1,15 +1,17 @@
-package com.th.ac.ku.kps.cpe.ecommerce.model.seller.shipofshop.delete;
+package com.th.ac.ku.kps.cpe.ecommerce.model.seller.productdelivery.delete;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class ShipOfShopDeleteBodyRequest {
+public class ProductDeliveryDeleteBodyRequest {
     private int id_ship;
-@JsonGetter
+
+    @JsonGetter
     public int getId_ship() {
         return id_ship;
     }
-@JsonSetter
+
+    @JsonSetter
     public void setId_ship(int id_ship) {
         this.id_ship = id_ship;
     }
