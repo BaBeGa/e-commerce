@@ -143,6 +143,7 @@ public class SellerServiceImpl implements SellerService{
             for (int i = 0; i < restRequest.getBody().getProduct_variation().size(); i++) {
                 ProductVariationEntity productVariationEntity = new ProductVariationEntity();
                 productVariationEntity.setIdProduct(productEntity.getIdProduct());
+                response.setId_product(productEntity.getIdProduct());
                 productVariationEntity.setName(restRequest.getBody().getProduct_variation().get(i).getName());
                 productVariationEntity.setPrice(restRequest.getBody().getProduct_variation().get(i).getPrice());
                 productVariationEntity.setStock(restRequest.getBody().getProduct_variation().get(i).getStock());
@@ -705,50 +706,59 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public OrderForSellerReadResponse readAllOrderForSellerResponse(String token) {
-
-        List<OrderEntity> order = orderRepository.findAllByOrderStatusOrOrderStatusOrOrderStatus(OrderStatus.PAID,OrderStatus.ORDERED,OrderStatus.CANCEL);
-        List<OrderItemEntity> orderItem = new ArrayList<>();
-        for (int i = 0; i < order.size(); i++) {
-            orderItem.addAll(orderItemRepository.findAllByIdOrder(order.get(i).getIdOrder()));
-        }
-        List<ProductVariationEntity> productVariation = new ArrayList<>();
-        for (int i = 0; i < orderItem.size(); i++) {
-            productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
-        }
-
-        List<ProductEntity> product = new ArrayList<>();
-        for (int i = 0; i < productVariation.size(); i++) {
-
-            product.add(productRepository.findByIdProduct(productVariation.get(i).getIdProduct()));
-        }
-        List<ShopHasProductEntity> shopHasProduct = new ArrayList<>();
-        for (int i = 0; i < product.size(); i++) {
-            shopHasProduct.add(shopHasProductRepository.findByIdProduct(product.get(i).getIdProduct()));
-        }
-        List<ShopEntity> shop = new ArrayList<>();
-        for (int i = 0; i < shopHasProduct.size(); i++) {
-            shop.add(shopRepository.findByIdShop(shopHasProduct.get(i).getIdShop()));
-        }
-        List<UserEntity> user = new ArrayList<>();
-        for (int i = 0; i < shop.size(); i++) {
-            if (userRepository.findByIdUser(shop.get(i).getIdUser()).getToken().equals(token)) {
-                user.add(userRepository.findByIdUser(shop.get(i).getIdUser()));
-            }
-        }
         OrderForSellerReadResponse response = new OrderForSellerReadResponse();
         OrderForSellerReadBodyResponse body = new OrderForSellerReadBodyResponse();
-        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
-        if (user.size() == 0) {
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
             response.setStatus(404);
-            response.setMsg("User doesn't open shop or no order!");
+            response.setMsg("User not found. Please check token");
             return response;
         }
-        ShopEntity shopFound = shopRepository.findByIdUser(user.get(0).getIdUser());
+        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+        List<OrderHistoryEntity> orderHistoryEntityList = orderHistoryRepository.findAllByIdShop(shop.getIdShop());
+        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
 
-        List<ShopHasProductEntity> shopHasProductFound = shopHasProductRepository.findAllByIdShop(shopFound.getIdShop());
+        // Past code **
+//        List<OrderEntity> order = orderRepository.findAllByOrderStatusOrOrderStatusOrOrderStatus(OrderStatus.PAID,OrderStatus.ORDERED,OrderStatus.CANCEL);
+//        List<OrderItemEntity> orderItem = new ArrayList<>();
+//        for (int i = 0; i < order.size(); i++) {
+//            orderItem.addAll(orderItemRepository.findAllByIdOrder(order.get(i).getIdOrder()));
+//        }
+//        List<ProductVariationEntity> productVariation = new ArrayList<>();
+//        for (int i = 0; i < orderItem.size(); i++) {
+//            productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
+//        }
+//        List<ProductEntity> product = new ArrayList<>();
+//        for (int i = 0; i < productVariation.size(); i++) {
+//            product.add(productRepository.findByIdProduct(productVariation.get(i).getIdProduct()));
+//        }
+//        List<ShopHasProductEntity> shopHasProduct = new ArrayList<>();
+//        for (int i = 0; i < product.size(); i++) {
+//            shopHasProduct.add(shopHasProductRepository.findByIdProduct(product.get(i).getIdProduct()));
+//        }
+//        List<ShopEntity> shop = new ArrayList<>();
+//        for (int i = 0; i < shopHasProduct.size(); i++) {
+//            shop.add(shopRepository.findByIdShop(shopHasProduct.get(i).getIdShop()));
+//        }
+//        List<UserEntity> user = new ArrayList<>();
+//        for (int i = 0; i < shop.size(); i++) {
+//            if (userRepository.findByIdUser(shop.get(i).getIdUser()).getToken().equals(token)) {
+//                user.add(userRepository.findByIdUser(shop.get(i).getIdUser()));
+//            }
+//        }
+//
+//        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
+//        if (user.size() == 0) {
+//            response.setStatus(404);
+//            response.setMsg("User doesn't open shop or no order!");
+//            return response;
+//        }
+//        ShopEntity shopFound = shopRepository.findByIdUser(user.get(0).getIdUser());
+//
+//        List<ShopHasProductEntity> shopHasProductFound = shopHasProductRepository.findAllByIdShop(shopFound.getIdShop());
+        //**
 
-
-        ReadOrderForSeller(orderItem, orderItemResponseList, shopHasProductFound);
+        ReadOrderForSeller(orderHistoryEntityList, orderItemResponseList);
         body.setOrder_item(orderItemResponseList);
         response.setBody(body);
 
@@ -759,50 +769,19 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     public OrderForSellerReadResponse readOrderForSellerResponse(String token, int id_item) {
-        List<OrderEntity> order = orderRepository.findAllByOrderStatusOrOrderStatusOrOrderStatus(OrderStatus.PAID,OrderStatus.ORDERED,OrderStatus.CANCEL);
-        List<OrderItemEntity> orderItem = new ArrayList<>();
-        for (int i = 0; i < order.size(); i++) {
-            orderItem.addAll(orderItemRepository.findAllByIdOrderAndIdItem(order.get(i).getIdOrder(),id_item));
-        }
-        Common.LoggerInfo(orderItem);
-        List<ProductVariationEntity> productVariation = new ArrayList<>();
-        for (int i = 0; i < orderItem.size(); i++) {
-            productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
-        }
-
-
-        List<ProductEntity> product = new ArrayList<>();
-        for (int i = 0; i < productVariation.size(); i++) {
-            product.add(productRepository.findByIdProduct(productVariation.get(i).getIdProduct()));
-        }
-        List<ShopHasProductEntity> shopHasProduct = new ArrayList<>();
-        for (int i = 0; i < product.size(); i++) {
-            shopHasProduct.add(shopHasProductRepository.findByIdProduct(product.get(i).getIdProduct()));
-        }
-        List<ShopEntity> shop = new ArrayList<>();
-        for (int i = 0; i < shopHasProduct.size(); i++) {
-            shop.add(shopRepository.findByIdShop(shopHasProduct.get(i).getIdShop()));
-        }
-        List<UserEntity> user = new ArrayList<>();
-        for (int i = 0; i < shop.size(); i++) {
-            if (userRepository.findByIdUser(shop.get(i).getIdUser()).getToken().equals(token)) {
-                user.add(userRepository.findByIdUser(shop.get(i).getIdUser()));
-            }
-        }
         OrderForSellerReadResponse response = new OrderForSellerReadResponse();
         OrderForSellerReadBodyResponse body = new OrderForSellerReadBodyResponse();
-        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
-        if (user.size() == 0) {
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
             response.setStatus(404);
-            response.setMsg("User doesn't open shop or no order!");
+            response.setMsg("User not found. Please check token");
             return response;
         }
-        ShopEntity shopFound = shopRepository.findByIdUser(user.get(0).getIdUser());
+        ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
+        List<OrderHistoryEntity> orderHistoryEntityList = orderHistoryRepository.findAllByIdShopAndIdItem(shop.getIdShop(), id_item);
+        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
 
-        List<ShopHasProductEntity> shopHasProductFound = shopHasProductRepository.findAllByIdShop(shopFound.getIdShop());
-
-
-        ReadOrderForSeller(orderItem, orderItemResponseList, shopHasProductFound);
+        ReadOrderForSeller(orderHistoryEntityList, orderItemResponseList);
         body.setOrder_item(orderItemResponseList);
         response.setBody(body);
 
@@ -811,122 +790,101 @@ public class SellerServiceImpl implements SellerService{
         return response;
     }
 
-    private void ReadOrderForSeller(List<OrderItemEntity> orderItem, List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList, List<ShopHasProductEntity> shopHasProductFound) {
-        for (int j = 0; j < shopHasProductFound.size(); j++) { // [{"idShop":1,"idProduct":1},{"idShop":1,"idProduct":2}]
-            List<ProductVariationEntity> productVariationFound = productVariationRepository.findAllByIdProduct(shopHasProductFound.get(j).getIdProduct()); // see in id 1, 2
+    private void ReadOrderForSeller(List<OrderHistoryEntity> orderHistoryEntityList, List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList) {
+        for (OrderHistoryEntity orderHistoryEntity : orderHistoryEntityList) {
+            OrderForSellerReadOrderItemBodyResponse orderItemResponse = new OrderForSellerReadOrderItemBodyResponse();
+            orderItemResponse.setId_item(orderHistoryEntity.getIdItem());
+            orderItemResponse.setStatus(orderHistoryEntity.getStatus());
 
-            for (int k = 0; k < productVariationFound.size(); k++) { // search same idVariation 1
-                for (int l = 0; l < orderItem.size(); l++) {// search same idVariation 2
-                    if (productVariationFound.get(k).getIdVariation() == orderItem.get(l).getIdVariation()) {
-                        OrderForSellerReadOrderItemBodyResponse orderItemResponse = new OrderForSellerReadOrderItemBodyResponse();
-                        orderItemResponse.setId_item(orderItem.get(l).getIdItem());
-                        OrderForSellerReadVariationBodyResponse productVariationResponse = new OrderForSellerReadVariationBodyResponse();
+            OrderForSellerReadProductBodyResponse productResponse = new OrderForSellerReadProductBodyResponse();
+            productResponse.setId_product(orderHistoryEntity.getIdProduct());
+            productResponse.setName_product(orderHistoryEntity.getNameProduct());
+            productResponse.setId_variation(orderHistoryEntity.getIdVariation());
+            productResponse.setName_variation(orderHistoryEntity.getNameVariation());
 
-                        productVariationResponse.setId_product(productVariationFound.get(k).getIdProduct());
-                        ProductEntity product = productRepository.findByIdProduct(productVariationFound.get(k).getIdProduct());
-                        productVariationResponse.setName_product(product.getNameProduct());
-                        productVariationResponse.setId_variation(productVariationFound.get(k).getIdVariation());
-                        productVariationResponse.setName_variation(productVariationFound.get(k).getName());
-                        List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.getIdProduct());
-                        productVariationResponse.setPic_product(productPic.get(0).getPicProduct());
-                        orderItemResponse.setProduct_variation(productVariationResponse);
-
-                        orderItemResponse.setPrice(productVariationFound.get(k).getPrice() * orderItem.get(l).getQuantity());
-                        orderItemResponse.setQuantity(orderItem.get(l).getQuantity());
-
-                        OrderForSellerReadProductDeliveryBodyResponse shipOfShopResponse = new OrderForSellerReadProductDeliveryBodyResponse();
-
-                        ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(orderItem.get(l).getIdShipOfShop());
-                        shipOfShopResponse.setId_ship(productDeliveryEntity.getIdShip());
-                        shipOfShopResponse.setPrice_ship(productDeliveryEntity.getPrice());
-                        TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(productDeliveryEntity.getIdType());
-                        shipOfShopResponse.setType(typeShippingEntity.getNameShip());
-                        shipOfShopResponse.setTime_ship(productDeliveryEntity.getTimeShip());
-                        orderItemResponse.setProduct_delivery(shipOfShopResponse);
-                        orderItemResponse.setTracking_number(orderItem.get(l).getTrackingNumber());
-                        // Tracking
-                        if (orderItem.get(l).getTrackingNumber() != null) {
-                            TrackingServiceImpl trackingService = new TrackingServiceImpl();
-                            TrackingReadResponseParam trackingResponseParam = trackingService.trackingReadAllResponse(typeShippingEntity.getNameShip(), orderItem.get(l).getTrackingNumber());
-
-                            List<OrderForSellerCheckPointBodyResponse> checkpointList = new ArrayList<>();
-                            if (trackingResponseParam.getData().getTracking() != null) {
-                                for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
-                                    if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit") && orderItem.get(l).getOrderItemStatus() == OrderItemStatus.NOT_SHIP) {
-                                        orderItem.get(l).setOrderItemStatus(OrderItemStatus.SHIPPED);
-                                    } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered") && (orderItem.get(l).getOrderItemStatus() == OrderItemStatus.NOT_SHIP || orderItem.get(l).getOrderItemStatus() == OrderItemStatus.SHIPPED)) {
-                                        orderItem.get(l).setOrderItemStatus(OrderItemStatus.DELIVERED);
-                                        if (orderItem.get(l).getExpiredBuyerConfirm() == null) {
-                                            Date dt = new Date();
-                                            Calendar c = Calendar.getInstance();
-                                            c.setTime(dt);
-                                            c.add(Calendar.HOUR, Integer.parseInt(configRepository.findByName("expired_buyer_confirm").getValue()));
-                                            dt = c.getTime();
-                                            Timestamp expired_buyer_confirm = new Timestamp(dt.getTime());
-                                            orderItem.get(l).setExpiredBuyerConfirm(expired_buyer_confirm);
-                                        }
-                                    }
-                                    OrderForSellerCheckPointBodyResponse checkpoint = new OrderForSellerCheckPointBodyResponse();
-                                    checkpoint.setCheckpoint_time(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCheckpoint_time());
-                                    checkpoint.setCountry_iso3(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_iso3());
-                                    checkpoint.setCountry_name(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_name());
-                                    checkpoint.setCreated_at(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCreated_at());
-                                    checkpoint.setLocation(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getLocation());
-                                    checkpoint.setMessage(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getMessage());
-                                    checkpoint.setSlug(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSlug());
-                                    checkpoint.setSubtag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag());
-                                    checkpoint.setSubtag_message(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag_message());
-                                    checkpoint.setTag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag());
-                                    checkpointList.add(checkpoint);
-                                }
-                                orderItemRepository.save(orderItem.get(l));
-                            }
-                            orderItemResponse.setCheckpoint(checkpointList);
-                        }
-
-
-                        orderItemResponseList.add(orderItemResponse);
-
-                        OrderEntity orderEntity = orderRepository.findByIdOrder(orderItem.get(l).getIdOrder());
-                        OrderForSellerReadOrderBodyResponse orderResponse = new OrderForSellerReadOrderBodyResponse();
-                        orderResponse.setId_order(orderEntity.getIdOrder());
-                        orderResponse.setId_buyer(orderEntity.getIdBuyer());
-                        orderResponse.setOrder_created_at(orderEntity.getOrderCreatedAt());
-                        orderResponse.setOrder_status(orderEntity.getOrderStatus());
-
-                        DeliveryAddressEntity deliveryAddressEntity = deliveryAddressRepository.findByIdAddress(orderEntity.getIdAddress());
-                        OrderForSellerDeliveryAddressOrderReadResponse deliveryResponse = new OrderForSellerDeliveryAddressOrderReadResponse();
-                        deliveryResponse.setId_address(deliveryAddressEntity.getIdAddress());
-                        deliveryResponse.setAddress(deliveryAddressEntity.getAddress());
-                        deliveryResponse.setDistrict(deliveryAddressEntity.getDistrict());
-                        deliveryResponse.setReceiver(deliveryAddressEntity.getReceiver());
-                        deliveryResponse.setPhone_receiver(deliveryAddressEntity.getPhoneReceiver());
-                        deliveryResponse.setPostal_code(deliveryAddressEntity.getPostalCode());
-                        deliveryResponse.setProvince(deliveryAddressEntity.getProvince());
-                        deliveryResponse.setSub_district(deliveryAddressEntity.getSubDistrict());
-
-                        orderResponse.setDelivery_address(deliveryResponse);
-                        orderItemResponse.setOrder(orderResponse);
-                    }
-                }
+            List<ProductPicEntity> productPicEntity = productPicRepository.findAllByIdProduct(orderHistoryEntity.getIdProduct());
+            if (productPicEntity != null) {
+                productResponse.setPic_product(productPicEntity.get(0).getPicProduct());
             }
+            orderItemResponse.setProduct(productResponse);
+            orderItemResponse.setPrice(orderHistoryEntity.getPrice());
+            orderItemResponse.setQuantity(orderHistoryEntity.getQuantity());
+
+            OrderForSellerReadProductDeliveryBodyResponse productDeliveryResponse = new OrderForSellerReadProductDeliveryBodyResponse();
+            productDeliveryResponse.setPrice_ship(orderHistoryEntity.getShippingPrice());
+            productDeliveryResponse.setType(orderHistoryEntity.getTypeShipping());
+
+            orderItemResponse.setProduct_delivery(productDeliveryResponse);
+            orderItemResponse.setTracking_number(orderHistoryEntity.getTrackingNumber());
+
+            //Tracking
+            if (orderHistoryEntity.getTrackingNumber() != null) {
+                TrackingServiceImpl trackingService = new TrackingServiceImpl();
+                TrackingReadResponseParam trackingResponseParam = trackingService.trackingReadAllResponse(orderHistoryEntity.getTypeShipping(), orderHistoryEntity.getTrackingNumber());
+
+                List<OrderForSellerCheckPointBodyResponse> checkpointList = new ArrayList<>();
+                if (trackingResponseParam.getData().getTracking() != null) {
+                    for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
+                        if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit") && orderHistoryEntity.getStatus() == OrderItemStatus.NOT_SHIP) {
+                            orderHistoryEntity.setStatus(OrderItemStatus.SHIPPED);
+                        } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered") && (orderHistoryEntity.getStatus() == OrderItemStatus.NOT_SHIP || orderHistoryEntity.getStatus() == OrderItemStatus.SHIPPED)) {
+                            orderHistoryEntity.setStatus(OrderItemStatus.DELIVERED);
+                            if (orderHistoryEntity.getExpiredBuyerConfirm() == null) {
+                                Date dt = new Date();
+                                Calendar c = Calendar.getInstance();
+                                c.setTime(dt);
+                                c.add(Calendar.HOUR, Integer.parseInt(configRepository.findByName("expired_buyer_confirm").getValue()));
+                                dt = c.getTime();
+                                Timestamp expired_buyer_confirm = new Timestamp(dt.getTime());
+                                orderHistoryEntity.setExpiredBuyerConfirm(expired_buyer_confirm);
+                            }
+                        }
+                        OrderForSellerCheckPointBodyResponse checkpoint = new OrderForSellerCheckPointBodyResponse();
+                        checkpoint.setCheckpoint_time(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCheckpoint_time());
+                        checkpoint.setCountry_iso3(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_iso3());
+                        checkpoint.setCountry_name(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_name());
+                        checkpoint.setCreated_at(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCreated_at());
+                        checkpoint.setLocation(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getLocation());
+                        checkpoint.setMessage(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getMessage());
+                        checkpoint.setSlug(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSlug());
+                        checkpoint.setSubtag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag());
+                        checkpoint.setSubtag_message(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag_message());
+                        checkpoint.setTag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag());
+                        checkpointList.add(checkpoint);
+                    }
+                    orderHistoryRepository.save(orderHistoryEntity);
+                }
+                orderItemResponse.setCheckpoint(checkpointList);
+            }
+            orderItemResponseList.add(orderItemResponse);
+            Common.LoggerInfo(orderItemResponseList);
+            OrderForSellerDeliveryAddressOrderReadResponse deliveryResponse = new OrderForSellerDeliveryAddressOrderReadResponse();
+            deliveryResponse.setAddress(orderHistoryEntity.getAddress());
+            deliveryResponse.setDistrict(orderHistoryEntity.getDistrict());
+            deliveryResponse.setReceiver(orderHistoryEntity.getReceiver());
+            deliveryResponse.setPhone_receiver(orderHistoryEntity.getPhoneReceiver());
+            deliveryResponse.setPostal_code(orderHistoryEntity.getPostalCode());
+            deliveryResponse.setProvince(orderHistoryEntity.getProvince());
+            deliveryResponse.setSub_district(orderHistoryEntity.getSubDistrict());
+
+            orderItemResponse.setDelivery_address(deliveryResponse);
         }
+
+
+
     }
 
     @Override
     public OrderSellerUpdateResponse updateOrderForSellerResponse(String token, OrderSellerUpdateRequest restRequest) {
         OrderSellerUpdateResponse response = new OrderSellerUpdateResponse();
-        OrderItemEntity orderItem = orderItemRepository.findByIdItem(restRequest.getBody().getId_item());
-        orderItem.setTrackingNumber(restRequest.getBody().getTracking_number());
+        OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(restRequest.getBody().getId_item());
+        orderHistory.setTrackingNumber(restRequest.getBody().getTracking_number());
 
         TrackingRestRequest trackingRequest = new TrackingRestRequest();
         TrackingRestRequestBody trackingBody = new TrackingRestRequestBody();
 
-        ProductDeliveryEntity productDelivery = productDeliveryRepository.findByIdShip(orderItem.getIdShipOfShop());
-        TypeShippingEntity typeShipping = typeShippingRepository.findByIdType(productDelivery.getIdType());
-
         trackingBody.setTracking_number(restRequest.getBody().getTracking_number());
-        trackingBody.setSlug(typeShipping.getNameShip());
+        trackingBody.setSlug(orderHistory.getTypeShipping());
         trackingRequest.setTracking(trackingBody);
 
 
@@ -935,7 +893,7 @@ public class SellerServiceImpl implements SellerService{
         try {
             TrackingCreateResponse trackingResponse = tracking.trackingPostResponse(trackingRequest);
             if (trackingResponse.getStatus() == 201) {
-                orderItemRepository.save(orderItem);
+                orderHistoryRepository.save(orderHistory);
                 response.setStatus(trackingResponse.getStatus());
                 response.setMsg("Updated! Tracking number");
             }
@@ -1260,7 +1218,6 @@ public class SellerServiceImpl implements SellerService{
         // pass
         ShopEntity shop = shopRepository.findByIdUser(user.getIdUser());
         List<OrderHistoryEntity> orderHistoryList = orderHistoryRepository.findAllBySuccessfulDateGreaterThanEqualAndSuccessfulDateLessThanEqualAndIdShop(date_1, date_2, shop.getIdShop());
-
         StatisticsBodyResponse body = new StatisticsBodyResponse();
         List<StatisticsOrderHistoryBodyResponse> orderHistoryListResponse = new ArrayList<>();
         Double total_income = 0.0;

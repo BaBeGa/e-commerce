@@ -18,6 +18,7 @@ public class ProductReadProductBodyResponse {
     private List<ProductReadVariationProductBodyResponse> product_variation;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ProductReadProductDeliveryBodyResponse> product_delivery;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<ProductReadRatingProductBodyResponse> rating_product;
     private Double mean_rating;
     private Integer count_rating;

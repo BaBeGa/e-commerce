@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class OrderForSellerDeliveryAddressOrderReadResponse {
-    private Integer id_address;
     private String receiver;
     private String address;
     private String sub_district;
@@ -12,16 +11,6 @@ public class OrderForSellerDeliveryAddressOrderReadResponse {
     private String province;
     private String postal_code;
     private String phone_receiver;
-
-    @JsonGetter
-    public Integer getId_address() {
-        return id_address;
-    }
-
-    @JsonSetter
-    public void setId_address(Integer id_address) {
-        this.id_address = id_address;
-    }
 
     @JsonGetter
     public String getReceiver() {

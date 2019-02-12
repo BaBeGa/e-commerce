@@ -4,20 +4,9 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class FavoriteProductReadBodyProductResponse {
-    private Integer id_favorite;
     private Integer id_product;
     private String name_product;
     private String pic_product;
-
-    @JsonGetter
-    public Integer getId_favorite() {
-        return id_favorite;
-    }
-
-    @JsonSetter
-    public void setId_favorite(Integer id_favorite) {
-        this.id_favorite = id_favorite;
-    }
 
     @JsonGetter
     public Integer getId_product() {

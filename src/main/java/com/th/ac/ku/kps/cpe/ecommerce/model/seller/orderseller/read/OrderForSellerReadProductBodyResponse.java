@@ -3,7 +3,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class OrderForSellerReadVariationBodyResponse {
+public class OrderForSellerReadProductBodyResponse {
     private Integer id_variation;
     private String name_variation;
     private Integer id_product;

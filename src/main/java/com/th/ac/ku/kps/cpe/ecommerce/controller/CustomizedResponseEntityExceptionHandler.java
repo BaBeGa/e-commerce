@@ -40,6 +40,7 @@ public class CustomizedResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> requestHeaderNull(HttpMessageNotReadableException ex) {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setStatus(400);
+        ex.printStackTrace();
         errorResponse.setMsg(Collections.singletonList("Required request body is missing"));
         return ResponseEntity.badRequest().body(errorResponse);
     }

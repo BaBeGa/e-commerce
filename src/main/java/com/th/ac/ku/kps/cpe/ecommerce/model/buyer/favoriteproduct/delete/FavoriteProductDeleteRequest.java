@@ -4,15 +4,15 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class FavoriteProductDeleteRequest {
-    private Integer id_favorite;
+    private Integer id_product;
 
     @JsonGetter
-    public Integer getId_favorite() {
-        return id_favorite;
+    public Integer getId_product() {
+        return id_product;
     }
 
     @JsonSetter
-    public void setId_favorite(Integer id_favorite) {
-        this.id_favorite = id_favorite;
+    public void setId_product(Integer id_product) {
+        this.id_product = id_product;
     }
 }

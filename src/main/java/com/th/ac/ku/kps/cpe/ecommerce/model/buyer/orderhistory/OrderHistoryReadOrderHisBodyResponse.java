@@ -2,7 +2,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.orderhistory;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderHistoryStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
 public class OrderHistoryReadOrderHisBodyResponse {
     private Integer id_order_history;
@@ -17,7 +17,7 @@ public class OrderHistoryReadOrderHisBodyResponse {
     private String name_variation;
     private Integer quantity;
     private Double price;
-    private OrderHistoryStatus status;
+    private OrderItemStatus status;
 
     @JsonGetter
     public Integer getId_order_history() {
@@ -140,12 +140,12 @@ public class OrderHistoryReadOrderHisBodyResponse {
     }
 
     @JsonGetter
-    public OrderHistoryStatus getStatus() {
+    public OrderItemStatus getStatus() {
         return status;
     }
 
     @JsonSetter
-    public void setStatus(OrderHistoryStatus status) {
+    public void setStatus(OrderItemStatus status) {
         this.status = status;
     }
 }

@@ -2,7 +2,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.statistics;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderHistoryStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
 import java.util.Date;
 
@@ -27,7 +27,7 @@ public class StatisticsOrderHistoryBodyResponse {
     private String postal_code;
     private String name_type_payment;
     private Double income;
-    private OrderHistoryStatus status;
+    private OrderItemStatus status;
     private Date successful_date;
 
     @JsonGetter
@@ -231,12 +231,12 @@ public class StatisticsOrderHistoryBodyResponse {
     }
 
     @JsonGetter
-    public OrderHistoryStatus getStatus() {
+    public OrderItemStatus getStatus() {
         return status;
     }
 
     @JsonSetter
-    public void setStatus(OrderHistoryStatus status) {
+    public void setStatus(OrderItemStatus status) {
         this.status = status;
     }
 

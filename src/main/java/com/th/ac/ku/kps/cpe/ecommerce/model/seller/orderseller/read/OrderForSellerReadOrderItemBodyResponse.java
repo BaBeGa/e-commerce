@@ -2,19 +2,21 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
 import java.util.List;
 
 public class OrderForSellerReadOrderItemBodyResponse {
 
     private Integer id_item;
-    private OrderForSellerReadVariationBodyResponse product_variation;
+    private OrderForSellerReadProductBodyResponse product;
     private Integer quantity;
     private Double price;
+    private OrderItemStatus status;
     private OrderForSellerReadProductDeliveryBodyResponse product_delivery;
     private String tracking_number;
     private List<OrderForSellerCheckPointBodyResponse> checkpoint;
-    private OrderForSellerReadOrderBodyResponse order;
+    private OrderForSellerDeliveryAddressOrderReadResponse delivery_address;
 
     @JsonGetter
     public Integer getId_item() {
@@ -27,13 +29,13 @@ public class OrderForSellerReadOrderItemBodyResponse {
     }
 
     @JsonGetter
-    public OrderForSellerReadVariationBodyResponse getProduct_variation() {
-        return product_variation;
+    public OrderForSellerReadProductBodyResponse getProduct() {
+        return product;
     }
 
     @JsonSetter
-    public void setProduct_variation(OrderForSellerReadVariationBodyResponse product_variation) {
-        this.product_variation = product_variation;
+    public void setProduct(OrderForSellerReadProductBodyResponse product) {
+        this.product = product;
     }
 
     @JsonGetter
@@ -54,6 +56,16 @@ public class OrderForSellerReadOrderItemBodyResponse {
     @JsonSetter
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    @JsonGetter
+    public OrderItemStatus getStatus() {
+        return status;
+    }
+
+    @JsonSetter
+    public void setStatus(OrderItemStatus status) {
+        this.status = status;
     }
 
     @JsonGetter
@@ -87,12 +99,12 @@ public class OrderForSellerReadOrderItemBodyResponse {
     }
 
     @JsonGetter
-    public OrderForSellerReadOrderBodyResponse getOrder() {
-        return order;
+    public OrderForSellerDeliveryAddressOrderReadResponse getDelivery_address() {
+        return delivery_address;
     }
 
     @JsonSetter
-    public void setOrder(OrderForSellerReadOrderBodyResponse order) {
-        this.order = order;
+    public void setDelivery_address(OrderForSellerDeliveryAddressOrderReadResponse delivery_address) {
+        this.delivery_address = delivery_address;
     }
 }

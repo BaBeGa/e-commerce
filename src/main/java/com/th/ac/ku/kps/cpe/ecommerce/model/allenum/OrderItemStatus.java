@@ -1,6 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.allenum;
 
 public enum OrderItemStatus {
+    UNPAID,
     NOT_SHIP,
     SHIPPED,
     DELIVERED,

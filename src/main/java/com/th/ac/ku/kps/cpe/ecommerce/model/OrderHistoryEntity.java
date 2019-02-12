@@ -1,9 +1,9 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model;
 
-import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderHistoryStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
@@ -12,6 +12,7 @@ public class OrderHistoryEntity {
     private int idOrderHistory;
     private int idBuyer;
     private String usernameBuyer;
+    private int idOrder;
     private int idItem;
     private int idShop;
     private String nameShop;
@@ -29,9 +30,14 @@ public class OrderHistoryEntity {
     private String district;
     private String province;
     private String postalCode;
+    private String phoneReceiver;
     private String nameTypePayment;
-    private OrderHistoryStatus status;
-    private Date successfulDate;
+    private String trackingNumber;
+    private Timestamp expiredShip;
+    private Timestamp expiredBuyerConfirm;
+    private String descriptionReject;
+    private OrderItemStatus status;
+    private Timestamp successfulDate;
 
     @Id
     @Column(name = "id_order_history")
@@ -61,6 +67,16 @@ public class OrderHistoryEntity {
 
     public void setUsernameBuyer(String usernameBuyer) {
         this.usernameBuyer = usernameBuyer;
+    }
+
+    @Basic
+    @Column(name = "id_order")
+    public int getIdOrder() {
+        return idOrder;
+    }
+
+    public void setIdOrder(int idOrder) {
+        this.idOrder = idOrder;
     }
 
     @Basic
@@ -234,6 +250,16 @@ public class OrderHistoryEntity {
     }
 
     @Basic
+    @Column(name = "phone_receiver")
+    public String getPhoneReceiver() {
+        return phoneReceiver;
+    }
+
+    public void setPhoneReceiver(String phoneReceiver) {
+        this.phoneReceiver = phoneReceiver;
+    }
+
+    @Basic
     @Column(name = "name_type_payment")
     public String getNameTypePayment() {
         return nameTypePayment;
@@ -244,23 +270,63 @@ public class OrderHistoryEntity {
     }
 
     @Basic
+    @Column(name = "tracking_number")
+    public String getTrackingNumber() {
+        return trackingNumber;
+    }
+
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+    }
+
+    @Basic
+    @Column(name = "expired_ship")
+    public Timestamp getExpiredShip() {
+        return expiredShip;
+    }
+
+    public void setExpiredShip(Timestamp expiredShip) {
+        this.expiredShip = expiredShip;
+    }
+
+    @Basic
+    @Column(name = "expired_buyer_confirm")
+    public Timestamp getExpiredBuyerConfirm() {
+        return expiredBuyerConfirm;
+    }
+
+    public void setExpiredBuyerConfirm(Timestamp expiredBuyerConfirm) {
+        this.expiredBuyerConfirm = expiredBuyerConfirm;
+    }
+
+    @Basic
+    @Column(name = "description_reject")
+    public String getDescriptionReject() {
+        return descriptionReject;
+    }
+
+    public void setDescriptionReject(String descriptionReject) {
+        this.descriptionReject = descriptionReject;
+    }
+
+    @Basic
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    public OrderHistoryStatus getStatus() {
+    public OrderItemStatus getStatus() {
         return status;
     }
 
-    public void setStatus(OrderHistoryStatus status) {
+    public void setStatus(OrderItemStatus status) {
         this.status = status;
     }
 
     @Basic
     @Column(name = "successful_date")
-    public Date getSuccessfulDate() {
+    public Timestamp getSuccessfulDate() {
         return successfulDate;
     }
 
-    public void setSuccessfulDate(Date successfulDate) {
+    public void setSuccessfulDate(Timestamp successfulDate) {
         this.successfulDate = successfulDate;
     }
 
@@ -271,6 +337,7 @@ public class OrderHistoryEntity {
         OrderHistoryEntity that = (OrderHistoryEntity) o;
         return idOrderHistory == that.idOrderHistory &&
                 idBuyer == that.idBuyer &&
+                idOrder == that.idOrder &&
                 idItem == that.idItem &&
                 idShop == that.idShop &&
                 idProduct == that.idProduct &&
@@ -289,13 +356,18 @@ public class OrderHistoryEntity {
                 Objects.equals(district, that.district) &&
                 Objects.equals(province, that.province) &&
                 Objects.equals(postalCode, that.postalCode) &&
+                Objects.equals(phoneReceiver, that.phoneReceiver) &&
                 Objects.equals(nameTypePayment, that.nameTypePayment) &&
-                Objects.equals(status, that.status) &&
+                Objects.equals(trackingNumber, that.trackingNumber) &&
+                Objects.equals(expiredShip, that.expiredShip) &&
+                Objects.equals(expiredBuyerConfirm, that.expiredBuyerConfirm) &&
+                Objects.equals(descriptionReject, that.descriptionReject) &&
+                status == that.status &&
                 Objects.equals(successfulDate, that.successfulDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOrderHistory, idBuyer, usernameBuyer, idItem, idShop, nameShop, idProduct, nameProduct, idVariation, nameVariation, typeShipping, quantity, price, shippingPrice, receiver, address, subDistrict, district, province, postalCode, nameTypePayment, status, successfulDate);
+        return Objects.hash(idOrderHistory, idBuyer, usernameBuyer, idOrder, idItem, idShop, nameShop, idProduct, nameProduct, idVariation, nameVariation, typeShipping, quantity, price, shippingPrice, receiver, address, subDistrict, district, province, postalCode, phoneReceiver, nameTypePayment, trackingNumber, expiredShip, expiredBuyerConfirm, descriptionReject, status, successfulDate);
     }
 }

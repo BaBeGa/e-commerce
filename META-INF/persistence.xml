@@ -12,7 +12,6 @@
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductPicEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.ProductDeliveryEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderEntity</class>
-        <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderItemEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderPaymentEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.DeliveryAddressEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.TypeShippingEntity</class>
@@ -21,8 +20,9 @@
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.FavoriteProductEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.RatingProductPicEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.RatingShopEntity</class>
-        <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderHistoryEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.TypePaymentEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderHistoryEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderItemEntity</class>
         <properties>
             <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/e-commerce_01"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>
