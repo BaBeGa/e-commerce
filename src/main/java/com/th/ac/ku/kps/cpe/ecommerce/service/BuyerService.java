@@ -25,23 +25,23 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface BuyerService {
-    OrderReadResponse orderReadAllResponse(String token);
-    OrderReadResponse orderReadResponse(String token, int id);
-    OrderCreateResponse orderCreateResponse(String token, OrderCreateRequest restRequest);
-    OrderUpdateResponse orderUpdateResponse(String token, OrderUpdateRequest restRequest);
-    OrderDeleteResponse orderDeleteResponse(String token, OrderDeleteRequest restRequest);
+    ResponseEntity<?> orderReadAllResponse(String token);
+    ResponseEntity<?> orderReadResponse(String token, int id);
+    ResponseEntity<?> orderCreateResponse(String token, OrderCreateRequest restRequest);
+    ResponseEntity<?> orderUpdateResponse(String token, OrderUpdateRequest restRequest);
+    ResponseEntity<?> orderDeleteResponse(String token, OrderDeleteRequest restRequest);
 
-    OrderItemUpdateResponse orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest);
+    ResponseEntity<?> orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest);
 
-    OrderHistoryReadResponse orderHistoryReadAllResponse(String token);
-    OrderHistoryReadResponse orderHistoryReadResponse(String token, int id_order_history);
+    ResponseEntity<?> orderHistoryReadAllResponse(String token);
+    ResponseEntity<?> orderHistoryReadResponse(String token, int id_order_history);
 
-    RatingProductReadResponse ratingProductReadByIdOrderHistory(String token, int id);
-    RatingProductCreateResponse ratingProductCreate(String token, RatingProductCreateRequest restRequest);
+    ResponseEntity<?> ratingProductReadByIdOrderHistory(String token, int id);
+    ResponseEntity<?> ratingProductCreate(String token, RatingProductCreateRequest restRequest);
 
-    FavoriteProductReadResponse favoriteProductRead(String token);
-    FavoriteProductCreateResponse favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest);
-    FavoriteProductDeleteResponse favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest);
+    ResponseEntity<?> favoriteProductRead(String token);
+    ResponseEntity<?> favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest);
+    ResponseEntity<?> favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest);
 
     ResponseEntity<?> ratingShopReadByIdOrderHistory(String token, int id);
     ResponseEntity<?> ratingShopCreate(String token, RatingShopCreateRequest restRequest);

@@ -20,7 +20,7 @@ import java.util.Collections;
 @ControllerAdvice
 public class CustomizedResponseEntityExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> invalidInput(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> invalidInput(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         ErrorResponse error = new ErrorResponse();
         error.setStatus(400);

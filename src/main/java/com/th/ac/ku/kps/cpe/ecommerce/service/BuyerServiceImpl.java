@@ -89,6 +89,7 @@ public class BuyerServiceImpl implements BuyerService {
         this.ratingShopRepository = ratingShopRepository;
     }
 
+
     private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order) {
         for (OrderEntity anOrder : order) {
             if (anOrder.getOrderStatus() == OrderStatus.ORDERING) {
@@ -311,16 +312,16 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public OrderReadResponse orderReadAllResponse(String token) {
+    public ResponseEntity<?> orderReadAllResponse(String token) {
         OrderReadResponse response = new OrderReadResponse();
         OrderReadBodyResponse body = new OrderReadBodyResponse();
         List<OrderReadOrderBodyResponse> orderBodyList = new ArrayList<>();
 
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
         if (user.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
         orderReadFunction(orderBodyList, order);
@@ -328,11 +329,11 @@ public class BuyerServiceImpl implements BuyerService {
         response.setBody(body);
         response.setStatus(200);
         response.setMsg("Successful");
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public OrderReadResponse orderReadResponse(String token, int id) {
+    public ResponseEntity<?> orderReadResponse(String token, int id) {
 
         OrderReadResponse response = new OrderReadResponse();
         OrderReadBodyResponse body = new OrderReadBodyResponse();
@@ -340,47 +341,47 @@ public class BuyerServiceImpl implements BuyerService {
 
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
         if (user.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         List<OrderEntity> order = orderRepository.findAllByIdBuyerAndIdOrder(user.get(0).getIdUser(), id);
         if (order.size() == 0) {
-            response.setStatus(200);
-            response.setMsg("Order is empty");
-            return response;
+            response.setStatus(4001);
+            response.setMsg("Order not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         orderReadFunction(orderBodyList, order);
         body.setOrder(orderBodyList);
         response.setBody(body);
         response.setStatus(200);
         response.setMsg("Successful");
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public OrderCreateResponse orderCreateResponse(String token, OrderCreateRequest restRequest) {
+    public ResponseEntity<?> orderCreateResponse(String token, OrderCreateRequest restRequest) {
         OrderCreateResponse response = new OrderCreateResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
         if (user.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         for (int i = 0; i < restRequest.getBody().getOrder_item().size(); i++) {
             ProductVariationEntity productVariationCheck = productVariationRepository.findByIdVariation(restRequest.getBody().getOrder_item().get(i).getId_variation());
             if (productVariationCheck == null) {
-                response.setStatus(404);
+                response.setStatus(4002);
                 response.setMsg("Product variation not found!");
-                return response;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             ProductEntity productCheck = productRepository.findByIdProduct(productVariationCheck.getIdProduct());
             ShopHasProductEntity shopHasProductCheck = shopHasProductRepository.findByIdProduct(productCheck.getIdProduct());
             ShopEntity shopUser = shopRepository.findByIdUser(user.get(0).getIdUser());
             if (shopHasProductCheck.getIdShop() == shopUser.getIdShop()) {
-                response.setStatus(406);
+                response.setStatus(4003);
                 response.setMsg("This product is yours.");
-                return response;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
 
@@ -409,7 +410,7 @@ public class BuyerServiceImpl implements BuyerService {
             } catch (Exception e) {
                 response.setStatus(400);
                 response.setMsg("Unknown error. Can't create order.");
-                return response;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         } else {
             List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndOrderStatus(user.get(0).getIdUser(), OrderStatus.ORDERING);
@@ -419,15 +420,15 @@ public class BuyerServiceImpl implements BuyerService {
                     for (int k = 0; k < restRequest.getBody().getOrder_item().size(); k++) {
                         if (orderItemEntity.get(j).getIdVariation() == restRequest.getBody().getOrder_item().get(k).getId_variation()) {
                             if (orderItemEntity.get(j).getQuantity()+restRequest.getBody().getOrder_item().get(k).getQuantity() > productVariationRepository.findByIdVariation(orderItemEntity.get(j).getIdVariation()).getStock()) {
-                                response.setStatus(406);
+                                response.setStatus(4004);
                                 response.setMsg("Can't add quantity. Quantity order more than in stock");
-                                return response;
+                                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                             }
                             orderItemEntity.get(j).setQuantity(orderItemEntity.get(j).getQuantity()+restRequest.getBody().getOrder_item().get(k).getQuantity());
                             orderItemRepository.save(orderItemEntity.get(j)); // This is doing
                             response.setStatus(200);
                             response.setMsg("Added quantity!");
-                            return response;
+                            return ResponseEntity.ok(response);
                         }
                     }
                 }
@@ -442,20 +443,21 @@ public class BuyerServiceImpl implements BuyerService {
                 } catch (Exception e) {
                     response.setStatus(400);
                     response.setMsg("Found order! But unknown error. Can't create order item.");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                 }
             }
         }
-        return response;
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public OrderUpdateResponse orderUpdateResponse(String token, OrderUpdateRequest restRequest) {
+    public ResponseEntity<?> orderUpdateResponse(String token, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         if (restRequest.getBody().getOrder_status() == OrderStatus.ORDERING) {
             return orderStatus_ordering(user, restRequest);
@@ -464,31 +466,31 @@ public class BuyerServiceImpl implements BuyerService {
         } else {
             response.setStatus(403);
             response.setMsg("Access Denind. Can't update status!");
-            return response;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
     }
 
-    private OrderUpdateResponse orderStatus_ordering(UserEntity user, OrderUpdateRequest restRequest) {
+    private ResponseEntity<?> orderStatus_ordering(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         OrderEntity orderEntity = orderRepository.findByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
         if (orderEntity == null) {
-            response.setStatus(404);
+            response.setStatus(4001);
             response.setMsg("Order not found!");
-            return response;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         if (orderEntity.getOrderStatus() != OrderStatus.ORDERING) {
-            response.setStatus(400);
+            response.setStatus(4005);
             response.setMsg("Only status Ordering!");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (restRequest.getBody().getOrder_status() != null)
             orderEntity.setOrderStatus(restRequest.getBody().getOrder_status());
         if (restRequest.getBody().getId_address() != null) {
             DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(restRequest.getBody().getId_address());
             if (deliveryAddress == null || deliveryAddress.getIdUser() != user.getIdUser()) {
-                response.setStatus(404);
+                response.setStatus(4006);
                 response.setMsg("id_address Invalid!");
-                return response;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             orderEntity.setIdAddress(restRequest.getBody().getId_address());
         }
@@ -498,18 +500,18 @@ public class BuyerServiceImpl implements BuyerService {
                 orderPayment = new OrderPaymentEntity();
                 orderPayment.setIdOrder(orderEntity.getIdOrder());
                 if (typePaymentRepository.findByIdTypePayment(restRequest.getBody().getId_type_payment()) == null) {
-                    response.setStatus(400);
+                    response.setStatus(4007);
                     response.setMsg("Id type payment Invalid");
-                    return response;
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                 }
                 orderPayment.setIdTypePayment(restRequest.getBody().getId_type_payment());
                 orderPaymentRepository.save(orderPayment);
             }
             else {
                 if (typePaymentRepository.findByIdTypePayment(restRequest.getBody().getId_type_payment()) == null) {
-                    response.setStatus(400);
+                    response.setStatus(4007);
                     response.setMsg("Id type payment Invalid");
-                    return response;
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                 }
                 orderPayment.setIdTypePayment(restRequest.getBody().getId_type_payment());
                 orderPaymentRepository.save(orderPayment);
@@ -527,15 +529,15 @@ public class BuyerServiceImpl implements BuyerService {
                     if (restRequest.getBody().getOrder_item().get(i).getId_ship() != null) {
                         ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(restRequest.getBody().getOrder_item().get(i).getId_ship());
                         if (productDeliveryEntity == null) {
-                            response.setStatus(404);
+                            response.setStatus(4007);
                             response.setMsg("id_item : " + orderItem.get(0).getIdItem() + " Invalid id_ship");
-                            return response;
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                         }
                         ProductVariationEntity productVariationEntity = productVariationRepository.findByIdVariation(orderItem.get(0).getIdVariation());
                         if (productDeliveryEntity.getIdProduct() != productVariationEntity.getIdProduct()) {
-                            response.setStatus(404);
+                            response.setStatus(4007);
                             response.setMsg("id_item : " + orderItem.get(0).getIdItem() + " Invalid id_ship");
-                            return response;
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                         }
                         orderItem.get(0).setIdShipOfShop(restRequest.getBody().getOrder_item().get(i).getId_ship());
                     }
@@ -546,58 +548,58 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Updated");
         } catch (Exception e) {
             response.setStatus(400);
-            response.setMsg("Unknown error. Can't update order. Exception : " + e.toString());
+            response.setMsg("Unknown error. Can't update order.");
         }
-        return response;
+        return ResponseEntity.ok(response);
     }
 
-    private OrderUpdateResponse orderStatus_ordered(UserEntity user, OrderUpdateRequest restRequest) {
+    private ResponseEntity<?> orderStatus_ordered(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
         OrderEntity orderEntity = orderRepository.findByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
         if (orderEntity == null) {
-            response.setStatus(404);
+            response.setStatus(4001);
             response.setMsg("Order not found!");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (orderEntity.getOrderStatus() != OrderStatus.ORDERING) {
-            response.setStatus(400);
+            response.setStatus(4005);
             response.setMsg("Only status ordering");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         orderEntity.setOrderStatus(restRequest.getBody().getOrder_status());
         List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(restRequest.getBody().getId_order());
 
         if (orderItem.size() == 0) {
-            response.setStatus(400);
+            response.setStatus(4008);
             response.setMsg("Order Item empty");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         for (OrderItemEntity anOrderItem : orderItem) {
             ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
             if (productVariation.getStock() < anOrderItem.getQuantity()) {
-                response.setStatus(200);
+                response.setStatus(4009);
                 response.setMsg("Variation "+ anOrderItem.getIdVariation() + " Out Stock!");
-                return response;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (anOrderItem.getIdShipOfShop() == null) {
-                response.setStatus(400);
-                response.setMsg("Please select shipping type of variation" + anOrderItem.getIdVariation());
-                return response;
+                response.setStatus(4010);
+                response.setMsg("Please select shipping type of variation " + anOrderItem.getIdVariation());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
         }
 
         // check
         if (orderEntity.getIdAddress() == null) {
-            response.setStatus(400);
+            response.setStatus(4011);
             response.setMsg("Please select your address.");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         OrderPaymentEntity orderPaymentEntity = orderPaymentRepository.findByIdOrder(orderEntity.getIdOrder());
         if (orderPaymentEntity == null) {
-            response.setStatus(400);
+            response.setStatus(4012);
             response.setMsg("Please select method payment.");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         for (OrderItemEntity anOrderItem : orderItem) {
@@ -663,17 +665,17 @@ public class BuyerServiceImpl implements BuyerService {
 
         try {
             orderRepository.save(orderEntity);
-            response.setStatus(201);
+            response.setStatus(200);
             response.setMsg("Updated Ordered");
         } catch (Exception e) {
             response.setStatus(400);
-            response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
+            response.setMsg("Unknown error. Can't update status order.");
         }
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    public OrderDeleteResponse orderDeleteResponse(String token, OrderDeleteRequest restRequest) {
+    public ResponseEntity<?> orderDeleteResponse(String token, OrderDeleteRequest restRequest) {
         OrderDeleteResponse response = new OrderDeleteResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
         List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
@@ -689,23 +691,23 @@ public class BuyerServiceImpl implements BuyerService {
                                 try {
                                     orderItemRepository.deleteById(restRequest.getBody().getId_item()[k]);
                                 } catch (Exception e) {
-                                    response.setStatus(204);
+                                    response.setStatus(4013);
                                     response.setMsg("Order item not found! Can't deleted order item!");
-                                    return response;
+                                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                                 }
                             }
                             response.setStatus(200);
                             response.setMsg("Deleted order item");
-                            return response;
+                            return ResponseEntity.ok(response);
                         } else { // delete order
                             try {
                                 orderRepository.deleteById(anOrder.getIdOrder());
                                 response.setStatus(200);
                                 response.setMsg("Delete Successful");
                             } catch (Exception e) {
-                                response.setStatus(204);
+                                response.setStatus(4014);
                                 response.setMsg("Found order! but can't delete order");
-                                return response;
+                                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
                             }
                         }
                     }
@@ -713,23 +715,23 @@ public class BuyerServiceImpl implements BuyerService {
 
             }
             if (!foundOrder) {
-                response.setStatus(204);
+                response.setStatus(4001);
                 response.setMsg("Order not found");
             }
         }
 
-        return response;
+        return ResponseEntity.ok(response);
     }
 
     // =========== OrderItem ============= //
     @Override
-    public OrderItemUpdateResponse orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest) {
+    public ResponseEntity<?> orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest) {
         OrderItemUpdateResponse response = new OrderItemUpdateResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         if (restRequest.getOrder_item_status() == OrderItemStatus.COMPLETED) {
             return orderItemStatus_confirm(user, restRequest);
@@ -743,27 +745,27 @@ public class BuyerServiceImpl implements BuyerService {
         else {
             response.setStatus(403);
             response.setMsg("Access Denind. Can't update status!");
-            return response;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
     }
 
-    private OrderItemUpdateResponse orderItemStatus_confirm(UserEntity user, OrderItemUpdateRequest restRequest) {
+    private ResponseEntity<?> orderItemStatus_confirm(UserEntity user, OrderItemUpdateRequest restRequest) {
         OrderItemUpdateResponse response = new OrderItemUpdateResponse();
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(restRequest.getId_item());
         if (orderHistory == null) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("Wrong id_item");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (orderHistory.getIdBuyer() != user.getIdUser()) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("No id_item in your account");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
-        if (orderHistory.getStatus() == OrderItemStatus.REJECTED || orderHistory.getStatus() == OrderItemStatus.WAITING_DECISION || orderHistory.getStatus() == OrderItemStatus.ADMIN_REJECTED || orderHistory.getStatus() == OrderItemStatus.CANCEL_BUYER || orderHistory.getStatus() == OrderItemStatus.CANCEL_SELLER) {
-            response.setStatus(400);
+        if (orderHistory.getStatus() == OrderItemStatus.UNPAID || orderHistory.getStatus() == OrderItemStatus.REJECTED || orderHistory.getStatus() == OrderItemStatus.WAITING_DECISION || orderHistory.getStatus() == OrderItemStatus.ADMIN_REJECTED || orderHistory.getStatus() == OrderItemStatus.CANCEL_BUYER || orderHistory.getStatus() == OrderItemStatus.CANCEL_SELLER) {
+            response.setStatus(403);
             response.setMsg("This status can't change to complete!");
-            return response;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
         orderHistory.setStatus(OrderItemStatus.COMPLETED);
         Date date = new Date();
@@ -773,26 +775,26 @@ public class BuyerServiceImpl implements BuyerService {
 
         response.setStatus(200);
         response.setMsg("Update Successful");
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    private OrderItemUpdateResponse orderItemStatus_rejected(UserEntity user,OrderItemUpdateRequest restRequest) {
+    private ResponseEntity<?> orderItemStatus_rejected(UserEntity user,OrderItemUpdateRequest restRequest) {
         OrderItemUpdateResponse response = new OrderItemUpdateResponse();
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(restRequest.getId_item());
         if (orderHistory == null) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("Wrong id_item");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (orderHistory.getIdBuyer() != user.getIdUser()) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("No id_item in your account");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (!(orderHistory.getStatus() == OrderItemStatus.NOT_SHIP || orderHistory.getStatus() == OrderItemStatus.SHIPPED || orderHistory.getStatus() == OrderItemStatus.DELIVERED))  {
             response.setStatus(403);
             response.setMsg("Only status not_ship, shipped or delivered.");
-            return response;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
         orderHistory.setStatus(OrderItemStatus.REJECTED);
         orderHistory.setDescriptionReject(restRequest.getDescription_reject());
@@ -806,52 +808,52 @@ public class BuyerServiceImpl implements BuyerService {
         orderHistoryRepository.save(orderHistory);
         response.setStatus(200);
         response.setMsg("Successful, sent request reject to seller!");
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    private OrderItemUpdateResponse orderItemStatus_cancel_rejected(UserEntity user, OrderItemUpdateRequest restRequest) {
+    private ResponseEntity<?> orderItemStatus_cancel_rejected(UserEntity user, OrderItemUpdateRequest restRequest) {
         OrderItemUpdateResponse response = new OrderItemUpdateResponse();
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(restRequest.getId_item());
         if (orderHistory == null) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("Wrong id_item");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (orderHistory.getIdBuyer() != user.getIdUser()) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("No id_item in your account");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (orderHistory.getStatus() != OrderItemStatus.REJECTED) {
-            response.setStatus(400);
+            response.setStatus(403);
             response.setMsg("Only status Rejected!");
-            return response;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
         orderHistory.setStatus(OrderItemStatus.NOT_SHIP);
         orderHistory.setDescriptionReject(null);
         orderHistoryRepository.save(orderHistory);
         response.setStatus(200);
         response.setMsg("Successful");
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    private OrderItemUpdateResponse orderItemStatus_cancel_buyer(UserEntity user, OrderItemUpdateRequest restRequest) {
+    private ResponseEntity<?> orderItemStatus_cancel_buyer(UserEntity user, OrderItemUpdateRequest restRequest) {
         OrderItemUpdateResponse response = new OrderItemUpdateResponse();
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(restRequest.getId_item());
         if (orderHistory == null) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("Wrong id_item");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (orderHistory.getIdBuyer() != user.getIdUser()) {
-            response.setStatus(404);
+            response.setStatus(4014);
             response.setMsg("No id_item in your account");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } // check
         if (!(orderHistory.getStatus() == OrderItemStatus.UNPAID)) {
             response.setStatus(403);
             response.setMsg("Only status unpaid");
-            return response;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
         orderHistory.setStatus(OrderItemStatus.CANCEL_BUYER);
         ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderHistory.getIdVariation());
@@ -861,7 +863,7 @@ public class BuyerServiceImpl implements BuyerService {
 
         response.setStatus(200);
         response.setMsg("Cancel Successful");
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 
@@ -888,13 +890,13 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public OrderHistoryReadResponse orderHistoryReadAllResponse(String token) {
+    public ResponseEntity<?> orderHistoryReadAllResponse(String token) {
         OrderHistoryReadResponse response = new OrderHistoryReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         List<OrderHistoryEntity> orderHistory = orderHistoryRepository.findAllByIdBuyer(user.getIdUser());
         OrderHistoryReadBodyResponse body = new OrderHistoryReadBodyResponse();
@@ -906,17 +908,17 @@ public class BuyerServiceImpl implements BuyerService {
         response.setStatus(200);
         response.setMsg("successful");
 
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
-    public OrderHistoryReadResponse orderHistoryReadResponse(String token, int id_order_history) {
+    public ResponseEntity<?> orderHistoryReadResponse(String token, int id_order_history) {
         OrderHistoryReadResponse response = new OrderHistoryReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         List<OrderHistoryEntity> orderHistory = orderHistoryRepository.findByIdBuyerAndIdOrderHistory(user.getIdUser(), id_order_history);
         OrderHistoryReadBodyResponse body = new OrderHistoryReadBodyResponse();
@@ -928,34 +930,34 @@ public class BuyerServiceImpl implements BuyerService {
         response.setStatus(200);
         response.setMsg("successful");
 
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     // ======== Rating Product =========== //
     @Override
-    public RatingProductReadResponse ratingProductReadByIdOrderHistory(String token, int id) {
+    public ResponseEntity<?> ratingProductReadByIdOrderHistory(String token, int id) {
         RatingProductReadResponse response = new RatingProductReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         RatingProductReadBodyResponse bodyResponse = new RatingProductReadBodyResponse();
         RatingProductReadRatingProBodyResponse ratingProductResponse = new RatingProductReadRatingProBodyResponse();
         RatingProductEntity ratingProduct = ratingProductRepository.findByIdOrderHistory(id);
         if (ratingProduct == null) {
-            response.setStatus(404);
+            response.setStatus(4015);
             response.setMsg("id_order_history not found");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(ratingProduct.getIdOrderHistory());
 
         if (user.getIdUser() != orderHistory.getIdBuyer()) {
-            response.setStatus(404);
+            response.setStatus(4016);
             response.setMsg("id_rating_product is not your");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         ratingProductResponse.setId_rating_product(ratingProduct.getIdRatingProduct());
@@ -980,39 +982,39 @@ public class BuyerServiceImpl implements BuyerService {
         response.setBody(bodyResponse);
         response.setStatus(200);
         response.setMsg("Successful");
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
-    public RatingProductCreateResponse ratingProductCreate(String token, RatingProductCreateRequest restRequest) {
+    public ResponseEntity<?> ratingProductCreate(String token, RatingProductCreateRequest restRequest) {
         RatingProductCreateResponse response = new RatingProductCreateResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(restRequest.getId_order_history());
         if (orderHistory == null) {
-            response.setStatus(404);
-            response.setMsg("Order history not found!");
-            return response;
+            response.setStatus(4015);
+            response.setMsg("id_order_history not found!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (user.getIdUser() != orderHistory.getIdBuyer()) {
-            response.setStatus(403);
+            response.setStatus(4017);
             response.setMsg("Order history isn't you");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         ProductEntity product = productRepository.findByIdProduct(orderHistory.getIdProduct());
         if (product == null) {
             response.setStatus(404);
             response.setMsg("Not found the product or has been deleted");
-            return response;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         if (ratingProductRepository.findByIdOrderHistory(restRequest.getId_order_history()) != null) {
-            response.setStatus(406);
+            response.setStatus(4018);
             response.setMsg("Already rate.");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         RatingProductEntity ratingProduct = new RatingProductEntity();
 
@@ -1027,20 +1029,20 @@ public class BuyerServiceImpl implements BuyerService {
         product.setMean(((product.getMean() * (product.getCount() - 1)) + restRequest.getRating()) / product.getCount());
         productRepository.save(product);
 
-        response.setStatus(200);
+        response.setStatus(201);
         response.setMsg("Successful");
 
-        return response;
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Override
-    public FavoriteProductReadResponse favoriteProductRead(String token) {
+    public ResponseEntity<?> favoriteProductRead(String token) {
         FavoriteProductReadResponse response = new FavoriteProductReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         List<FavoriteProductEntity> favorite = favoriteProductRepository.findAllByIdUser(user.getIdUser());
         FavoriteProductReadBodyResponse bodyResponse = new FavoriteProductReadBodyResponse();
@@ -1059,67 +1061,67 @@ public class BuyerServiceImpl implements BuyerService {
         response.setStatus(200);
         response.setMsg("Successful");
 
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
-    public FavoriteProductCreateResponse favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest) {
+    public ResponseEntity<?> favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest) {
         FavoriteProductCreateResponse response = new FavoriteProductCreateResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         FavoriteProductEntity favoriteProduct = new FavoriteProductEntity();
         favoriteProduct.setIdUser(user.getIdUser());
         if (restRequest.getId_product() == null) {
-            response.setStatus(400);
+            response.setStatus(4019);
             response.setMsg("Bad Request. id_product required.");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (productRepository.findByIdProduct(restRequest.getId_product()) == null) {
             response.setStatus(404);
             response.setMsg("This product is no longer available");
-            return response;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         favoriteProduct.setIdProduct(restRequest.getId_product());
         try {
             favoriteProductRepository.save(favoriteProduct);
-            response.setStatus(200);
+            response.setStatus(201);
             response.setMsg("Successful");
-            return response;
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (Exception e) {
-            response.setStatus(406);
+            response.setStatus(4020);
             response.setMsg("favorite has exist.");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
     @Override
-    public FavoriteProductDeleteResponse favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest) {
+    public ResponseEntity<?> favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest) {
         FavoriteProductDeleteResponse response = new FavoriteProductDeleteResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return response;
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
         if (restRequest.getId_product() == null) {
-            response.setStatus(400);
+            response.setStatus(4019);
             response.setMsg("Bad Request. id_product required");
-            return response;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         FavoriteProductEntity favoriteProduct = favoriteProductRepository.findByIdUserAndIdProduct(user.getIdUser(), restRequest.getId_product());
         if (favoriteProduct == null) {
-            response.setStatus(404);
+            response.setStatus(4021);
             response.setMsg("You not favorite this product");
-            return response;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         favoriteProductRepository.delete(favoriteProduct);
         response.setStatus(200);
         response.setMsg("Delete Successful");
-        return response;
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Override
@@ -1127,18 +1129,18 @@ public class BuyerServiceImpl implements BuyerService {
         RatingShopReadResponse response = new RatingShopReadResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return ResponseEntity.status(404).body(response);
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         RatingShopBodyReadResponse bodyResponse = new RatingShopBodyReadResponse();
         RatingShopRatingShopBodyReadResponse ratingShopResponse = new RatingShopRatingShopBodyReadResponse();
         RatingShopEntity ratingShop = ratingShopRepository.findByIdOrderHistory(id);
         if (ratingShop == null) {
-            response.setStatus(404);
+            response.setStatus(4015);
             response.setMsg("id_order_history not found");
-            return ResponseEntity.status(404).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         ratingShopResponse.setId_rating_shop(ratingShop.getIdRatingShop());
@@ -1165,27 +1167,27 @@ public class BuyerServiceImpl implements BuyerService {
 
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
-            response.setStatus(404);
-            response.setMsg("User not found. Please check token");
-            return ResponseEntity.status(404).body(response);
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
         OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdOrderHistory(restRequest.getId_order_history());
         if (orderHistory == null){
-            response.setStatus(404);
+            response.setStatus(4015);
             response.setMsg("order history not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         if (user.getIdUser() != orderHistory.getIdBuyer()) {
-            response.setStatus(403);
+            response.setStatus(4017);
             response.setMsg("order history isn't you");
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
         RatingShopEntity ratingShop = ratingShopRepository.findByIdOrderHistory(restRequest.getId_order_history());
         if (ratingShop != null) {
-            response.setStatus(406);
+            response.setStatus(4018);
             response.setMsg("Already rated");
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
 
         ratingShop = new RatingShopEntity();
