@@ -718,46 +718,6 @@ public class SellerServiceImpl implements SellerService{
         List<OrderHistoryEntity> orderHistoryEntityList = orderHistoryRepository.findAllByIdShop(shop.getIdShop());
         List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
 
-        // Past code **
-//        List<OrderEntity> order = orderRepository.findAllByOrderStatusOrOrderStatusOrOrderStatus(OrderStatus.PAID,OrderStatus.ORDERED,OrderStatus.CANCEL);
-//        List<OrderItemEntity> orderItem = new ArrayList<>();
-//        for (int i = 0; i < order.size(); i++) {
-//            orderItem.addAll(orderItemRepository.findAllByIdOrder(order.get(i).getIdOrder()));
-//        }
-//        List<ProductVariationEntity> productVariation = new ArrayList<>();
-//        for (int i = 0; i < orderItem.size(); i++) {
-//            productVariation.add(productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation()));
-//        }
-//        List<ProductEntity> product = new ArrayList<>();
-//        for (int i = 0; i < productVariation.size(); i++) {
-//            product.add(productRepository.findByIdProduct(productVariation.get(i).getIdProduct()));
-//        }
-//        List<ShopHasProductEntity> shopHasProduct = new ArrayList<>();
-//        for (int i = 0; i < product.size(); i++) {
-//            shopHasProduct.add(shopHasProductRepository.findByIdProduct(product.get(i).getIdProduct()));
-//        }
-//        List<ShopEntity> shop = new ArrayList<>();
-//        for (int i = 0; i < shopHasProduct.size(); i++) {
-//            shop.add(shopRepository.findByIdShop(shopHasProduct.get(i).getIdShop()));
-//        }
-//        List<UserEntity> user = new ArrayList<>();
-//        for (int i = 0; i < shop.size(); i++) {
-//            if (userRepository.findByIdUser(shop.get(i).getIdUser()).getToken().equals(token)) {
-//                user.add(userRepository.findByIdUser(shop.get(i).getIdUser()));
-//            }
-//        }
-//
-//        List<OrderForSellerReadOrderItemBodyResponse> orderItemResponseList = new ArrayList<>();
-//        if (user.size() == 0) {
-//            response.setStatus(404);
-//            response.setMsg("User doesn't open shop or no order!");
-//            return response;
-//        }
-//        ShopEntity shopFound = shopRepository.findByIdUser(user.get(0).getIdUser());
-//
-//        List<ShopHasProductEntity> shopHasProductFound = shopHasProductRepository.findAllByIdShop(shopFound.getIdShop());
-        //**
-
         ReadOrderForSeller(orderHistoryEntityList, orderItemResponseList);
         body.setOrder_item(orderItemResponseList);
         response.setBody(body);
@@ -816,7 +776,10 @@ public class SellerServiceImpl implements SellerService{
 
             orderItemResponse.setProduct_delivery(productDeliveryResponse);
             orderItemResponse.setTracking_number(orderHistoryEntity.getTrackingNumber());
-
+            orderItemResponse.setExpired_ship(orderHistoryEntity.getExpiredShip());
+            orderItemResponse.setExpired_buyer_confirm(orderHistoryEntity.getExpiredBuyerConfirm());
+            orderItemResponse.setDescription_reject(orderHistoryEntity.getDescriptionReject());
+            orderItemResponse.setSuccessful_date(orderHistoryEntity.getSuccessfulDate());
             //Tracking
             if (orderHistoryEntity.getTrackingNumber() != null) {
                 TrackingServiceImpl trackingService = new TrackingServiceImpl();

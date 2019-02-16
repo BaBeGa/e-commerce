@@ -35,12 +35,14 @@ public class OrderHistoryEntity {
     private String trackingNumber;
     private Timestamp expiredShip;
     private Timestamp expiredBuyerConfirm;
+    private Timestamp autoRejectDate;
     private String descriptionReject;
     private OrderItemStatus status;
     private Timestamp successfulDate;
 
     @Id
     @Column(name = "id_order_history")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     public int getIdOrderHistory() {
         return idOrderHistory;
     }
@@ -297,6 +299,16 @@ public class OrderHistoryEntity {
 
     public void setExpiredBuyerConfirm(Timestamp expiredBuyerConfirm) {
         this.expiredBuyerConfirm = expiredBuyerConfirm;
+    }
+
+    @Basic
+    @Column(name = "auto_reject_date")
+    public Timestamp getAutoRejectDate() {
+        return autoRejectDate;
+    }
+
+    public void setAutoRejectDate(Timestamp autoRejectDate) {
+        this.autoRejectDate = autoRejectDate;
     }
 
     @Basic

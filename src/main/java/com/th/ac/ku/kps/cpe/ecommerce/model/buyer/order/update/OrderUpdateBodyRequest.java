@@ -3,13 +3,14 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.update;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
+import org.springframework.beans.factory.annotation.Required;
 
+import javax.validation.Valid;
 import java.sql.Timestamp;
 import java.util.List;
 
 public class OrderUpdateBodyRequest {
     private Integer id_order;
-    private Integer id_buyer;
     private OrderStatus order_status;
     private List<OrderUpdateOrderItemBodyRequest> order_item;
     private Integer id_address;
@@ -23,16 +24,6 @@ public class OrderUpdateBodyRequest {
     @JsonSetter
     public void setId_order(Integer id_order) {
         this.id_order = id_order;
-    }
-
-    @JsonGetter
-    public Integer getId_buyer() {
-        return id_buyer;
-    }
-
-    @JsonSetter
-    public void setId_buyer(Integer id_buyer) {
-        this.id_buyer = id_buyer;
     }
 
     @JsonGetter

@@ -11,6 +11,7 @@ import java.util.List;
 public class OrderReadOrderBodyResponse {
     private Integer id_order;
     private Timestamp order_created_at;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private OrderStatus order_status;
     private List<OrderReadOrderItemOrderBodyResponse> order_item;
     private OrderReadDeliveryAddressOrderResponse delivery_address;

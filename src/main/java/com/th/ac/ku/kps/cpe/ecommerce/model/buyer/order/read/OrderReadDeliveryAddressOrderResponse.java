@@ -1,9 +1,11 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.buyer.order.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class OrderReadDeliveryAddressOrderResponse {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer id_address;
     private String receiver;
     private String address;

@@ -6,11 +6,12 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class ProductUpdateRequest {
 
     private ProductUpdateBodyRequest body;
-@JsonGetter
+
+    @JsonGetter
     public ProductUpdateBodyRequest getBody() {
         return body;
     }
-@JsonSetter
+    @JsonSetter
     public void setBody(ProductUpdateBodyRequest body) {
         this.body = body;
     }

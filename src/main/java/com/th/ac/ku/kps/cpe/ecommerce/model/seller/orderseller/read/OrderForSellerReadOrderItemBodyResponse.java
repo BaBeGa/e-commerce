@@ -1,9 +1,11 @@
 package com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class OrderForSellerReadOrderItemBodyResponse {
@@ -13,6 +15,12 @@ public class OrderForSellerReadOrderItemBodyResponse {
     private Integer quantity;
     private Double price;
     private OrderItemStatus status;
+    private Timestamp expired_ship;
+    private Timestamp expired_buyer_confirm;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description_reject;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Timestamp successful_date;
     private OrderForSellerReadProductDeliveryBodyResponse product_delivery;
     private String tracking_number;
     private List<OrderForSellerCheckPointBodyResponse> checkpoint;
@@ -66,6 +74,46 @@ public class OrderForSellerReadOrderItemBodyResponse {
     @JsonSetter
     public void setStatus(OrderItemStatus status) {
         this.status = status;
+    }
+
+    @JsonGetter
+    public Timestamp getExpired_ship() {
+        return expired_ship;
+    }
+
+    @JsonSetter
+    public void setExpired_ship(Timestamp expired_ship) {
+        this.expired_ship = expired_ship;
+    }
+
+    @JsonGetter
+    public Timestamp getExpired_buyer_confirm() {
+        return expired_buyer_confirm;
+    }
+
+    @JsonSetter
+    public void setExpired_buyer_confirm(Timestamp expired_buyer_confirm) {
+        this.expired_buyer_confirm = expired_buyer_confirm;
+    }
+
+    @JsonGetter
+    public String getDescription_reject() {
+        return description_reject;
+    }
+
+    @JsonSetter
+    public void setDescription_reject(String description_reject) {
+        this.description_reject = description_reject;
+    }
+
+    @JsonGetter
+    public Timestamp getSuccessful_date() {
+        return successful_date;
+    }
+
+    @JsonSetter
+    public void setSuccessful_date(Timestamp successful_date) {
+        this.successful_date = successful_date;
     }
 
     @JsonGetter

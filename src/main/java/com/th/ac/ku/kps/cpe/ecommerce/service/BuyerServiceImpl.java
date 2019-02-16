@@ -91,42 +91,44 @@ public class BuyerServiceImpl implements BuyerService {
 
     private void orderReadFunction(List<OrderReadOrderBodyResponse> orderBodyList, List<OrderEntity> order) {
         for (OrderEntity anOrder : order) {
-            Double price_total = 0.0;
-            List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
-            List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
-            for (OrderItemEntity anOrderItem : orderItem) {
-                OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
-                orderItemBody.setId_item(anOrderItem.getIdItem());
-                orderItemBody.setId_variation(anOrderItem.getIdVariation());
+            if (anOrder.getOrderStatus() == OrderStatus.ORDERING) {
 
-                ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
-                orderItemBody.setName_variation(productVariation.getName());
-                ProductEntity product = productRepository.findByIdProduct(productVariation.getIdProduct());
-                orderItemBody.setId_product(product.getIdProduct());
-                orderItemBody.setName_product(product.getNameProduct());
-                List<ProductPicEntity> productPicList = productPicRepository.findAllByIdProduct(product.getIdProduct());
-                orderItemBody.setPic_product(productPicList.get(0).getPicProduct());
-                ShopHasProductEntity shopHasProduct = shopHasProductRepository.findByIdProduct(product.getIdProduct());
-                orderItemBody.setId_shop(shopHasProduct.getIdShop());
-                ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
-                orderItemBody.setShop_name(shop.getNameShop());
-                price_total += productVariation.getPrice() * anOrderItem.getQuantity();
-                orderItemBody.setPrice(productVariation.getPrice());
-                orderItemBody.setQuantity(anOrderItem.getQuantity());
-                // **
-                OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery = new OrderReadProductDeliveryOrderItemOrderBodyResponse();
-                ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(anOrderItem.getIdShipOfShop());
-                if (productDeliveryEntity != null) {
-                    TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(productDeliveryEntity.getIdType());
-                    product_delivery.setId_ship(anOrderItem.getIdShipOfShop());
-                    product_delivery.setName_ship(typeShippingEntity.getNameShip());
-                    product_delivery.setPrice(productDeliveryEntity.getPrice());
-                    price_total += product_delivery.getPrice();
-                    product_delivery.setTime_ship(productDeliveryEntity.getTimeShip());
-                }
-                orderItemBody.setProduct_delivery(product_delivery);
-                for (OrderItemEntity orderItemEntity : orderItem) {
-                    OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(orderItemEntity.getIdItem());
+                Double price_total = 0.0;
+                List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
+                List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
+                for (OrderItemEntity anOrderItem : orderItem) {
+                    OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
+                    orderItemBody.setId_item(anOrderItem.getIdItem());
+                    orderItemBody.setId_variation(anOrderItem.getIdVariation());
+
+                    ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
+                    orderItemBody.setName_variation(productVariation.getName());
+                    ProductEntity product = productRepository.findByIdProduct(productVariation.getIdProduct());
+                    orderItemBody.setId_product(product.getIdProduct());
+                    orderItemBody.setName_product(product.getNameProduct());
+                    List<ProductPicEntity> productPicList = productPicRepository.findAllByIdProduct(product.getIdProduct());
+                    orderItemBody.setPic_product(productPicList.get(0).getPicProduct());
+                    ShopHasProductEntity shopHasProduct = shopHasProductRepository.findByIdProduct(product.getIdProduct());
+                    orderItemBody.setId_shop(shopHasProduct.getIdShop());
+                    ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
+                    orderItemBody.setShop_name(shop.getNameShop());
+                    price_total += productVariation.getPrice() * anOrderItem.getQuantity();
+                    orderItemBody.setPrice(productVariation.getPrice());
+                    orderItemBody.setQuantity(anOrderItem.getQuantity());
+                    // **
+                    OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery = new OrderReadProductDeliveryOrderItemOrderBodyResponse();
+                    ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(anOrderItem.getIdShipOfShop());
+                    if (productDeliveryEntity != null) {
+                        TypeShippingEntity typeShippingEntity = typeShippingRepository.findByIdType(productDeliveryEntity.getIdType());
+                        product_delivery.setId_ship(anOrderItem.getIdShipOfShop());
+                        product_delivery.setName_ship(typeShippingEntity.getNameShip());
+                        product_delivery.setPrice(productDeliveryEntity.getPrice());
+                        price_total += product_delivery.getPrice();
+                        product_delivery.setTime_ship(productDeliveryEntity.getTimeShip());
+                    }
+                    orderItemBody.setProduct_delivery(product_delivery);
+
+                    OrderHistoryEntity orderHistory = orderHistoryRepository.findByIdItem(anOrderItem.getIdItem());
                     if (orderHistory != null) {
                         orderItemBody.setTracking_number(orderHistory.getTrackingNumber());
 
@@ -170,40 +172,141 @@ public class BuyerServiceImpl implements BuyerService {
                         }
                         orderItemBody.setOrder_item_status(orderHistory.getStatus());
                     }
+                    Common.LoggerInfo("Ordering Do it");
+                    orderItemBodyList.add(orderItemBody);
+
+                }
+
+                OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
+                orderBody.setId_order(anOrder.getIdOrder());
+                orderBody.setOrder_item(orderItemBodyList);
+                orderBody.setOrder_status(anOrder.getOrderStatus());
+                orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
+                OrderReadDeliveryAddressOrderResponse deliveryAddressResponse = new OrderReadDeliveryAddressOrderResponse();
+                DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(anOrder.getIdAddress());
+                if (deliveryAddress != null) {
+                    deliveryAddressResponse.setId_address(deliveryAddress.getIdAddress());
+                    deliveryAddressResponse.setReceiver(deliveryAddress.getReceiver());
+                    deliveryAddressResponse.setAddress(deliveryAddress.getAddress());
+                    deliveryAddressResponse.setSub_district(deliveryAddress.getSubDistrict());
+                    deliveryAddressResponse.setDistrict(deliveryAddress.getDistrict());
+                    deliveryAddressResponse.setProvince(deliveryAddress.getProvince());
+                    deliveryAddressResponse.setPostal_code(deliveryAddress.getPostalCode());
+                    deliveryAddressResponse.setPhone_receiver(deliveryAddress.getPhoneReceiver());
+                    orderBody.setDelivery_address(deliveryAddressResponse);
+                }
+                OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(anOrder.getIdOrder());
+                if (orderPayment != null) {
+                    OrderReadOrderPaymentOrderResponse orderPaymentResponse = new OrderReadOrderPaymentOrderResponse();
+                    orderPaymentResponse.setId_order_payment(orderPayment.getIdOrderPayment());
+                    orderPaymentResponse.setPaid_date(orderPayment.getPaidDate());
+                    orderPaymentResponse.setExpired_pay(orderPayment.getExpiredPay());
+                    orderPaymentResponse.setId_type_payment(orderPayment.getIdTypePayment());
+                    orderBody.setOrder_payment(orderPaymentResponse);
+                }
+                orderBody.setPrice_total(price_total);
+                orderBodyList.add(orderBody);
+            }
+            else {
+                Double price_total = 0.0;
+                List<OrderHistoryEntity> orderHistoryEntityList = orderHistoryRepository.findAllByIdOrder(anOrder.getIdOrder());
+                List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
+                for (OrderHistoryEntity orderHistoryEntity : orderHistoryEntityList) {
+
+                    OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
+                    orderItemBody.setId_item(orderHistoryEntity.getIdItem());
+                    orderItemBody.setId_variation(orderHistoryEntity.getIdVariation());
+
+                    orderItemBody.setName_variation(orderHistoryEntity.getNameVariation());
+                    orderItemBody.setId_product(orderHistoryEntity.getIdProduct());
+                    orderItemBody.setName_product(orderHistoryEntity.getNameProduct());
+                    orderItemBody.setDescription_reject(orderHistoryEntity.getDescriptionReject());
+
+                    List<ProductPicEntity> productPicList = productPicRepository.findAllByIdProduct(orderHistoryEntity.getIdProduct());
+                    orderItemBody.setPic_product(productPicList.get(0).getPicProduct());
+                    orderItemBody.setId_shop(orderHistoryEntity.getIdShop());
+                    orderItemBody.setShop_name(orderHistoryEntity.getNameShop());
+                    price_total += orderHistoryEntity.getPrice() * orderHistoryEntity.getQuantity();
+                    orderItemBody.setPrice(orderHistoryEntity.getPrice());
+                    orderItemBody.setQuantity(orderHistoryEntity.getQuantity());
+                    // **
+                    OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery = new OrderReadProductDeliveryOrderItemOrderBodyResponse();
+                    product_delivery.setName_ship(orderHistoryEntity.getTypeShipping());
+                    product_delivery.setPrice(orderHistoryEntity.getShippingPrice());
+                    price_total += product_delivery.getPrice();
+
+                    orderItemBody.setProduct_delivery(product_delivery);
+
+                    orderItemBody.setTracking_number(orderHistoryEntity.getTrackingNumber());
+
+                    if (orderHistoryEntity.getTrackingNumber() != null) {
+                        TrackingServiceImpl trackingService = new TrackingServiceImpl();
+                        TrackingReadResponseParam trackingResponseParam = trackingService.trackingReadAllResponse(product_delivery.getName_ship(), orderHistoryEntity.getTrackingNumber());
+
+                        List<OrderReadOrderItemCheckpointOrderItemResponse> checkpointList = new ArrayList<>();
+                        if (trackingResponseParam.getData().getTracking() != null) {
+                            for (int i = 0; i < trackingResponseParam.getData().getTracking().getCheckpoints().size(); i++) {
+                                if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("InTransit") && orderHistoryEntity.getStatus() == OrderItemStatus.NOT_SHIP) {
+                                    orderHistoryEntity.setStatus(OrderItemStatus.SHIPPED);
+                                } else if (trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag().equals("Delivered") && (orderHistoryEntity.getStatus() == OrderItemStatus.NOT_SHIP || orderHistoryEntity.getStatus() == OrderItemStatus.SHIPPED)) {
+                                    orderHistoryEntity.setStatus(OrderItemStatus.DELIVERED);
+                                    if (orderHistoryEntity.getExpiredBuyerConfirm() == null) {
+                                        Date dt = new Date();
+                                        Calendar c = Calendar.getInstance();
+                                        c.setTime(dt);
+                                        c.add(Calendar.HOUR, Integer.parseInt(configRepository.findByName("expired_buyer_confirm").getValue()));
+                                        dt = c.getTime();
+                                        Timestamp expired_buyer_confirm = new Timestamp(dt.getTime());
+                                        orderHistoryEntity.setExpiredBuyerConfirm(expired_buyer_confirm);
+                                    }
+                                }
+                                OrderReadOrderItemCheckpointOrderItemResponse checkpoint = new OrderReadOrderItemCheckpointOrderItemResponse();
+                                checkpoint.setCheckpoint_time(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCheckpoint_time());
+                                checkpoint.setCountry_iso3(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_iso3());
+                                checkpoint.setCountry_name(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCountry_name());
+                                checkpoint.setCreated_at(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getCreated_at());
+                                checkpoint.setLocation(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getLocation());
+                                checkpoint.setMessage(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getMessage());
+                                checkpoint.setSlug(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSlug());
+                                checkpoint.setSubtag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag());
+                                checkpoint.setSubtag_message(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getSubtag_message());
+                                checkpoint.setTag(trackingResponseParam.getData().getTracking().getCheckpoints().get(i).getTag());
+                                checkpointList.add(checkpoint);
+                            }
+                            orderHistoryRepository.save(orderHistoryEntity);
+                        }
+                        orderItemBody.setCheckpoint(checkpointList);
+                    }
+                    orderItemBody.setOrder_item_status(orderHistoryEntity.getStatus());
                     orderItemBodyList.add(orderItemBody);
                 }
-                Common.LoggerInfo(orderItemBodyList);
-            }
-            OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
-            orderBody.setId_order(anOrder.getIdOrder());
-            orderBody.setOrder_item(orderItemBodyList);
-            orderBody.setOrder_status(anOrder.getOrderStatus());
-            orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
-            OrderReadDeliveryAddressOrderResponse deliveryAddressResponse = new OrderReadDeliveryAddressOrderResponse();
-            DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(anOrder.getIdAddress());
-            if (deliveryAddress != null) {
-                deliveryAddressResponse.setId_address(deliveryAddress.getIdAddress());
-                deliveryAddressResponse.setReceiver(deliveryAddress.getReceiver());
-                deliveryAddressResponse.setAddress(deliveryAddress.getAddress());
-                deliveryAddressResponse.setSub_district(deliveryAddress.getSubDistrict());
-                deliveryAddressResponse.setDistrict(deliveryAddress.getDistrict());
-                deliveryAddressResponse.setProvince(deliveryAddress.getProvince());
-                deliveryAddressResponse.setPostal_code(deliveryAddress.getPostalCode());
-                deliveryAddressResponse.setPhone_receiver(deliveryAddress.getPhoneReceiver());
+                List<OrderHistoryEntity> orderHistoryEntity = orderHistoryRepository.findAllByIdOrder(anOrder.getIdOrder());
+                OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
+                orderBody.setId_order(orderHistoryEntity.get(0).getIdOrder());
+                orderBody.setOrder_item(orderItemBodyList);
+                orderBody.setOrder_status(anOrder.getOrderStatus());
+                orderBody.setOrder_created_at(anOrder.getOrderCreatedAt());
+                OrderReadDeliveryAddressOrderResponse deliveryAddressResponse = new OrderReadDeliveryAddressOrderResponse();
+                deliveryAddressResponse.setReceiver(orderHistoryEntity.get(0).getReceiver());
+                deliveryAddressResponse.setAddress(orderHistoryEntity.get(0).getAddress());
+                deliveryAddressResponse.setSub_district(orderHistoryEntity.get(0).getSubDistrict());
+                deliveryAddressResponse.setDistrict(orderHistoryEntity.get(0).getDistrict());
+                deliveryAddressResponse.setProvince(orderHistoryEntity.get(0).getProvince());
+                deliveryAddressResponse.setPostal_code(orderHistoryEntity.get(0).getPostalCode());
+                deliveryAddressResponse.setPhone_receiver(orderHistoryEntity.get(0).getPhoneReceiver());
                 orderBody.setDelivery_address(deliveryAddressResponse);
+                OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(anOrder.getIdOrder());
+                if (orderPayment != null) {
+                    OrderReadOrderPaymentOrderResponse orderPaymentResponse = new OrderReadOrderPaymentOrderResponse();
+                    orderPaymentResponse.setId_order_payment(orderPayment.getIdOrderPayment());
+                    orderPaymentResponse.setPaid_date(orderPayment.getPaidDate());
+                    orderPaymentResponse.setExpired_pay(orderPayment.getExpiredPay());
+                    orderPaymentResponse.setId_type_payment(orderPayment.getIdTypePayment());
+                    orderBody.setOrder_payment(orderPaymentResponse);
+                }
+                orderBody.setPrice_total(price_total);
+                orderBodyList.add(orderBody);
             }
-            OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(anOrder.getIdOrder());
-            if (orderPayment != null) {
-                OrderReadOrderPaymentOrderResponse orderPaymentResponse = new OrderReadOrderPaymentOrderResponse();
-                orderPaymentResponse.setId_order_payment(orderPayment.getIdOrderPayment());
-                orderPaymentResponse.setPaid_date(orderPayment.getPaidDate());
-                orderPaymentResponse.setExpired_pay(orderPayment.getExpiredPay());
-                orderPaymentResponse.setId_type_payment(orderPayment.getIdTypePayment());
-                orderBody.setOrder_payment(orderPaymentResponse);
-            }
-            orderBody.setPrice_total(price_total);
-            orderBodyList.add(orderBody);
-
         }
     }
 
@@ -354,17 +457,8 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("User not found. Please check token");
             return response;
         }
-
         if (restRequest.getBody().getOrder_status() == OrderStatus.ORDERING) {
             return orderStatus_ordering(user, restRequest);
-        } else if (restRequest.getBody().getOrder_status() == OrderStatus.ADDRESSING) {
-            return orderStatus_addressing(user, restRequest);
-        } else if (restRequest.getBody().getOrder_status() == OrderStatus.CHOOSING_SHIP) {
-            return orderStatus_choosing_ship(user, restRequest);
-        } else if (restRequest.getBody().getOrder_status() == OrderStatus.SHIP_CHOSEN) {
-            return orderStatus_ship_chosen(user, restRequest);
-        } else if (restRequest.getBody().getOrder_status() == OrderStatus.PAY_CHOSEN) {
-            return orderStatus_pay_chosen(user, restRequest);
         } else if (restRequest.getBody().getOrder_status() == OrderStatus.ORDERED) {
             return orderStatus_ordered(user, restRequest);
         } else {
@@ -376,25 +470,53 @@ public class BuyerServiceImpl implements BuyerService {
 
     private OrderUpdateResponse orderStatus_ordering(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
-        List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
-        if (orderEntity.size() == 0) {
+        OrderEntity orderEntity = orderRepository.findByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
+        if (orderEntity == null) {
             response.setStatus(404);
             response.setMsg("Order not found!");
             return response;
         }
-        if (orderEntity.get(0).getOrderStatus() != OrderStatus.ORDERING) {
+        if (orderEntity.getOrderStatus() != OrderStatus.ORDERING) {
             response.setStatus(400);
             response.setMsg("Only status Ordering!");
             return response;
         }
-        if (restRequest.getBody().getId_buyer() != null)
-            orderEntity.get(0).setIdBuyer(restRequest.getBody().getId_buyer());
         if (restRequest.getBody().getOrder_status() != null)
-            orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        if (restRequest.getBody().getId_address() != null)
-            orderEntity.get(0).setIdAddress(restRequest.getBody().getId_address());
+            orderEntity.setOrderStatus(restRequest.getBody().getOrder_status());
+        if (restRequest.getBody().getId_address() != null) {
+            DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(restRequest.getBody().getId_address());
+            if (deliveryAddress == null || deliveryAddress.getIdUser() != user.getIdUser()) {
+                response.setStatus(404);
+                response.setMsg("id_address Invalid!");
+                return response;
+            }
+            orderEntity.setIdAddress(restRequest.getBody().getId_address());
+        }
+        if (restRequest.getBody().getId_type_payment() != null) {
+            OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(orderEntity.getIdOrder());
+            if (orderPayment == null) {
+                orderPayment = new OrderPaymentEntity();
+                orderPayment.setIdOrder(orderEntity.getIdOrder());
+                if (typePaymentRepository.findByIdTypePayment(restRequest.getBody().getId_type_payment()) == null) {
+                    response.setStatus(400);
+                    response.setMsg("Id type payment Invalid");
+                    return response;
+                }
+                orderPayment.setIdTypePayment(restRequest.getBody().getId_type_payment());
+                orderPaymentRepository.save(orderPayment);
+            }
+            else {
+                if (typePaymentRepository.findByIdTypePayment(restRequest.getBody().getId_type_payment()) == null) {
+                    response.setStatus(400);
+                    response.setMsg("Id type payment Invalid");
+                    return response;
+                }
+                orderPayment.setIdTypePayment(restRequest.getBody().getId_type_payment());
+                orderPaymentRepository.save(orderPayment);
+            }
+        }
         try {
-            orderRepository.save(orderEntity.get(0));
+            orderRepository.save(orderEntity);
             if (restRequest.getBody().getOrder_item() != null) {
                 for (int i = 0; i < restRequest.getBody().getOrder_item().size(); i++) {
                     List<OrderItemEntity> orderItem = (List<OrderItemEntity>) orderItemRepository.findAllById(Collections.singleton(restRequest.getBody().getOrder_item().get(i).getId_item()));
@@ -402,8 +524,21 @@ public class BuyerServiceImpl implements BuyerService {
                         orderItem.get(0).setIdVariation(restRequest.getBody().getOrder_item().get(i).getId_variation());
                     if (restRequest.getBody().getOrder_item().get(i).getQuantity() != null)
                         orderItem.get(0).setQuantity(restRequest.getBody().getOrder_item().get(i).getQuantity());
-                    if (restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop() != null)
-                        orderItem.get(0).setIdShipOfShop(restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop());
+                    if (restRequest.getBody().getOrder_item().get(i).getId_ship() != null) {
+                        ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(restRequest.getBody().getOrder_item().get(i).getId_ship());
+                        if (productDeliveryEntity == null) {
+                            response.setStatus(404);
+                            response.setMsg("id_item : " + orderItem.get(0).getIdItem() + " Invalid id_ship");
+                            return response;
+                        }
+                        ProductVariationEntity productVariationEntity = productVariationRepository.findByIdVariation(orderItem.get(0).getIdVariation());
+                        if (productDeliveryEntity.getIdProduct() != productVariationEntity.getIdProduct()) {
+                            response.setStatus(404);
+                            response.setMsg("id_item : " + orderItem.get(0).getIdItem() + " Invalid id_ship");
+                            return response;
+                        }
+                        orderItem.get(0).setIdShipOfShop(restRequest.getBody().getOrder_item().get(i).getId_ship());
+                    }
                     orderItemRepository.save(orderItem.get(0));
                 }
             }
@@ -416,168 +551,53 @@ public class BuyerServiceImpl implements BuyerService {
         return response;
     }
 
-    private OrderUpdateResponse orderStatus_addressing(UserEntity user, OrderUpdateRequest restRequest) {
-
-        OrderUpdateResponse response = new OrderUpdateResponse();
-        List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
-        if (orderEntity.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("Order not found");
-            return response;
-        }
-        if (orderEntity.get(0).getOrderStatus() != OrderStatus.ORDERING || orderEntity.get(0).getOrderStatus() != OrderStatus.CHOOSING_SHIP) {
-            response.setStatus(400);
-            response.setMsg("Only status Ordering or Choosing ship");
-            return response;
-        }
-        orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        try {
-            orderRepository.save(orderEntity.get(0));
-            response.setStatus(200);
-            response.setMsg("Updated");
-        } catch (Exception e) {
-            response.setStatus(400);
-            response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
-        }
-        return response;
-    }
-
-    private OrderUpdateResponse orderStatus_choosing_ship(UserEntity user, OrderUpdateRequest restRequest) {
-        OrderUpdateResponse response = new OrderUpdateResponse();
-        List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
-        if (orderEntity.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("Order not found!");
-            return response;
-        }
-        orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(restRequest.getBody().getId_address());
-        if (deliveryAddress == null || deliveryAddress.getIdUser() != user.getIdUser()) {
-            response.setStatus(404);
-            response.setMsg("Address Invalid");
-            return response;
-        }
-        orderEntity.get(0).setIdAddress(restRequest.getBody().getId_address());
-        try {
-            orderRepository.save(orderEntity.get(0));
-            response.setStatus(201);
-            response.setMsg("Updated address");
-        } catch (Exception e) {
-            response.setStatus(400);
-            response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
-        }
-        return response;
-    }
-
-    private OrderUpdateResponse orderStatus_ship_chosen(UserEntity user, OrderUpdateRequest restRequest) {
-        OrderUpdateResponse response = new OrderUpdateResponse();
-        List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
-        if (orderEntity.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("Order not found!");
-            return response;
-        }
-        if (orderEntity.get(0).getOrderStatus() != OrderStatus.ADDRESSING || orderEntity.get(0).getOrderStatus() != OrderStatus.PAY_CHOSEN) {
-            response.setStatus(400);
-            response.setMsg("Only status Addressing or Pay Chosen");
-            return response;
-        }
-        orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(orderEntity.get(0).getIdOrder());
-        for (int i = 0; i < orderItem.size(); i++) {
-            for (int j = 0; j < restRequest.getBody().getOrder_item().size(); j++) {
-                if (orderItem.get(i).getIdItem() == restRequest.getBody().getOrder_item().get(j).getId_item()) {
-                    ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderItem.get(i).getIdVariation());
-                    List<ProductDeliveryEntity> shipOfShop = productDeliveryRepository.findAllByIdProduct(productVariation.getIdProduct());
-                    for (ProductDeliveryEntity aShipOfShop : shipOfShop) {
-                        if (aShipOfShop.getIdShip() == restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop())
-                            orderItem.get(i).setIdShipOfShop(restRequest.getBody().getOrder_item().get(i).getId_ship_of_shop());
-                    }
-                    if (orderItem.get(i).getIdShipOfShop() == null) {
-                        response.setStatus(400);
-                        response.setMsg("Error! no id_ship in this shop!");
-                        return response;
-                    }
-                }
-            }
-
-        }
-        try {
-            orderRepository.save(orderEntity.get(0));
-            response.setStatus(200);
-            response.setMsg("Updated. ship chosen.");
-        } catch (Exception e) {
-            response.setStatus(400);
-            response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
-        }
-        return response;
-    }
-
-    private OrderUpdateResponse orderStatus_pay_chosen(UserEntity user, OrderUpdateRequest restRequest) {
-        OrderUpdateResponse response = new OrderUpdateResponse();
-        List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
-        if (orderEntity.size() == 0) {
-            response.setStatus(404);
-            response.setMsg("Order not found!");
-            return response;
-        }
-        if (orderEntity.get(0).getOrderStatus() != OrderStatus.SHIP_CHOSEN) {
-            response.setStatus(400);
-            response.setMsg("Only status Ship Chosen");
-            return response;
-        }
-        orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        OrderPaymentEntity orderPayment = new OrderPaymentEntity();
-        orderPayment.setIdOrder(restRequest.getBody().getId_order());
-        orderPayment.setIdTypePayment(restRequest.getBody().getId_type_payment());
-
-        ConfigEntity config = configRepository.findByName("expired_pay_time");
-
-        Date dt = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(dt);
-        c.add(Calendar.HOUR, Integer.parseInt(config.getValue()));
-        dt = c.getTime();
-        Timestamp expired_pay = new Timestamp(dt.getTime());
-
-        orderPayment.setExpiredPay(expired_pay);
-        try {
-            orderPaymentRepository.save(orderPayment);
-            response.setStatus(200);
-            response.setMsg("Updated. payment chosen.");
-            return response;
-        } catch (Exception e) {
-            response.setStatus(400);
-            response.setMsg("Unknown error. Can't update status order. Exception : " + e.toString());
-            return response;
-        }
-    }
-
     private OrderUpdateResponse orderStatus_ordered(UserEntity user, OrderUpdateRequest restRequest) {
         OrderUpdateResponse response = new OrderUpdateResponse();
-        List<OrderEntity> orderEntity = orderRepository.findAllByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
-        if (orderEntity.size() == 0) {
+        OrderEntity orderEntity = orderRepository.findByIdBuyerAndIdOrder(user.getIdUser(), restRequest.getBody().getId_order());
+        if (orderEntity == null) {
             response.setStatus(404);
             response.setMsg("Order not found!");
             return response;
         }
-        orderEntity.get(0).setOrderStatus(restRequest.getBody().getOrder_status());
-        if (orderEntity.get(0).getOrderStatus() != OrderStatus.PAY_CHOSEN) {
+        if (orderEntity.getOrderStatus() != OrderStatus.ORDERING) {
             response.setStatus(400);
-            response.setMsg("Only status Ship Pay chosen");
+            response.setMsg("Only status ordering");
             return response;
         }
+        orderEntity.setOrderStatus(restRequest.getBody().getOrder_status());
         List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(restRequest.getBody().getId_order());
 
-        for (OrderItemEntity anOrderItem1 : orderItem) {
-            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem1.getIdVariation());
-            if (productVariation.getStock() < anOrderItem1.getQuantity()) {
-                orderEntity.get(0).setOrderStatus(OrderStatus.PAY_CHOSEN);
-                orderRepository.save(orderEntity.get(0));
+        if (orderItem.size() == 0) {
+            response.setStatus(400);
+            response.setMsg("Order Item empty");
+            return response;
+        }
+
+        for (OrderItemEntity anOrderItem : orderItem) {
+            ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(anOrderItem.getIdVariation());
+            if (productVariation.getStock() < anOrderItem.getQuantity()) {
                 response.setStatus(200);
-                response.setMsg("Out Stock!");
+                response.setMsg("Variation "+ anOrderItem.getIdVariation() + " Out Stock!");
                 return response;
             }
+            if (anOrderItem.getIdShipOfShop() == null) {
+                response.setStatus(400);
+                response.setMsg("Please select shipping type of variation" + anOrderItem.getIdVariation());
+                return response;
+            }
+        }
+
+        // check
+        if (orderEntity.getIdAddress() == null) {
+            response.setStatus(400);
+            response.setMsg("Please select your address.");
+            return response;
+        }
+        OrderPaymentEntity orderPaymentEntity = orderPaymentRepository.findByIdOrder(orderEntity.getIdOrder());
+        if (orderPaymentEntity == null) {
+            response.setStatus(400);
+            response.setMsg("Please select method payment.");
+            return response;
         }
 
         for (OrderItemEntity anOrderItem : orderItem) {
@@ -611,7 +631,7 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setPrice(productVariation.getPrice());
             orderHistory.setShippingPrice(shipOfShop.getPrice());
 
-            DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(orderEntity.get(0).getIdAddress());
+            DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(orderEntity.getIdAddress());
 
             orderHistory.setReceiver(deliveryAddress.getReceiver());
             orderHistory.setAddress(deliveryAddress.getAddress());
@@ -619,18 +639,30 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setDistrict(deliveryAddress.getDistrict());
             orderHistory.setProvince(deliveryAddress.getProvince());
             orderHistory.setPostalCode(deliveryAddress.getPostalCode());
+            orderHistory.setPhoneReceiver(deliveryAddress.getPhoneReceiver());
 
-            OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(orderEntity.get(0).getIdOrder());
+            OrderPaymentEntity orderPayment = orderPaymentRepository.findByIdOrder(orderEntity.getIdOrder());
             TypePaymentEntity typePayment = typePaymentRepository.findByIdTypePayment(orderPayment.getIdTypePayment());
 
             orderHistory.setNameTypePayment(typePayment.getNameType());
             orderHistory.setStatus(OrderItemStatus.UNPAID);
 
+            Date dt = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(dt);
+            c.add(Calendar.HOUR, Integer.parseInt(configRepository.findByName("expired_pay_time").getValue()));
+            dt = c.getTime();
+            Timestamp expired_pay_time = new Timestamp(dt.getTime());
+            orderPayment.setExpiredPay(expired_pay_time);
+
+            orderPaymentRepository.save(orderPayment);
             orderHistoryRepository.save(orderHistory);
+
+            orderItemRepository.delete(anOrderItem);
         }
 
         try {
-            orderRepository.save(orderEntity.get(0));
+            orderRepository.save(orderEntity);
             response.setStatus(201);
             response.setMsg("Updated Ordered");
         } catch (Exception e) {
@@ -764,6 +796,13 @@ public class BuyerServiceImpl implements BuyerService {
         }
         orderHistory.setStatus(OrderItemStatus.REJECTED);
         orderHistory.setDescriptionReject(restRequest.getDescription_reject());
+        Date dt = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(dt);
+        c.add(Calendar.HOUR, Integer.parseInt(configRepository.findByName("auto_reject_date").getValue()));
+        dt = c.getTime();
+        Timestamp auto_reject_date = new Timestamp(dt.getTime());
+        orderHistory.setAutoRejectDate(auto_reject_date);
         orderHistoryRepository.save(orderHistory);
         response.setStatus(200);
         response.setMsg("Successful, sent request reject to seller!");

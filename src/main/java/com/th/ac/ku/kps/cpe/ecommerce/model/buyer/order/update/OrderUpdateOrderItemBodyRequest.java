@@ -7,7 +7,7 @@ public class OrderUpdateOrderItemBodyRequest {
     private Integer id_item;
     private Integer id_variation;
     private Integer quantity;
-    private Integer id_ship_of_shop;
+    private Integer id_ship;
     private String tracking_number;
 
     @JsonGetter
@@ -41,13 +41,13 @@ public class OrderUpdateOrderItemBodyRequest {
     }
 
     @JsonGetter
-    public Integer getId_ship_of_shop() {
-        return id_ship_of_shop;
+    public Integer getId_ship() {
+        return id_ship;
     }
 
     @JsonSetter
-    public void setId_ship_of_shop(Integer id_ship_of_shop) {
-        this.id_ship_of_shop = id_ship_of_shop;
+    public void setId_ship(Integer id_ship) {
+        this.id_ship = id_ship;
     }
 
     @JsonGetter

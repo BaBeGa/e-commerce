@@ -10,6 +10,8 @@ import java.util.List;
 public class OrderReadOrderItemOrderBodyResponse {
     private int id_item;
     private OrderItemStatus order_item_status;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String description_reject;
     private int id_variation;
     private String name_variation;
     private Integer id_shop;
@@ -43,6 +45,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setOrder_item_status(OrderItemStatus order_item_status) {
         this.order_item_status = order_item_status;
+    }
+
+    @JsonGetter
+    public String getDescription_reject() {
+        return description_reject;
+    }
+
+    @JsonSetter
+    public void setDescription_reject(String description_reject) {
+        this.description_reject = description_reject;
     }
 
     @JsonGetter
