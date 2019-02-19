@@ -4,6 +4,8 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
@@ -1271,6 +1273,53 @@ public class SellerServiceImpl implements SellerService{
         response.setMsg("Successful");
 
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public OrderItemSellerUpdateResponse orderItemSellerUpdate(String token, OrderItemSellerUpdateRequest restRequest) {
+        OrderItemSellerUpdateResponse response = new OrderItemSellerUpdateResponse();
+        OrderHistoryEntity orderHis = orderHistoryRepository.findByIdItem(restRequest.getId_item());
+        UserEntity user = userRepository.findByToken(token);
+
+        if (user == null) {
+            response.setStatus(404);
+            response.setMsg("User not found. Please check token");
+            return response;
+        }
+
+        if (orderHis == null){
+            response.setStatus(404);
+            response.setMsg("Wrong id_item");
+            return response;
+        }
+        if (orderHis.getStatus() != OrderItemStatus.REJECTED){
+            response.setStatus(400);
+            response.setMsg("Only status Rejected!");
+            return response;
+        }
+
+        ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderHis.getIdVariation());
+        if(restRequest.getConfirm().equals("YES")||restRequest.getConfirm().equals("Yes")||restRequest.getConfirm().equals("yes")) {
+            orderHis.setStatus(OrderItemStatus.CANCEL_SELLER);
+            productVariation.setStock(productVariation.getStock()+orderHis.getQuantity());
+            productVariationRepository.save(productVariation);
+            orderHistoryRepository.save(orderHis);
+            response.setStatus(200);
+            response.setMsg("Successful Cancel By Seller");
+            return response;
+        }
+        else if (restRequest.getConfirm().equals("NO")||restRequest.getConfirm().equals("no")||restRequest.getConfirm().equals("No")){
+            orderHis.setStatus(OrderItemStatus.WAITING_DECISION);
+            orderHistoryRepository.save(orderHis);
+            response.setStatus(200);
+            response.setMsg("Successful Waiting_Decision");
+            return response;
+        }
+        else {
+            response.setStatus(400);
+            response.setMsg("Please Choose YES/NO");
+            return response;
+        }
     }
 
     private static boolean isValidDate(String inDate) {

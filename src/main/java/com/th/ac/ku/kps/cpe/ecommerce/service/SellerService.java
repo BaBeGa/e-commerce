@@ -1,5 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.service;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.OrderForSellerReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
@@ -53,4 +55,6 @@ public interface SellerService {
 
     StatisticsResponse readStatistics(String token, Integer day_1, Integer month_1, Integer year_1, Integer day_2, Integer month_2, Integer year_2);
     ResponseEntity<?> readStatistics(String token, Integer id_product);
+
+    OrderItemSellerUpdateResponse orderItemSellerUpdate(String token, OrderItemSellerUpdateRequest restRequest);
 }

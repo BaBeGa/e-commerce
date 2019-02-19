@@ -1,5 +1,7 @@
 package com.th.ac.ku.kps.cpe.ecommerce.controller;
 
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateRequest;
+import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.OrderForSellerReadResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.update.OrderSellerUpdateResponse;
@@ -174,4 +176,9 @@ public class SellerController {
         return sellerService.readStatistics(token, id_product);
     }
 
+    @RequestMapping(method = RequestMethod.PUT, value = "/orderitemseller")
+    public OrderItemSellerUpdateResponse orderItemSellerUpdate(@RequestHeader String token, @RequestBody OrderItemSellerUpdateRequest restRequest){
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        return sellerService.orderItemSellerUpdate(token, restRequest);
+    }
 }
