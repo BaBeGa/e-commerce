@@ -1300,12 +1300,12 @@ public class SellerServiceImpl implements SellerService{
 
         ProductVariationEntity productVariation = productVariationRepository.findByIdVariation(orderHis.getIdVariation());
         if(restRequest.getConfirm().equals("YES")||restRequest.getConfirm().equals("Yes")||restRequest.getConfirm().equals("yes")) {
-            orderHis.setStatus(OrderItemStatus.CANCEL_SELLER);
+            orderHis.setStatus(OrderItemStatus.CANCEL_BUYER);
             productVariation.setStock(productVariation.getStock()+orderHis.getQuantity());
             productVariationRepository.save(productVariation);
             orderHistoryRepository.save(orderHis);
             response.setStatus(200);
-            response.setMsg("Successful Cancel By Seller");
+            response.setMsg("Successful Cancel By Buyer");
             return response;
         }
         else if (restRequest.getConfirm().equals("NO")||restRequest.getConfirm().equals("no")||restRequest.getConfirm().equals("No")){
