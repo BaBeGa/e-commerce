@@ -20,6 +20,8 @@ public class OrderForSellerReadOrderItemBodyResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String description_reject;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Timestamp auto_reject_date;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Timestamp successful_date;
     private OrderForSellerReadProductDeliveryBodyResponse product_delivery;
     private String tracking_number;
@@ -104,6 +106,16 @@ public class OrderForSellerReadOrderItemBodyResponse {
     @JsonSetter
     public void setDescription_reject(String description_reject) {
         this.description_reject = description_reject;
+    }
+
+    @JsonGetter
+    public Timestamp getAuto_reject_date() {
+        return auto_reject_date;
+    }
+
+    @JsonSetter
+    public void setAuto_reject_date(Timestamp auto_reject_date) {
+        this.auto_reject_date = auto_reject_date;
     }
 
     @JsonGetter

@@ -2,6 +2,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.th.ac.ku.kps.cpe.ecommerce.model.CatagoryEntity;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.ProductStatus;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -19,6 +20,7 @@ public class ProductEntity {
     private Timestamp createdAt;
     private Integer count;
     private Double mean;
+    private ProductStatus productStatus;
 
     @Id
     @Column(name = "`id_product`")
@@ -100,6 +102,17 @@ public class ProductEntity {
         this.mean = mean;
     }
 
+    @Basic
+    @Column(name = "`product_status`")
+    @Enumerated(EnumType.STRING)
+    public ProductStatus getProductStatus() {
+        return productStatus;
+    }
+
+    public void setProductStatus(ProductStatus productStatus) {
+        this.productStatus = productStatus;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -112,11 +125,12 @@ public class ProductEntity {
                 Objects.equals(condition, that.condition) &&
                 Objects.equals(createdAt, that.createdAt) &&
                 Objects.equals(count, that.count) &&
-                Objects.equals(mean, that.mean);
+                Objects.equals(mean, that.mean) &&
+                productStatus == that.productStatus;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idProduct, catagory, nameProduct, description, condition, createdAt, count, mean);
+        return Objects.hash(idProduct, catagory, nameProduct, description, condition, createdAt, count, mean, productStatus);
     }
 }

@@ -5,13 +5,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class OrderReadOrderItemOrderBodyResponse {
     private int id_item;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private OrderItemStatus order_item_status;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String description_reject;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Timestamp auto_reject_date;
     private int id_variation;
     private String name_variation;
     private Integer id_shop;
@@ -22,10 +26,15 @@ public class OrderReadOrderItemOrderBodyResponse {
     private int quantity;
     private Double price;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Double new_price;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String tracking_number;
+    private Timestamp expired_ship;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<OrderReadOrderItemCheckpointOrderItemResponse> checkpoint;
+    private Timestamp expired_buyer_comfirm;
 
     @JsonGetter
     public int getId_item() {
@@ -55,6 +64,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setDescription_reject(String description_reject) {
         this.description_reject = description_reject;
+    }
+
+    @JsonGetter
+    public Timestamp getAuto_reject_date() {
+        return auto_reject_date;
+    }
+
+    @JsonSetter
+    public void setAuto_reject_date(Timestamp auto_reject_date) {
+        this.auto_reject_date = auto_reject_date;
     }
 
     @JsonGetter
@@ -148,6 +167,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     }
 
     @JsonGetter
+    public Double getNew_price() {
+        return new_price;
+    }
+
+    @JsonSetter
+    public void setNew_price(Double new_price) {
+        this.new_price = new_price;
+    }
+
+    @JsonGetter
     public OrderReadProductDeliveryOrderItemOrderBodyResponse getProduct_delivery() {
         return product_delivery;
     }
@@ -168,6 +197,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     }
 
     @JsonGetter
+    public Timestamp getExpired_ship() {
+        return expired_ship;
+    }
+
+    @JsonSetter
+    public void setExpired_ship(Timestamp expired_ship) {
+        this.expired_ship = expired_ship;
+    }
+
+    @JsonGetter
     public List<OrderReadOrderItemCheckpointOrderItemResponse> getCheckpoint() {
         return checkpoint;
     }
@@ -175,5 +214,15 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setCheckpoint(List<OrderReadOrderItemCheckpointOrderItemResponse> checkpoint) {
         this.checkpoint = checkpoint;
+    }
+
+    @JsonGetter
+    public Timestamp getExpired_buyer_comfirm() {
+        return expired_buyer_comfirm;
+    }
+
+    @JsonSetter
+    public void setExpired_buyer_comfirm(Timestamp expired_buyer_comfirm) {
+        this.expired_buyer_comfirm = expired_buyer_comfirm;
     }
 }

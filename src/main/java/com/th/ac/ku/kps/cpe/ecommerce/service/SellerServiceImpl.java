@@ -4,6 +4,7 @@ import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.ProductStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.*;
@@ -383,7 +384,6 @@ public class SellerServiceImpl implements SellerService{
             return response;
         }
         List<ProductEntity> productEntity = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(restRequest.getBody().getId_product()));
-        Common.LoggerInfo(productEntity);
 
         if (productEntity.size() != 0) {
             if (restRequest.getBody().getCatagory() != null)
@@ -394,7 +394,20 @@ public class SellerServiceImpl implements SellerService{
                 productEntity.get(0).setDescription(restRequest.getBody().getDescription());
             if (restRequest.getBody().getCondition() != null)
                 productEntity.get(0).setCondition(restRequest.getBody().getCondition());
-
+            if (restRequest.getBody().getProduct_status() != null) {
+                if (productEntity.get(0).getProductStatus() == ProductStatus.BANNED) {
+                    response.setStatus(400);
+                    response.setMsg("Product was banned");
+                    return response;
+                }
+                else if (productEntity.get(0).getProductStatus() == ProductStatus.SHOW || productEntity.get(0).getProductStatus() == ProductStatus.NOT_SHOW)
+                    productEntity.get(0).setProductStatus(restRequest.getBody().getProduct_status());
+                else {
+                    response.setStatus(400);
+                    response.setMsg("Invalid Product status");
+                    return response;
+                }
+            }
 
             try {
                 productRepository.save(productEntity.get(0));
@@ -782,6 +795,7 @@ public class SellerServiceImpl implements SellerService{
             orderItemResponse.setExpired_buyer_confirm(orderHistoryEntity.getExpiredBuyerConfirm());
             orderItemResponse.setDescription_reject(orderHistoryEntity.getDescriptionReject());
             orderItemResponse.setSuccessful_date(orderHistoryEntity.getSuccessfulDate());
+            orderItemResponse.setAuto_reject_date(orderHistoryEntity.getAutoRejectDate());
             //Tracking
             if (orderHistoryEntity.getTrackingNumber() != null) {
                 TrackingServiceImpl trackingService = new TrackingServiceImpl();
@@ -822,7 +836,6 @@ public class SellerServiceImpl implements SellerService{
                 orderItemResponse.setCheckpoint(checkpointList);
             }
             orderItemResponseList.add(orderItemResponse);
-            Common.LoggerInfo(orderItemResponseList);
             OrderForSellerDeliveryAddressOrderReadResponse deliveryResponse = new OrderForSellerDeliveryAddressOrderReadResponse();
             deliveryResponse.setAddress(orderHistoryEntity.getAddress());
             deliveryResponse.setDistrict(orderHistoryEntity.getDistrict());

@@ -2,6 +2,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.update;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.ProductStatus;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class ProductUpdateBodyRequest {
     private Integer catagory;
     private String condition;
     private List<ProductUpdateBodyVariationRequest> product_variation;
+    private ProductStatus product_status;
 
     @JsonGetter
     public Integer getId_product() {
@@ -60,5 +62,15 @@ public class ProductUpdateBodyRequest {
     @JsonSetter
     public void setProduct_variation(List<ProductUpdateBodyVariationRequest> product_variation) {
         this.product_variation = product_variation;
+    }
+
+    @JsonGetter
+    public ProductStatus getProduct_status() {
+        return product_status;
+    }
+
+    @JsonSetter
+    public void setProduct_status(ProductStatus product_status) {
+        this.product_status = product_status;
     }
 }

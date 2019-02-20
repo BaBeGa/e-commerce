@@ -3,6 +3,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.service;
 import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.TransactionType;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.create.FavoriteProductCreateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.buyer.favoriteproduct.delete.FavoriteProductDeleteRequest;
@@ -65,9 +66,11 @@ public class BuyerServiceImpl implements BuyerService {
     private final RatingProductPicRepository ratingProductPicRepository;
     private final TypePaymentRepository typePaymentRepository;
     private final RatingShopRepository ratingShopRepository;
+    private final ProductHasPromoRepository productHasPromoRepository;
+    private final UserBalanceRepository userBalanceRepository;
 
     // ============= Order ============== //
-    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ProductDeliveryRepository productDeliveryRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository, TypePaymentRepository typePaymentRepository, RatingShopRepository ratingShopRepository) {
+    public BuyerServiceImpl(OrderRepository orderRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductVariationRepository productVariationRepository, ProductRepository productRepository, ProductDeliveryRepository productDeliveryRepository, OrderPaymentRepository orderPaymentRepository, DeliveryAddressRepository deliveryAddressRepository, TypeShippingRepository typeShippingRepository, ConfigRepository configRepository, ShopHasProductRepository shopHasProductRepository, ShopRepository shopRepository, ProductPicRepository productPicRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, FavoriteProductRepository favoriteProductRepository, RatingProductPicRepository ratingProductPicRepository, TypePaymentRepository typePaymentRepository, RatingShopRepository ratingShopRepository, ProductHasPromoRepository productHasPromoRepository, UserBalanceRepository userBalanceRepository) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.orderItemRepository = orderItemRepository;
@@ -87,6 +90,8 @@ public class BuyerServiceImpl implements BuyerService {
         this.ratingProductPicRepository = ratingProductPicRepository;
         this.typePaymentRepository = typePaymentRepository;
         this.ratingShopRepository = ratingShopRepository;
+        this.productHasPromoRepository = productHasPromoRepository;
+        this.userBalanceRepository = userBalanceRepository;
     }
 
 
@@ -113,8 +118,19 @@ public class BuyerServiceImpl implements BuyerService {
                     orderItemBody.setId_shop(shopHasProduct.getIdShop());
                     ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
                     orderItemBody.setShop_name(shop.getNameShop());
-                    price_total += productVariation.getPrice() * anOrderItem.getQuantity();
+
                     orderItemBody.setPrice(productVariation.getPrice());
+
+                    Date date = new Date();
+                    Timestamp timeNow = new Timestamp(date.getTime());
+                    ProductHasPromoEntity productHasPromo = productHasPromoRepository.findByIdProductVariationAndTimeStartBeforeAndTimeEndAfter(productVariation.getIdVariation(),timeNow,timeNow);
+                    if (productHasPromo != null) {
+                        orderItemBody.setNew_price(productHasPromo.getNewPrice());
+                        price_total += productHasPromo.getNewPrice() * anOrderItem.getQuantity();
+                    }
+                    else {
+                        price_total += productVariation.getPrice() * anOrderItem.getQuantity();
+                    }
                     orderItemBody.setQuantity(anOrderItem.getQuantity());
                     // **
                     OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery = new OrderReadProductDeliveryOrderItemOrderBodyResponse();
@@ -173,7 +189,6 @@ public class BuyerServiceImpl implements BuyerService {
                         }
                         orderItemBody.setOrder_item_status(orderHistory.getStatus());
                     }
-                    Common.LoggerInfo("Ordering Do it");
                     orderItemBodyList.add(orderItemBody);
 
                 }
@@ -234,6 +249,9 @@ public class BuyerServiceImpl implements BuyerService {
                     OrderReadProductDeliveryOrderItemOrderBodyResponse product_delivery = new OrderReadProductDeliveryOrderItemOrderBodyResponse();
                     product_delivery.setName_ship(orderHistoryEntity.getTypeShipping());
                     product_delivery.setPrice(orderHistoryEntity.getShippingPrice());
+                    orderItemBody.setExpired_ship(orderHistoryEntity.getExpiredShip());
+                    orderItemBody.setAuto_reject_date(orderHistoryEntity.getAutoRejectDate());
+                    orderItemBody.setExpired_buyer_comfirm(orderHistoryEntity.getExpiredBuyerConfirm());
                     price_total += product_delivery.getPrice();
 
                     orderItemBody.setProduct_delivery(product_delivery);
@@ -617,7 +635,16 @@ public class BuyerServiceImpl implements BuyerService {
             ProductEntity product = productRepository.findByIdProduct(productVariation.getIdProduct());
             ShopHasProductEntity shopHasProduct = shopHasProductRepository.findByIdProduct(product.getIdProduct());
             ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
-
+            Date date = new Date();
+            Timestamp timeNow = new Timestamp(date.getTime());
+            Common.LoggerInfo(timeNow);
+            ProductHasPromoEntity productHasPromo = productHasPromoRepository.findByIdProductVariationAndTimeStartBeforeAndTimeEndAfter(productVariation.getIdVariation(),timeNow,timeNow);
+            if (productHasPromo != null) {
+                orderHistory.setPrice(productHasPromo.getNewPrice());
+            }
+            else {
+                orderHistory.setPrice(productVariation.getPrice());
+            }
             orderHistory.setIdShop(shop.getIdShop());
             orderHistory.setNameShop(shop.getNameShop());
             orderHistory.setIdProduct(product.getIdProduct());
@@ -630,7 +657,7 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setTypeShipping(typeShipping.getNameShip());
 
             orderHistory.setQuantity(anOrderItem.getQuantity());
-            orderHistory.setPrice(productVariation.getPrice());
+
             orderHistory.setShippingPrice(shipOfShop.getPrice());
 
             DeliveryAddressEntity deliveryAddress = deliveryAddressRepository.findByIdAddress(orderEntity.getIdAddress());
@@ -773,6 +800,24 @@ public class BuyerServiceImpl implements BuyerService {
         orderHistory.setSuccessfulDate(timeNow);
         orderHistoryRepository.save(orderHistory);
 
+        UserBalanceEntity userBalance = new UserBalanceEntity();
+        ShopEntity shop = shopRepository.findByIdShop(orderHistory.getIdShop());
+        if (shop != null) {
+            userBalance.setIdUser(shop.getIdUser());
+            userBalance.setIdOrderHistory(orderHistory.getIdOrderHistory());
+            userBalance.setTransactionAmount((orderHistory.getPrice()*orderHistory.getQuantity())+orderHistory.getShippingPrice());
+            userBalance.setTransactionType(TransactionType.INCOME);
+            UserBalanceEntity userBalanceLast = userBalanceRepository.findTopByIdUserOrderByIdUserBalanceDesc(shop.getIdUser());
+            if (userBalanceLast == null) {
+                userBalance.setBalance((orderHistory.getPrice()*orderHistory.getQuantity())+orderHistory.getShippingPrice());
+            }
+            else {
+                userBalance.setBalance(userBalanceLast.getBalance() + (orderHistory.getPrice()*orderHistory.getQuantity())+orderHistory.getShippingPrice());
+            }
+            userBalanceRepository.save(userBalance);
+        }
+
+
         response.setStatus(200);
         response.setMsg("Update Successful");
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -885,6 +930,7 @@ public class BuyerServiceImpl implements BuyerService {
             order_history.setQuantity(an_order_history_list.getQuantity());
             order_history.setStatus(an_order_history_list.getStatus());
             order_history.setUsername_buyer(an_order_history_list.getUsernameBuyer());
+            order_history.setShipping_price(an_order_history_list.getShippingPrice());
             order_history_list.add(order_history);
         }
     }

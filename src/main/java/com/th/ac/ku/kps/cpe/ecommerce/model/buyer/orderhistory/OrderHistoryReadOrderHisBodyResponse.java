@@ -17,6 +17,7 @@ public class OrderHistoryReadOrderHisBodyResponse {
     private String name_variation;
     private Integer quantity;
     private Double price;
+    private Double shipping_price;
     private OrderItemStatus status;
 
     @JsonGetter
@@ -137,6 +138,16 @@ public class OrderHistoryReadOrderHisBodyResponse {
     @JsonSetter
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    @JsonGetter
+    public Double getShipping_price() {
+        return shipping_price;
+    }
+
+    @JsonSetter
+    public void setShipping_price(Double shipping_price) {
+        this.shipping_price = shipping_price;
     }
 
     @JsonGetter

@@ -12,7 +12,7 @@ public interface ProductHasPromoRepository extends CrudRepository<ProductHasProm
     List<ProductHasPromoEntity> findAllByIdProductVariation(Integer id_product_variation);
     ProductHasPromoEntity findByIdProductVariation(Integer id_product_variation);
     ProductHasPromoEntity findByIdProductHasPromo(Integer id_product_has_promo);
-
+    ProductHasPromoEntity findByIdProductVariationAndTimeStartBeforeAndTimeEndAfter(Integer id_variation, Timestamp time_now1, Timestamp time_now2);
     @Modifying
     @Transactional
     void deleteAllByTimeEndBefore(Timestamp time_end);
