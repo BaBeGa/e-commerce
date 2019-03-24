@@ -29,7 +29,7 @@ public interface BuyerService {
     ResponseEntity<?> orderReadResponse(String token, int id);
     ResponseEntity<?> orderCreateResponse(String token, OrderCreateRequest restRequest);
     ResponseEntity<?> orderUpdateResponse(String token, OrderUpdateRequest restRequest);
-    ResponseEntity<?> orderDeleteResponse(String token, OrderDeleteRequest restRequest);
+    ResponseEntity<?> orderDeleteResponse(String token, Integer id_item);
 
     ResponseEntity<?> orderItemUpdateResponse(String token, OrderItemUpdateRequest restRequest);
 

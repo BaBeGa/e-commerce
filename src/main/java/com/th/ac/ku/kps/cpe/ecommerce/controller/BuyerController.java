@@ -87,10 +87,10 @@ public class BuyerController implements Serializable {
         BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, productDeliveryRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository,  favoriteProductRepository, ratingProductPicRepository, typePaymentRepository, ratingShopRepository, productHasPromoRepository, userBalanceRepository);
         return buyerService.orderUpdateResponse(token, restRequest);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/order")
-    public ResponseEntity<?> orderDeleteResponse(@RequestHeader String token, @RequestBody OrderDeleteRequest restRequest) {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/order/{id_item}")
+    public ResponseEntity<?> orderDeleteResponse(@RequestHeader String token, @PathVariable("id_item") Integer id_item) {
         BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, productDeliveryRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository,  favoriteProductRepository, ratingProductPicRepository, typePaymentRepository, ratingShopRepository, productHasPromoRepository, userBalanceRepository);
-        return buyerService.orderDeleteResponse(token, restRequest);
+        return buyerService.orderDeleteResponse(token, id_item);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/orderitem")

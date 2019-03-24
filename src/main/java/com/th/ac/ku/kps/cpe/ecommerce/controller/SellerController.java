@@ -71,90 +71,97 @@ public class SellerController {
     private RatingProductPicRepository ratingProductPicRepository;
     @Autowired
     private ConfigRepository configRepository;
+    @Autowired
+    private UserBalanceRepository userBalanceRepository;
 
     // ================================ Start Implement ========================================
 
     @RequestMapping(method = RequestMethod.POST, value = "/product")
     public ProductCreateResponse createProduct(@RequestHeader String token, @RequestBody ProductCreateRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productCreateResponse(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/product")
     public ProductReadResponse readAllProduct(@RequestHeader String token) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productReadAllResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/product/{id}")
     public ProductReadResponse readProduct(@RequestHeader String token, @PathVariable("id") int id) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productReadResponse(token, id);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/product")
     public ProductUpdateResponse updateProduct(@RequestHeader String token, @RequestBody ProductUpdateRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productUpdateResponse(token, restRequest);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/product")
-    public ProductDeleteResponse deleteProduct(@RequestHeader String token, @RequestBody ProductDeleteRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
-        return sellerService.productDeleteResponse(token, restRequest);
+    @RequestMapping(method = RequestMethod.DELETE, value = "/product/{id}")
+    public ProductDeleteResponse deleteProduct(@RequestHeader String token, @PathVariable int id) {
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
+        return sellerService.productDeleteResponse(token, id, "product");
+    }
+    @RequestMapping(method = RequestMethod.DELETE, value = "/product/variation/{id}")
+    public ProductDeleteResponse deleteProductVariation(@RequestHeader String token, @PathVariable int id) {
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
+        return sellerService.productDeleteResponse(token, id, "variation");
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/product/delivery/{id}")
     public ProductDeliveryReadResponse readProductDelivery(@RequestHeader String token, @PathVariable("id") int id){
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productDeliveryReadByIdProduct(token, id);
     }
     @RequestMapping(method = RequestMethod.POST, value = "/product/delivery")
     public ProductDeliveryCreateResponse createProductDelivery(@RequestHeader String token, @RequestBody ProductDeliveryCreateRequest restRequest){
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productDeliveryCreate(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/product/delivery")
     public ProductDeliveryUpdateResponse updateProductDelivery(@RequestHeader String token, @RequestBody ProductDeliveryUpdateRequest restRequest){
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productDeliveryUpdate(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/product/delivery")
     public ProductDeliveryDeleteResponse deleteProductDelivery(@RequestHeader String token, @RequestBody ProductDeliveryDeleteRequest restRequest){
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productDeliveryDelete(token, restRequest);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/orderforseller")
     public OrderForSellerReadResponse readAllOrderForSellerResponse(@RequestHeader String token) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.readAllOrderForSellerResponse(token);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/orderforseller/{id}")
     public OrderForSellerReadResponse readOrderForSellerResponse(@RequestHeader String token, @PathVariable("id") int id) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.readOrderForSellerResponse(token, id);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/orderforseller")
     public OrderSellerUpdateResponse updateOrderForSellerResponse(@RequestHeader String token, @RequestBody OrderSellerUpdateRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.updateOrderForSellerResponse(token, restRequest);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/promotion")
     public PromotionReadResponse readPromotion(@RequestHeader String token) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.readPromotion(token);
     }
     @RequestMapping(method = RequestMethod.POST, value = "/promotion")
     public PromotionCreateResponse createPromotion(@RequestHeader String token, @RequestBody PromotionCreateRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.createPromotion(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.PUT, value = "/promotion")
     public PromotionUpdateResponse updatePromotion(@RequestHeader String token, @RequestBody PromotionUpdateRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.updatePromotion(token, restRequest);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/promotion")
     public PromotionDeleteResponse deletePromotion(@RequestHeader String token, @RequestBody PromotionDeleteRequest restRequest) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.deletePromotion(token, restRequest);
     }
 
@@ -166,19 +173,19 @@ public class SellerController {
                                              @PathVariable("day_2") Integer day_2,
                                              @PathVariable("month_2") Integer month_2,
                                              @PathVariable("year_2") Integer year_2) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.readStatistics(token, day_1, month_1, year_1, day_2, month_2, year_2);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/statistics/{id_product}")
     public ResponseEntity<?> readStatustics(@RequestHeader String token, @PathVariable("id_product") Integer id_product) {
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.readStatistics(token, id_product);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/orderitemseller")
     public OrderItemSellerUpdateResponse orderItemSellerUpdate(@RequestHeader String token, @RequestBody OrderItemSellerUpdateRequest restRequest){
-        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository);
+        SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.orderItemSellerUpdate(token, restRequest);
     }
 }

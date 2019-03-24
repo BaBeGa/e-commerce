@@ -3,8 +3,8 @@ package com.th.ac.ku.kps.cpe.ecommerce.service;
 import com.th.ac.ku.kps.cpe.ecommerce.model.*;
 import com.th.ac.ku.kps.cpe.ecommerce.model.UserEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
-import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.ProductStatus;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.TransactionType;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateRequest;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderitem.OrderItemSellerUpdateResponse;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.orderseller.read.*;
@@ -81,9 +81,10 @@ public class SellerServiceImpl implements SellerService{
     private final RatingProductRepository ratingProductRepository;
     private final RatingProductPicRepository ratingProductPicRepository;
     private final ConfigRepository configRepository;
+    private final UserBalanceRepository userBalanceRepository;
 
     @Autowired
-    public SellerServiceImpl(ShopRepository shopRepository, ProductRepository productRepository, UserRepository userRepository, ShopHasProductRepository shopHasProductRepository, CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ProductDeliveryRepository productDeliveryRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository, TypeShippingRepository typeShippingRepository, DeliveryAddressRepository deliveryAddressRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, RatingProductPicRepository ratingProductPicRepository, ConfigRepository configRepository) {
+    public SellerServiceImpl(ShopRepository shopRepository, ProductRepository productRepository, UserRepository userRepository, ShopHasProductRepository shopHasProductRepository, CatagoryRepository catagoryRepository, ProductVariationRepository productVariationRepository, ProductPicRepository productPicRepository, ProductHasPromoRepository productHasPromoRepository, ProductDeliveryRepository productDeliveryRepository, OrderRepository orderRepository, OrderItemRepository orderItemRepository, TypeShippingRepository typeShippingRepository, DeliveryAddressRepository deliveryAddressRepository, OrderHistoryRepository orderHistoryRepository, RatingProductRepository ratingProductRepository, RatingProductPicRepository ratingProductPicRepository, ConfigRepository configRepository, UserBalanceRepository userBalanceRepository) {
         this.shopRepository = shopRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
@@ -101,6 +102,7 @@ public class SellerServiceImpl implements SellerService{
         this.ratingProductRepository = ratingProductRepository;
         this.ratingProductPicRepository = ratingProductPicRepository;
         this.configRepository = configRepository;
+        this.userBalanceRepository = userBalanceRepository;
     }
 
     @Override
@@ -204,6 +206,7 @@ public class SellerServiceImpl implements SellerService{
             productBodyResponse.setCatagory(catagoryProductBodyResponse);
             productBodyResponse.setCondition(product.getCondition());
             productBodyResponse.setCreated_at(product.getCreatedAt());
+            productBodyResponse.setProduct_status(product.getProductStatus());
 
             List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.getIdProduct());
             List<ProductReadProductpicProductBodyResponse> productpicProductBodyResponseList = new ArrayList<>();
@@ -282,6 +285,7 @@ public class SellerServiceImpl implements SellerService{
                 productBodyResponse.setCatagory(catagoryProductBodyResponse);
                 productBodyResponse.setCondition(product.getCondition());
                 productBodyResponse.setCreated_at(product.getCreatedAt());
+                productBodyResponse.setProduct_status(product.getProductStatus());
 
                 List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.getIdProduct());
                 List<ProductReadProductpicProductBodyResponse> productpicProductBodyResponseList = new ArrayList<>();
@@ -467,7 +471,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public ProductDeleteResponse productDeleteResponse(String token, ProductDeleteRequest restRequest) {
+    public ProductDeleteResponse productDeleteResponse(String token, Integer id_product_or_variation, String type) {
         ProductDeleteResponse response = new ProductDeleteResponse();
         List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
         if (user.size() == 0) {
@@ -484,42 +488,36 @@ public class SellerServiceImpl implements SellerService{
         List<ShopHasProductEntity> shopHasProductList = shopHasProductRepository.findAllByIdShop(shop.get(0).getIdShop());
         boolean foundVariation = false;
         boolean foundProduct = false;
-        if (restRequest.getBody().getId_product() != null) {
+        if (type.equals("product")) {
             for (int i = 0; i < shopHasProductList.size(); i++) {
-                for (int j = 0; j < restRequest.getBody().getId_product().length; j++) {
-                    if (shopHasProductList.get(i).getIdProduct() == restRequest.getBody().getId_product()[j]) {
-                        foundProduct = true;
-                        for (int ll = 0; ll < restRequest.getBody().getId_product().length; ll++) {
-                            List<ProductEntity> product = (List<ProductEntity>) productRepository.findAllById(Collections.singleton(restRequest.getBody().getId_product()[ll]));
-                            if (product.size() == 0) {
-                                response.setStatus(404);
-                                response.setMsg("Product not found");
-                                return response;
+
+                if (shopHasProductList.get(i).getIdProduct().equals(id_product_or_variation)) {
+                    foundProduct = true;
+                    ProductEntity product = productRepository.findByIdProduct(id_product_or_variation);
+
+                    List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.getIdProduct());
+
+                    for (int k = 0; k < productPic.size(); k++) { // Delete File in Drive
+                        File file = new File(UPLOAD_FOLDER + "//pic_product//" + product.getIdProduct() + "//"+ productPic.get(k).getPicProduct());
+                        if (file.exists()) {
+                            if (file.delete()) {
+                                Common.LoggerInfo("File deleted successfully");
+                            } else {
+                                Common.LoggerInfo("Fail to delete file");
                             }
-
-                            List<ProductPicEntity> productPic = productPicRepository.findAllByIdProduct(product.get(0).getIdProduct());
-
-                            for (int k = 0; k < productPic.size(); k++) { // Delete File in Drive
-                                File file = new File(UPLOAD_FOLDER + "//pic_product//" + product.get(ll).getIdProduct() + "//"+ productPic.get(k).getPicProduct());
-                                if (file.exists()) {
-                                    if (file.delete()) {
-                                        Common.LoggerInfo("File deleted successfully");
-                                    } else {
-                                        Common.LoggerInfo("Fail to delete file");
-                                    }
-                                }
-                                productPicRepository.delete(productPic.get(k));
-                            }
-
-                            ShopHasProductEntity shopHasProduct = new ShopHasProductEntity();
-                            shopHasProduct.setIdShop(shop.get(0).getIdShop());
-                            shopHasProduct.setIdProduct(restRequest.getBody().getId_product()[ll]);
-                            shopHasProductRepository.delete(shopHasProduct);
-
-                            productRepository.delete(product.get(0));
                         }
+                        productPicRepository.delete(productPic.get(k));
                     }
+
+                    ShopHasProductEntity shopHasProduct = new ShopHasProductEntity();
+                    shopHasProduct.setIdShop(shop.get(0).getIdShop());
+                    shopHasProduct.setIdProduct(id_product_or_variation);
+                    shopHasProductRepository.delete(shopHasProduct);
+
+                    productRepository.delete(product);
+
                 }
+
             }
             if (!foundProduct) {
                 response.setStatus(404);
@@ -528,35 +526,29 @@ public class SellerServiceImpl implements SellerService{
             }
 
         }
-        else if (restRequest.getBody().getId_variation() != null) {
+        else if (type.equals("variation")) {
             List<ProductVariationEntity> productVariationList = new ArrayList<>();
             for (int i = 0; i < shopHasProductList.size(); i++) {
                 List<ProductVariationEntity> productVariationEntityList = productVariationRepository.findAllByIdProduct(shopHasProductList.get(i).getIdProduct());
                 productVariationList.addAll(productVariationEntityList);
             }
-            int countFound = 0;
-            for (int i = 0; i < restRequest.getBody().getId_variation().length; i++) {
-                for (int j = 0; j < productVariationList.size(); j++) {
-                    if (restRequest.getBody().getId_variation()[i].equals(productVariationList.get(j).getIdVariation())) {
-                        countFound++;
-                        break;
-                    }
+
+            for (int j = 0; j < productVariationList.size(); j++) {
+                if (id_product_or_variation.equals(productVariationList.get(j).getIdVariation())) {
+                    foundVariation = true;
+                    break;
                 }
             }
-            if (countFound == restRequest.getBody().getId_variation().length) {
-                foundVariation = true;
-            }
+
             if (foundVariation) {
-                for (int i = 0; i < restRequest.getBody().getId_variation().length; i++) {
-                    try {
-                        productVariationRepository.deleteById(restRequest.getBody().getId_variation()[i]);
-                        Common.LoggerInfo(restRequest.getBody().getId_variation());
-                    } catch (Exception e) {
-                        response.setStatus(404);
-                        response.setMsg("variation not found");
-                        return response;
-                    }
+                try {
+                    productVariationRepository.deleteById(id_product_or_variation);
+                } catch (Exception e) {
+                    response.setStatus(404);
+                    response.setMsg("variation not found");
+                    return response;
                 }
+
             }
             else {
                 response.setStatus(404);
@@ -1026,7 +1018,6 @@ public class SellerServiceImpl implements SellerService{
         productHasPromoRepository.deleteAllByTimeEndBefore(timeNow);
 
         ProductHasPromoEntity productHasPromoCheck = productHasPromoRepository.findByIdProductVariation(restRequest.getId_product_variation());
-        Common.LoggerInfo(productHasPromoCheck);
         if (productHasPromoCheck != null) {
             response.setStatus(406);
             response.setMsg("This promotion is already available.");
@@ -1300,11 +1291,19 @@ public class SellerServiceImpl implements SellerService{
             return response;
         }
 
-        if (orderHis == null){
+        ShopEntity shopEntity = shopRepository.findByIdUser(user.getIdUser());
+        if (shopEntity == null) {
+            response.setStatus(400);
+            response.setMsg("Shop doesn't open!");
+            return response;
+        }
+
+        if (orderHis == null || orderHis.getIdShop() != shopEntity.getIdShop()){
             response.setStatus(404);
             response.setMsg("Wrong id_item");
             return response;
         }
+
         if (orderHis.getStatus() != OrderItemStatus.REJECTED){
             response.setStatus(400);
             response.setMsg("Only status Rejected!");
@@ -1317,6 +1316,16 @@ public class SellerServiceImpl implements SellerService{
             productVariation.setStock(productVariation.getStock()+orderHis.getQuantity());
             productVariationRepository.save(productVariation);
             orderHistoryRepository.save(orderHis);
+
+            UserBalanceEntity userBalance = new UserBalanceEntity();
+            userBalance.setIdUser(orderHis.getIdBuyer());
+            userBalance.setIdOrderHistory(orderHis.getIdOrderHistory());
+            userBalance.setTransactionAmount((orderHis.getPrice()*orderHis.getQuantity())+orderHis.getShippingPrice());
+            userBalance.setTransactionType(TransactionType.REFUND);
+            userBalance.setBalance((orderHis.getPrice()*orderHis.getQuantity())+orderHis.getShippingPrice());
+
+            userBalanceRepository.save(userBalance);
+
             response.setStatus(200);
             response.setMsg("Successful Cancel By Buyer");
             return response;

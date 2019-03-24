@@ -68,7 +68,6 @@ public class UploadFileServiceImpl implements UploadFileService {
             try {
                 File tmpDir = new File(UPLOAD_FOLDER + "//pic_product//" + Integer.toString(id));
                 boolean exists = tmpDir.exists();
-                Common.LoggerInfo(exists);
                 if (!exists) {
                     new File(UPLOAD_FOLDER + "//pic_product//" + Integer.toString(id)).mkdir();
                 }

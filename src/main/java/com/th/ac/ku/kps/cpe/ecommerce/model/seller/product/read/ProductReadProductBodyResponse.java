@@ -3,6 +3,7 @@ package com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.read;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.ProductStatus;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -11,6 +12,7 @@ public class ProductReadProductBodyResponse {
     private int id_product;
     private String name_product;
     private String description;
+    private ProductStatus product_status;
     private ProductReadCatagoryProductBodyResponse catagory;
     private String condition;
     private Timestamp created_at;
@@ -22,6 +24,7 @@ public class ProductReadProductBodyResponse {
     private List<ProductReadRatingProductBodyResponse> rating_product;
     private Double mean_rating;
     private Integer count_rating;
+
 
     @JsonGetter
     public int getId_product() {
@@ -51,6 +54,16 @@ public class ProductReadProductBodyResponse {
     @JsonSetter
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @JsonGetter
+    public ProductStatus getProduct_status() {
+        return product_status;
+    }
+
+    @JsonSetter
+    public void setProduct_status(ProductStatus product_status) {
+        this.product_status = product_status;
     }
 
     @JsonGetter

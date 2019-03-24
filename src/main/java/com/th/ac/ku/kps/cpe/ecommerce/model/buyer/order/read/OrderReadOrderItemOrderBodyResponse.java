@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 public class OrderReadOrderItemOrderBodyResponse {
+    private Integer id_order;
     private int id_item;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private OrderItemStatus order_item_status;
@@ -35,6 +36,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<OrderReadOrderItemCheckpointOrderItemResponse> checkpoint;
     private Timestamp expired_buyer_comfirm;
+
+    @JsonGetter
+    public Integer getId_order() {
+        return id_order;
+    }
+
+    @JsonSetter
+    public void setId_order(Integer id_order) {
+        this.id_order = id_order;
+    }
 
     @JsonGetter
     public int getId_item() {

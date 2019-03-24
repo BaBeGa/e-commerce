@@ -230,6 +230,7 @@ public class BuyerServiceImpl implements BuyerService {
                 for (OrderHistoryEntity orderHistoryEntity : orderHistoryEntityList) {
 
                     OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
+                    orderItemBody.setId_order(orderHistoryEntity.getIdOrder());
                     orderItemBody.setId_item(orderHistoryEntity.getIdItem());
                     orderItemBody.setId_variation(orderHistoryEntity.getIdVariation());
 
@@ -239,7 +240,8 @@ public class BuyerServiceImpl implements BuyerService {
                     orderItemBody.setDescription_reject(orderHistoryEntity.getDescriptionReject());
 
                     List<ProductPicEntity> productPicList = productPicRepository.findAllByIdProduct(orderHistoryEntity.getIdProduct());
-                    orderItemBody.setPic_product(productPicList.get(0).getPicProduct());
+                    if (productPicList.size() != 0)
+                        orderItemBody.setPic_product(productPicList.get(0).getPicProduct());
                     orderItemBody.setId_shop(orderHistoryEntity.getIdShop());
                     orderItemBody.setShop_name(orderHistoryEntity.getNameShop());
                     price_total += orderHistoryEntity.getPrice() * orderHistoryEntity.getQuantity();
@@ -637,7 +639,6 @@ public class BuyerServiceImpl implements BuyerService {
             ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
             Date date = new Date();
             Timestamp timeNow = new Timestamp(date.getTime());
-            Common.LoggerInfo(timeNow);
             ProductHasPromoEntity productHasPromo = productHasPromoRepository.findByIdProductVariationAndTimeStartBeforeAndTimeEndAfter(productVariation.getIdVariation(),timeNow,timeNow);
             if (productHasPromo != null) {
                 orderHistory.setPrice(productHasPromo.getNewPrice());
@@ -702,51 +703,35 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public ResponseEntity<?> orderDeleteResponse(String token, OrderDeleteRequest restRequest) {
+    public ResponseEntity<?> orderDeleteResponse(String token, Integer id_item) {
         OrderDeleteResponse response = new OrderDeleteResponse();
-        List<UserEntity> user = (List<UserEntity>) userRepository.findAllByToken(Collections.singleton(token));
-        List<OrderEntity> order = orderRepository.findAllByIdBuyer(user.get(0).getIdUser());
-        boolean foundOrder = false;
-        if (restRequest.getBody().getId_order() != null) {
-            for (OrderEntity anOrder : order) {
-                List<OrderItemEntity> orderItem = orderItemRepository.findAllByIdOrder(anOrder.getIdOrder());
-                for (int j = 0; j < restRequest.getBody().getId_order().length; j++) {
-                    if (anOrder.getIdOrder() == restRequest.getBody().getId_order()[j]) {
-                        foundOrder = true;
-                        if (restRequest.getBody().getId_item() != null) { // delete order_item (required one order)
-                            for (int k = 0; k < restRequest.getBody().getId_item().length; k++) {
-                                try {
-                                    orderItemRepository.deleteById(restRequest.getBody().getId_item()[k]);
-                                } catch (Exception e) {
-                                    response.setStatus(4013);
-                                    response.setMsg("Order item not found! Can't deleted order item!");
-                                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-                                }
-                            }
-                            response.setStatus(200);
-                            response.setMsg("Deleted order item");
-                            return ResponseEntity.ok(response);
-                        } else { // delete order
-                            try {
-                                orderRepository.deleteById(anOrder.getIdOrder());
-                                response.setStatus(200);
-                                response.setMsg("Delete Successful");
-                            } catch (Exception e) {
-                                response.setStatus(4014);
-                                response.setMsg("Found order! but can't delete order");
-                                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-                            }
-                        }
-                    }
-                }
-
-            }
-            if (!foundOrder) {
-                response.setStatus(4001);
-                response.setMsg("Order not found");
-            }
+        UserEntity user = userRepository.findByToken(token);
+        if (user == null) {
+            response.setStatus(401);
+            response.setMsg("Invalid Token. Please check token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-
+        OrderItemEntity orderItemEntity = orderItemRepository.findByIdItem(id_item);
+        if (orderItemEntity == null) {
+            response.setStatus(4001);
+            response.setMsg("Order not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        OrderEntity orderEntity = orderRepository.findByIdOrder(orderItemEntity.getIdOrder());
+        if (orderEntity == null || orderEntity.getIdBuyer() != user.getIdUser()) {
+            response.setStatus(4001);
+            response.setMsg("Order not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        try {
+            orderItemRepository.deleteById(id_item);
+        } catch (Exception e) {
+            response.setStatus(4013);
+            response.setMsg("Order item not found! Can't deleted order item!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        response.setStatus(200);
+        response.setMsg("Deleted order item");
         return ResponseEntity.ok(response);
     }
 
@@ -807,13 +792,6 @@ public class BuyerServiceImpl implements BuyerService {
             userBalance.setIdOrderHistory(orderHistory.getIdOrderHistory());
             userBalance.setTransactionAmount((orderHistory.getPrice()*orderHistory.getQuantity())+orderHistory.getShippingPrice());
             userBalance.setTransactionType(TransactionType.INCOME);
-            UserBalanceEntity userBalanceLast = userBalanceRepository.findTopByIdUserOrderByIdUserBalanceDesc(shop.getIdUser());
-            if (userBalanceLast == null) {
-                userBalance.setBalance((orderHistory.getPrice()*orderHistory.getQuantity())+orderHistory.getShippingPrice());
-            }
-            else {
-                userBalance.setBalance(userBalanceLast.getBalance() + (orderHistory.getPrice()*orderHistory.getQuantity())+orderHistory.getShippingPrice());
-            }
             userBalanceRepository.save(userBalance);
         }
 

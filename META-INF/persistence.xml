@@ -24,6 +24,7 @@
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderHistoryEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.OrderItemEntity</class>
         <class>com.th.ac.ku.kps.cpe.ecommerce.model.UserBalanceEntity</class>
+        <class>com.th.ac.ku.kps.cpe.ecommerce.model.ZQuestionEntity</class>
         <properties>
             <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/e-commerce_01"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.jdbc.Driver"/>

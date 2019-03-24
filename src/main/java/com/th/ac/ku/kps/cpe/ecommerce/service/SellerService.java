@@ -37,7 +37,7 @@ public interface SellerService {
     ProductReadResponse productReadAllResponse(String token);
     ProductReadResponse productReadResponse(String token,int id);
     ProductUpdateResponse productUpdateResponse(String token, ProductUpdateRequest restRequest);
-    ProductDeleteResponse productDeleteResponse(String token, ProductDeleteRequest restRequest);
+    ProductDeleteResponse productDeleteResponse(String token, Integer id_product_or_variation, String type);
 
     ProductDeliveryReadResponse productDeliveryReadByIdProduct(String token, Integer id_product);
     ProductDeliveryCreateResponse productDeliveryCreate(String token, ProductDeliveryCreateRequest restRequest);
