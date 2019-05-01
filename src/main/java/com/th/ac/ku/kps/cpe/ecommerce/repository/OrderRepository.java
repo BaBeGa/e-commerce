@@ -3,14 +3,16 @@ package com.th.ac.ku.kps.cpe.ecommerce.repository;
 import com.th.ac.ku.kps.cpe.ecommerce.model.OrderEntity;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderStatus;
 import com.th.ac.ku.kps.cpe.ecommerce.model.seller.product.ProductEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface OrderRepository extends CrudRepository<OrderEntity, Integer> {
+public interface OrderRepository extends JpaRepository<OrderEntity, Integer> {
     @Query(value = "SELECT * FROM `order` ORDER BY `id_order` DESC LIMIT 0, 1",nativeQuery = true)
     OrderEntity getLastId();
+
 
     List<OrderEntity> findAllByIdBuyerAndOrderStatus(Integer id_buyer, OrderStatus orderStatus);
     List<OrderEntity> findAllByIdBuyer(Integer id);

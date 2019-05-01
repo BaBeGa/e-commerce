@@ -104,6 +104,7 @@ public class BuyerServiceImpl implements BuyerService {
                 List<OrderReadOrderItemOrderBodyResponse> orderItemBodyList = new ArrayList<>();
                 for (OrderItemEntity anOrderItem : orderItem) {
                     OrderReadOrderItemOrderBodyResponse orderItemBody = new OrderReadOrderItemOrderBodyResponse();
+                    orderItemBody.setId_order(anOrderItem.getIdOrder());
                     orderItemBody.setId_item(anOrderItem.getIdItem());
                     orderItemBody.setId_variation(anOrderItem.getIdVariation());
 
@@ -304,6 +305,7 @@ public class BuyerServiceImpl implements BuyerService {
                     orderItemBody.setOrder_item_status(orderHistoryEntity.getStatus());
                     orderItemBodyList.add(orderItemBody);
                 }
+                Common.LoggerInfo(anOrder);
                 List<OrderHistoryEntity> orderHistoryEntity = orderHistoryRepository.findAllByIdOrder(anOrder.getIdOrder());
                 OrderReadOrderBodyResponse orderBody = new OrderReadOrderBodyResponse();
                 orderBody.setId_order(orderHistoryEntity.get(0).getIdOrder());
@@ -692,6 +694,7 @@ public class BuyerServiceImpl implements BuyerService {
             Timestamp expired_pay_time = new Timestamp(dt.getTime());
             orderPayment.setExpiredPay(expired_pay_time);
 
+            orderHistory.setOrderedDate(timeNow);
             orderPaymentRepository.save(orderPayment);
             orderHistoryRepository.save(orderHistory);
 
