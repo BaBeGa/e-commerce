@@ -42,7 +42,7 @@ public interface SellerService {
     ProductDeliveryReadResponse productDeliveryReadByIdProduct(String token, Integer id_product);
     ProductDeliveryCreateResponse productDeliveryCreate(String token, ProductDeliveryCreateRequest restRequest);
     ProductDeliveryUpdateResponse productDeliveryUpdate(String token, ProductDeliveryUpdateRequest restRequest);
-    ProductDeliveryDeleteResponse productDeliveryDelete(String token, ProductDeliveryDeleteRequest restRequest);
+    ProductDeliveryDeleteResponse productDeliveryDelete(String token, Integer id_ship);
 
     OrderForSellerReadResponse readAllOrderForSellerResponse(String token);
     OrderForSellerReadResponse readOrderForSellerResponse(String token, int id_item);
@@ -51,7 +51,7 @@ public interface SellerService {
     PromotionReadResponse readPromotion(String token);
     PromotionCreateResponse createPromotion(String token, PromotionCreateRequest restRequest);
     PromotionUpdateResponse updatePromotion(String token, PromotionUpdateRequest restRequest);
-    PromotionDeleteResponse deletePromotion(String token, PromotionDeleteRequest restRequest);
+    PromotionDeleteResponse deletePromotion(String token, Integer id_promotion);
 
     StatisticsResponse readStatistics(String token, Integer day_1, Integer month_1, Integer year_1, Integer day_2, Integer month_2, Integer year_2);
     ResponseEntity<?> readStatistics(String token, Integer id_product);

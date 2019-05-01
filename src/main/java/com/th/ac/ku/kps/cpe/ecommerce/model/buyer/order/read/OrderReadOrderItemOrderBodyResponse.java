@@ -10,6 +10,7 @@ import java.util.List;
 
 public class OrderReadOrderItemOrderBodyResponse {
     private Integer id_order;
+    private Timestamp ordered_date;
     private int id_item;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private OrderItemStatus order_item_status;
@@ -45,6 +46,16 @@ public class OrderReadOrderItemOrderBodyResponse {
     @JsonSetter
     public void setId_order(Integer id_order) {
         this.id_order = id_order;
+    }
+
+    @JsonGetter
+    public Timestamp getOrdered_date() {
+        return ordered_date;
+    }
+
+    @JsonSetter
+    public void setOrdered_date(Timestamp ordered_date) {
+        this.ordered_date = ordered_date;
     }
 
     @JsonGetter

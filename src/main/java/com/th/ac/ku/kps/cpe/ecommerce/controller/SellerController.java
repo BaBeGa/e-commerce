@@ -122,10 +122,10 @@ public class SellerController {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.productDeliveryUpdate(token, restRequest);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/product/delivery")
-    public ProductDeliveryDeleteResponse deleteProductDelivery(@RequestHeader String token, @RequestBody ProductDeliveryDeleteRequest restRequest){
+    @RequestMapping(method = RequestMethod.DELETE, value = "/product/delivery/{id_ship}")
+    public ProductDeliveryDeleteResponse deleteProductDelivery(@RequestHeader String token, @PathVariable Integer id_ship){
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
-        return sellerService.productDeliveryDelete(token, restRequest);
+        return sellerService.productDeliveryDelete(token, id_ship);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/orderforseller")
@@ -159,10 +159,10 @@ public class SellerController {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
         return sellerService.updatePromotion(token, restRequest);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/promotion")
-    public PromotionDeleteResponse deletePromotion(@RequestHeader String token, @RequestBody PromotionDeleteRequest restRequest) {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/promotion/{id_promotion}")
+    public PromotionDeleteResponse deletePromotion(@RequestHeader String token, @PathVariable Integer id_promotion) {
         SellerServiceImpl sellerService = new SellerServiceImpl(shopRepository, productRepository,userRepository,shopHasProductRepository, catagoryRepository, productVariationRepository, productPicRepository, productHasPromoRepository, shipofshopRepository, orderRepository, orderItemRepository, typeShippingRepository, deliveryAddressRepository, orderHistoryRepository, ratingProductRepository, ratingProductPicRepository, configRepository, userBalanceRepository);
-        return sellerService.deletePromotion(token, restRequest);
+        return sellerService.deletePromotion(token, id_promotion);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/statistics/{day_1}/{month_1}/{year_1}/{day_2}/{month_2}/{year_2}")

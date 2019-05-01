@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
+import java.sql.Timestamp;
+
 public class OrderHistoryReadOrderHisBodyResponse {
     private Integer id_order_history;
+    private Timestamp ordered_date;
     private Integer id_buyer;
     private String username_buyer;
     private Integer id_item;
@@ -28,6 +31,16 @@ public class OrderHistoryReadOrderHisBodyResponse {
     @JsonSetter
     public void setId_order_history(Integer id_order_history) {
         this.id_order_history = id_order_history;
+    }
+
+    @JsonGetter
+    public Timestamp getOrdered_date() {
+        return ordered_date;
+    }
+
+    @JsonSetter
+    public void setOrdered_date(Timestamp ordered_date) {
+        this.ordered_date = ordered_date;
     }
 
     @JsonGetter

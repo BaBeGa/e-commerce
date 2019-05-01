@@ -132,10 +132,10 @@ public class BuyerController implements Serializable {
         BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, productDeliveryRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository,  favoriteProductRepository, ratingProductPicRepository, typePaymentRepository, ratingShopRepository, productHasPromoRepository, userBalanceRepository);
         return buyerService.favoriteProductCreate(token, restRequest);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/favorite")
-    public ResponseEntity<?> favoriteProductDeleteResponse(@RequestHeader String token,@RequestBody FavoriteProductDeleteRequest restRequest) {
+    @RequestMapping(method = RequestMethod.DELETE, value = "/favorite/{id_product}")
+    public ResponseEntity<?> favoriteProductDeleteResponse(@RequestHeader String token, @PathVariable Integer id_product) {
         BuyerServiceImpl buyerService = new BuyerServiceImpl(orderRepository,userRepository, orderItemRepository, productVariationRepository, productRepository, productDeliveryRepository, orderPaymentRepository, deliveryAddressRepository, typeShippingRepository, configRepository, shopHasProductRepository, shopRepository, productPicRepository, orderHistoryRepository, ratingProductRepository,  favoriteProductRepository, ratingProductPicRepository, typePaymentRepository, ratingShopRepository, productHasPromoRepository, userBalanceRepository);
-        return buyerService.favoriteProductDelete(token, restRequest);
+        return buyerService.favoriteProductDelete(token, id_product);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/rating/shop/{id}")

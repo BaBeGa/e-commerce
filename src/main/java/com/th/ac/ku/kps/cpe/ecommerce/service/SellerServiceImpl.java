@@ -681,7 +681,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public ProductDeliveryDeleteResponse productDeliveryDelete(String token, ProductDeliveryDeleteRequest restRequest) {
+    public ProductDeliveryDeleteResponse productDeliveryDelete(String token, Integer id_ship) {
         UserEntity user = userRepository.findByToken(token);
         ProductDeliveryDeleteResponse response = new ProductDeliveryDeleteResponse();
         if (user == null) {
@@ -697,15 +697,15 @@ public class SellerServiceImpl implements SellerService{
         }
 
 
-        ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(restRequest.getBody().getId_ship());
+        ProductDeliveryEntity productDeliveryEntity = productDeliveryRepository.findByIdShip(id_ship);
 
         try {
             productDeliveryRepository.delete(productDeliveryEntity);
             response.setStatus(200);
             response.setMsg("Delete Success");
         }catch (Exception e) {
-            response.setStatus(204);
-            response.setMsg("Error. Exception : " + e.toString());
+            response.setStatus(400);
+            response.setMsg("id_ship not found");
         }
 
         return response;
@@ -770,7 +770,7 @@ public class SellerServiceImpl implements SellerService{
             productResponse.setName_variation(orderHistoryEntity.getNameVariation());
 
             List<ProductPicEntity> productPicEntity = productPicRepository.findAllByIdProduct(orderHistoryEntity.getIdProduct());
-            if (productPicEntity != null) {
+            if (productPicEntity.size() != 0) {
                 productResponse.setPic_product(productPicEntity.get(0).getPicProduct());
             }
             orderItemResponse.setProduct(productResponse);
@@ -1110,7 +1110,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public PromotionDeleteResponse deletePromotion(String token, PromotionDeleteRequest restRequest) {
+    public PromotionDeleteResponse deletePromotion(String token, Integer id_promotion) {
         PromotionDeleteResponse response = new PromotionDeleteResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
@@ -1118,12 +1118,7 @@ public class SellerServiceImpl implements SellerService{
             response.setMsg("User not found. Please check token");
             return response;
         }
-        if (restRequest.getId_product_has_promo() == null) {
-            response.setStatus(400);
-            response.setMsg("Id_product_has_promo is required");
-            return response;
-        }
-        ProductHasPromoEntity productHasPromoCheck = productHasPromoRepository.findByIdProductHasPromo(restRequest.getId_product_has_promo());
+        ProductHasPromoEntity productHasPromoCheck = productHasPromoRepository.findByIdProductHasPromo(id_promotion);
         if (productHasPromoCheck == null) {
             response.setStatus(404);
             response.setMsg("Product has promo not found!");
@@ -1203,9 +1198,19 @@ public class SellerServiceImpl implements SellerService{
             orderHistoryResponse.setQuantity(orderHistoryList.get(i).getQuantity());
             orderHistoryResponse.setPrice(orderHistoryList.get(i).getPrice());
             orderHistoryResponse.setStatus(orderHistoryList.get(i).getStatus());
+            orderHistoryResponse.setOrdered_date(orderHistoryList.get(i).getOrderedDate());
             orderHistoryResponse.setSuccessful_date(orderHistoryList.get(i).getSuccessfulDate());
             orderHistoryResponse.setIncome(orderHistoryList.get(i).getQuantity()*orderHistoryList.get(i).getPrice());
             total_income += orderHistoryList.get(i).getQuantity()*orderHistoryList.get(i).getPrice();
+            orderHistoryResponse.setType_shipping(orderHistoryList.get(i).getTypeShipping());
+            orderHistoryResponse.setShipping_price(orderHistoryList.get(i).getShippingPrice());
+            orderHistoryResponse.setReceiver(orderHistoryList.get(i).getReceiver());
+            orderHistoryResponse.setAddress(orderHistoryList.get(i).getAddress());
+            orderHistoryResponse.setSub_district(orderHistoryList.get(i).getSubDistrict());
+            orderHistoryResponse.setDistrict(orderHistoryList.get(i).getDistrict());
+            orderHistoryResponse.setProvince(orderHistoryList.get(i).getProvince());
+            orderHistoryResponse.setPostal_code(orderHistoryList.get(i).getPostalCode());
+            orderHistoryResponse.setName_type_payment(orderHistoryList.get(i).getNameTypePayment());
             orderHistoryListResponse.add(orderHistoryResponse);
         }
         body.setOrder_history(orderHistoryListResponse);
@@ -1266,6 +1271,7 @@ public class SellerServiceImpl implements SellerService{
             orderHistoryResponse.setPostal_code(anOrderHistory.getPostalCode());
             orderHistoryResponse.setName_type_payment(anOrderHistory.getNameTypePayment());
             orderHistoryResponse.setStatus(anOrderHistory.getStatus());
+            orderHistoryResponse.setOrdered_date(anOrderHistory.getOrderedDate());
             orderHistoryResponse.setSuccessful_date(anOrderHistory.getSuccessfulDate());
             orderHistoryResponseList.add(orderHistoryResponse);
         }

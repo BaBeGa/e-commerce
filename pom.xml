@@ -5,7 +5,7 @@
 
     <groupId>com.th.ac.ku.kps.cpe.ecommerce</groupId>
     <artifactId>e-commerce</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>e-commerce</name>

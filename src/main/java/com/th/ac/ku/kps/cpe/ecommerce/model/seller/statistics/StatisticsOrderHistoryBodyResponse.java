@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.th.ac.ku.kps.cpe.ecommerce.model.allenum.OrderItemStatus;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class StatisticsOrderHistoryBodyResponse {
@@ -28,6 +29,7 @@ public class StatisticsOrderHistoryBodyResponse {
     private String name_type_payment;
     private Double income;
     private OrderItemStatus status;
+    private Timestamp ordered_date;
     private Date successful_date;
 
     @JsonGetter
@@ -238,6 +240,16 @@ public class StatisticsOrderHistoryBodyResponse {
     @JsonSetter
     public void setStatus(OrderItemStatus status) {
         this.status = status;
+    }
+
+    @JsonGetter
+    public Timestamp getOrdered_date() {
+        return ordered_date;
+    }
+
+    @JsonSetter
+    public void setOrdered_date(Timestamp ordered_date) {
+        this.ordered_date = ordered_date;
     }
 
     @JsonGetter

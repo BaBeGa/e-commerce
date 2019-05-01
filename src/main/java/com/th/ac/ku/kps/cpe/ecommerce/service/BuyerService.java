@@ -41,7 +41,7 @@ public interface BuyerService {
 
     ResponseEntity<?> favoriteProductRead(String token);
     ResponseEntity<?> favoriteProductCreate(String token, FavoriteProductCreateRequest restRequest);
-    ResponseEntity<?> favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest);
+    ResponseEntity<?> favoriteProductDelete(String token, Integer id_product);
 
     ResponseEntity<?> ratingShopReadByIdOrderHistory(String token, int id);
     ResponseEntity<?> ratingShopCreate(String token, RatingShopCreateRequest restRequest);

@@ -237,11 +237,14 @@ public class BuyerServiceImpl implements BuyerService {
                     orderItemBody.setName_variation(orderHistoryEntity.getNameVariation());
                     orderItemBody.setId_product(orderHistoryEntity.getIdProduct());
                     orderItemBody.setName_product(orderHistoryEntity.getNameProduct());
+
+                    if (orderHistoryEntity.getOrderedDate() != null)
+                        orderItemBody.setOrdered_date(orderHistoryEntity.getOrderedDate());
+
                     orderItemBody.setDescription_reject(orderHistoryEntity.getDescriptionReject());
 
-                    List<ProductPicEntity> productPicList = productPicRepository.findAllByIdProduct(orderHistoryEntity.getIdProduct());
-                    if (productPicList.size() != 0)
-                        orderItemBody.setPic_product(productPicList.get(0).getPicProduct());
+                    if (orderHistoryEntity.getPicProduct() != null)
+                        orderItemBody.setPic_product(orderHistoryEntity.getPicProduct());
                     orderItemBody.setId_shop(orderHistoryEntity.getIdShop());
                     orderItemBody.setShop_name(orderHistoryEntity.getNameShop());
                     price_total += orderHistoryEntity.getPrice() * orderHistoryEntity.getQuantity();
@@ -398,7 +401,7 @@ public class BuyerServiceImpl implements BuyerService {
             ProductEntity productCheck = productRepository.findByIdProduct(productVariationCheck.getIdProduct());
             ShopHasProductEntity shopHasProductCheck = shopHasProductRepository.findByIdProduct(productCheck.getIdProduct());
             ShopEntity shopUser = shopRepository.findByIdUser(user.get(0).getIdUser());
-            if (shopHasProductCheck.getIdShop() == shopUser.getIdShop()) {
+            if (shopHasProductCheck != null && shopUser != null && shopHasProductCheck.getIdShop() == shopUser.getIdShop()) {
                 response.setStatus(4003);
                 response.setMsg("This product is yours.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
@@ -635,6 +638,10 @@ public class BuyerServiceImpl implements BuyerService {
             orderHistory.setIdItem(anOrderItem.getIdItem());
 
             ProductEntity product = productRepository.findByIdProduct(productVariation.getIdProduct());
+            List<ProductPicEntity> productPicEntity = productPicRepository.findAllByIdProduct(product.getIdProduct());
+
+            if (productPicEntity.size() != 0)
+                orderHistory.setPicProduct(productPicEntity.get(0).getPicProduct());
             ShopHasProductEntity shopHasProduct = shopHasProductRepository.findByIdProduct(product.getIdProduct());
             ShopEntity shop = shopRepository.findByIdShop(shopHasProduct.getIdShop());
             Date date = new Date();
@@ -896,6 +903,7 @@ public class BuyerServiceImpl implements BuyerService {
         for (OrderHistoryEntity an_order_history_list : orderHistory) {
             OrderHistoryReadOrderHisBodyResponse order_history = new OrderHistoryReadOrderHisBodyResponse();
             order_history.setId_buyer(an_order_history_list.getIdBuyer());
+            order_history.setOrdered_date(an_order_history_list.getOrderedDate());
             order_history.setId_item(an_order_history_list.getIdItem());
             order_history.setId_order_history(an_order_history_list.getIdOrderHistory());
             order_history.setId_product(an_order_history_list.getIdProduct());
@@ -1123,7 +1131,7 @@ public class BuyerServiceImpl implements BuyerService {
     }
 
     @Override
-    public ResponseEntity<?> favoriteProductDelete(String token, FavoriteProductDeleteRequest restRequest) {
+    public ResponseEntity<?> favoriteProductDelete(String token, Integer id_product) {
         FavoriteProductDeleteResponse response = new FavoriteProductDeleteResponse();
         UserEntity user = userRepository.findByToken(token);
         if (user == null) {
@@ -1131,12 +1139,7 @@ public class BuyerServiceImpl implements BuyerService {
             response.setMsg("Invalid Token. Please check token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
-        if (restRequest.getId_product() == null) {
-            response.setStatus(4019);
-            response.setMsg("Bad Request. id_product required");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        }
-        FavoriteProductEntity favoriteProduct = favoriteProductRepository.findByIdUserAndIdProduct(user.getIdUser(), restRequest.getId_product());
+        FavoriteProductEntity favoriteProduct = favoriteProductRepository.findByIdUserAndIdProduct(user.getIdUser(), id_product);
         if (favoriteProduct == null) {
             response.setStatus(4021);
             response.setMsg("You not favorite this product");

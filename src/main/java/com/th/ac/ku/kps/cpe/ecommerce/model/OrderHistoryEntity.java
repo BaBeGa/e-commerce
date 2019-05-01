@@ -18,6 +18,7 @@ public class OrderHistoryEntity {
     private String nameShop;
     private int idProduct;
     private String nameProduct;
+    private String picProduct;
     private int idVariation;
     private String nameVariation;
     private String typeShipping;
@@ -38,6 +39,7 @@ public class OrderHistoryEntity {
     private Timestamp autoRejectDate;
     private String descriptionReject;
     private OrderItemStatus status;
+    private Timestamp orderedDate;
     private Timestamp successfulDate;
 
     @Id
@@ -129,6 +131,16 @@ public class OrderHistoryEntity {
 
     public void setNameProduct(String nameProduct) {
         this.nameProduct = nameProduct;
+    }
+
+    @Basic
+    @Column(name = "pic_product")
+    public String getPicProduct() {
+        return picProduct;
+    }
+
+    public void setPicProduct(String picProduct) {
+        this.picProduct = picProduct;
     }
 
     @Basic
@@ -330,6 +342,16 @@ public class OrderHistoryEntity {
 
     public void setStatus(OrderItemStatus status) {
         this.status = status;
+    }
+
+    @Basic
+    @Column(name = "ordered_date")
+    public Timestamp getOrderedDate() {
+        return orderedDate;
+    }
+
+    public void setOrderedDate(Timestamp orderedDate) {
+        this.orderedDate = orderedDate;
     }
 
     @Basic

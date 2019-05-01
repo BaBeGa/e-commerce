@@ -13,7 +13,7 @@ public class UserBalanceEntity {
     private double transactionAmount;
     private TransactionType transactionType;
     private Integer idOrderHistory;
-    private double balance;
+    private Double balance;
 
     @Id
     @Column(name = "id_user_balance")
@@ -69,11 +69,11 @@ public class UserBalanceEntity {
 
     @Basic
     @Column(name = "balance")
-    public double getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 
