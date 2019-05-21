@@ -867,6 +867,18 @@ public class SellerServiceImpl implements SellerService{
                 response.setStatus(trackingResponse.getStatus());
                 response.setMsg("Updated! Tracking number");
             }
+            else if (trackingResponse.getStatus() == 4003) {
+                OrderHistoryEntity orderHistoryEntity = orderHistoryRepository.findByTrackingNumber(restRequest.getBody().getTracking_number());
+                if (orderHistoryEntity != null) {
+                    response.setStatus(trackingResponse.getStatus());
+                    response.setMsg(trackingResponse.getMsg());
+                }
+                else {
+                    orderHistoryRepository.save(orderHistory);
+                    response.setStatus(trackingResponse.getStatus());
+                    response.setMsg("Updated! Tracking number");
+                }
+            }
             else {
                 response.setStatus(trackingResponse.getStatus());
                 response.setMsg(trackingResponse.getMsg());

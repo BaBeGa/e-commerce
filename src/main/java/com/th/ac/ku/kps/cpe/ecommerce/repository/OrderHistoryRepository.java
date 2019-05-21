@@ -10,6 +10,7 @@ public interface OrderHistoryRepository extends CrudRepository<OrderHistoryEntit
     OrderHistoryEntity findByIdItem(Integer id_item);
     OrderHistoryEntity findByIdOrderHistory(Integer id_order_history);
     OrderHistoryEntity findByIdOrder(Integer id_order);
+    OrderHistoryEntity findByTrackingNumber(String tracking_number);
     List<OrderHistoryEntity> findAllByIdBuyer(Integer id_user);
     List<OrderHistoryEntity> findByIdBuyerAndIdOrderHistory(Integer id_user, Integer id_order_history);
     List<OrderHistoryEntity> findAllByIdBuyerAndIdProduct(Integer id_user, Integer id_product);
